@@ -168,6 +168,7 @@ trait HasPosition
 
     /**
      * Arrange the models by the given ordered IDs.
+     * TODO: find a way to extract into query builder
      */
     public function arrangeByIds(array $ids, int $startPosition = null): void
     {
