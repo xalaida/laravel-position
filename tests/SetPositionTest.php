@@ -3,6 +3,7 @@
 namespace Nevadskiy\Position\Tests;
 
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
+use Nevadskiy\Position\Tests\Support\Models\Category;
 
 class SetPositionTest extends TestCase
 {
@@ -30,5 +31,16 @@ class SetPositionTest extends TestCase
         $category = CategoryFactory::new()->create(['position' => 15]);
 
         self::assertEquals(15, $category->position);
+    }
+
+    /** @test */
+    public function it_can_configure_initial_position_value(): void
+    {
+        $fakeCategory = $this->fakeModel(Category::class);
+        $fakeCategory->shouldReceive('getInitPosition')->once()->andReturn(23);
+
+        $category = $fakeCategory->create();
+
+        self::assertEquals(23, $category->position);
     }
 }

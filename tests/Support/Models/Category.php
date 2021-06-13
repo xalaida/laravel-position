@@ -15,4 +15,6 @@ use Nevadskiy\Position\HasPosition;
 class Category extends Model
 {
     use HasPosition;
+
+    protected $table = 'categories';
 }

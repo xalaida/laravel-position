@@ -3,6 +3,8 @@
 namespace Nevadskiy\Position\Tests;
 
 use Illuminate\Foundation\Application;
+use Mockery;
+use Mockery\Mock;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
@@ -42,5 +44,20 @@ class TestCase extends OrchestraTestCase
             'database' => ':memory:',
             'prefix' => '',
         ]);
+    }
+
+    /**
+     * Fake the model instance.
+     *
+     * @experimental
+     * @return Mock|mixed
+     */
+    protected function fakeModel(string $className)
+    {
+        $model = Mockery::mock($className)->makePartial();
+        $model->shouldReceive('newInstance')->andReturnSelf();
+        $model->__construct();
+
+        return $model;
     }
 }
