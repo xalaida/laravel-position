@@ -29,7 +29,7 @@ class SetPositionTest extends TestCase
     /** @test */
     public function it_does_not_override_position_value_if_it_is_set_already(): void
     {
-        $category = CategoryFactory::new()->create(['position' => 15]);
+        $category = CategoryFactory::new()->onPosition(15)->create();
 
         self::assertEquals(15, $category->position);
     }

@@ -11,9 +11,9 @@ class OrderTest extends TestCase
     /** @test */
     public function it_can_order_models_by_position(): void
     {
-        $category2 = CategoryFactory::new()->create(['position' => 2]);
-        $category0 = CategoryFactory::new()->create(['position' => 0]);
-        $category1 = CategoryFactory::new()->create(['position' => 1]);
+        $category2 = CategoryFactory::new()->onPosition(2)->create();
+        $category0 = CategoryFactory::new()->onPosition(0)->create();
+        $category1 = CategoryFactory::new()->onPosition(1)->create();
 
         $categories = Category::query()->orderByPosition()->get();
 
@@ -25,9 +25,9 @@ class OrderTest extends TestCase
     /** @test */
     public function it_can_order_models_by_inverse_position(): void
     {
-        $category2 = CategoryFactory::new()->create(['position' => 2]);
-        $category0 = CategoryFactory::new()->create(['position' => 0]);
-        $category1 = CategoryFactory::new()->create(['position' => 1]);
+        $category2 = CategoryFactory::new()->onPosition(2)->create();
+        $category0 = CategoryFactory::new()->onPosition(0)->create();
+        $category1 = CategoryFactory::new()->onPosition(1)->create();
 
         $categories = Category::query()->orderByInversePosition()->get();
 
