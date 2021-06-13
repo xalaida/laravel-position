@@ -1,5 +1,5 @@
 # Install the app
-install: build vendor test
+install: build dependencies test
 
 # Build the app container
 build:
@@ -10,7 +10,7 @@ rebuild:
 	docker build --no-cache -t app .
 
 # Install app dependencies
-vendor:
+dependencies:
 	docker run --rm -it -v ${PWD}:/app app composer install
 
 # Update app dependencies
