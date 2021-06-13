@@ -1,5 +1,5 @@
 {
-    "name": "jeka/laravel-position",
+    "name": "nevadskiy/laravel-position",
     "description": "The package allows you to arrange the laravel models in a given order.",
     "license": "MIT",
     "keywords": ["position", "sort", "order", "arrange", "eloquent", "laravel"],
