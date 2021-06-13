@@ -1,9 +1,10 @@
 <?php
 
-namespace Nevadskiy\Position\Tests;
+namespace Nevadskiy\Position\Tests\Unit;
 
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\Support\Models\Category;
+use Nevadskiy\Position\Tests\TestCase;
 
 class SetPositionTest extends TestCase
 {
