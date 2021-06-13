@@ -4,6 +4,7 @@ namespace Nevadskiy\Position;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Nevadskiy\Position\Scopes\OrderByPosition;
 
 /**
  * @mixin Model
@@ -15,7 +16,9 @@ trait HasPosition
      */
     public static function bootHasPosition(): void
     {
-        self::creating(static function (self $model) {
+        static::addGlobalScope(new OrderByPosition());
+
+        static::creating(static function (self $model) {
             $model->setPositionIfMissing();
         });
     }
@@ -34,6 +37,14 @@ trait HasPosition
     public function getInitPosition(): int
     {
         return 0;
+    }
+
+    /**
+     * Determine if the order by position should be applied always.
+     */
+    public function alwaysOrderByPosition(): bool
+    {
+        return false;
     }
 
     /**

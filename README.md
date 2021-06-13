@@ -48,3 +48,27 @@ Models have a 'position' field with an unsigned integer value that is used for t
 The position field serves as a sort of array index and is automatically inserted when creating a new record. 
 
 By default, the model takes a position at the very end of the sequence.
+
+
+### Querying models 
+
+To query models in the arranged sequence, use the `orderByPosition` scope.
+
+```php
+Category::orderByPosition()->get();
+```
+
+### Auto ordering
+
+The `orderByPosition` scope is not applied by default because the appropriate SQL-statement will be added to all queries, even where it is not required.
+
+It is much easier to manually add the scope in all places where you actually need it.
+
+However, if you really want to enable auto-ordering, you can override `alwaysOrderByPosition` method in your model like this:
+
+```php
+public function alwaysOrderByPosition(): bool
+{
+    return true;
+}
+```
