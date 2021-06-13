@@ -24,12 +24,7 @@ class Post extends Model
 2. Add a `position` column to the model tables.
 
 ```php
-public function up(): void
-{
-    Schema::create('...', function (Blueprint $table) {
-        // ...
-        $table->integer('position')->unsigned()->index();
-       // ...
-    });
-}
+Schema::create('...', function (Blueprint $table) {
+    $table->integer('position')->unsigned()->index();
+});
 ```
