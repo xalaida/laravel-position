@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Position\Tests\Unit;
 
+use Mockery;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 use Nevadskiy\Position\Tests\TestCase;
@@ -37,10 +38,12 @@ class SetPositionTest extends TestCase
     /** @test */
     public function it_can_configure_initial_position_value(): void
     {
-        $fakeCategory = $this->fakeModel(Category::class);
-        $fakeCategory->shouldReceive('getInitPosition')->once()->andReturn(23);
+        $fakeCategory = Mockery::mock(Category::class)->makePartial();
+        $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
+        $fakeCategory->shouldReceive('getInitPosition')->andReturn(23);
+        $fakeCategory->__construct();
 
-        $category = $fakeCategory->create();
+        $category = Category::query()->setModel($fakeCategory)->create();
 
         self::assertEquals(23, $category->position);
     }
