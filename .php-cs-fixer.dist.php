@@ -1,0 +1,18 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->exclude('vendor')
+    ->in(__DIR__)
+    ->ignoreDotFiles(true)
+    ->ignoreVCS(true);
+
+
+$config = new PhpCsFixer\Config();
+
+$config->setRules([
+    '@@PhpCsFixer:risky' => true,
+]);
+
+$config->setFinder($finder);
+
+return $config;
