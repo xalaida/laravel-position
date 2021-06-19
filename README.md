@@ -24,7 +24,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Position\HasPosition;
 
-class Post extends Model
+class Category extends Model
 {
     use HasPosition;
 }
@@ -33,7 +33,7 @@ class Post extends Model
 2. Add a `position` column to the model tables.
 
 ```php
-Schema::create('...', function (Blueprint $table) {
+Schema::create('categories', function (Blueprint $table) {
     $table->integer('position')->unsigned()->index();
 });
 ```
@@ -51,6 +51,15 @@ Models have a 'position' field with an unsigned integer value that is used for t
 The position field serves as a sort of array index and is automatically inserted when creating a new record.
 
 By default, the model takes a position at the very end of the sequence.
+
+The first position gets an initial value of `0` by default. To change that, override the `getInitPosition` method
+
+```php
+public function getInitPosition(): int
+{
+    return 0;
+}
+```
 
 
 ### Deleting models
@@ -83,7 +92,15 @@ public function alwaysOrderByPosition(): bool
 ```
 
 
-### Available methods
+### Moving items
+
+#### Move
+
+The `move` method allows to move a model to an arbitrary position in the sequence. The positions of another records will be automatically recalculated in response.
+
+```php
+$category->move(3);
+```
 
 
 #### Swap
@@ -91,7 +108,20 @@ public function alwaysOrderByPosition(): bool
 The `swap` method swaps the position of two models.
 
 ```php
-$foo->swap($bar);
+$category->swap($anotherCategory);
+```
+
+
+#### Arrange
+
+It is also possible to arrange models by their IDs.
+
+The position of each model will be recalculated according to the index of its ID in the given array. 
+
+You can also provide a second argument as a starting position of the records.
+
+```php
+Category::arrangeByKeys([3, 5, 7]);
 ```
 
 
