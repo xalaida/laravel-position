@@ -127,15 +127,15 @@ Category::arrangeByKeys([3, 5, 7]);
 
 ## TODO
 
-- [ ] add possibility to create new models on the beginning of the sequence.
-- [ ] add support for `move(-1)`, `move(-3)` to move the item at the end of the sequence.
-- [ ] add `moveToStart()` method.
-- [ ] add `moveToEnd()` method.
-- [ ] add `moveUp()` method.
-- [ ] add `moveDown()` method.
-- [ ] add `moveAbove($that)` method.
-- [ ] add `moveBelow($that)` method.
-- [ ] add `next()` method.
-- [ ] add `previous()` method.
+- [ ] add possibility to create new models on the beginning of the sequence
+- [ ] add support for `move(-1)`, `move(-3)` to move the item at the end of the sequence
+- [ ] add `moveToStart()` method
+- [ ] add `moveToEnd()` method
+- [ ] add `moveUp()` method
+- [ ] add `moveDown()` method
+- [ ] add `moveAbove($that)` method
+- [ ] add `moveBelow($that)` method
+- [ ] add `next()` method
+- [ ] add `previous()` method
 - [ ] add support for quite moving (without `updated_at` overriding)
 - [ ] add nova plugin with drag functionality
