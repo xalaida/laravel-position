@@ -15,6 +15,8 @@ We accept contributions via Pull Requests.
 
 - **One pull request per feature** - If you want to do more than one thing, send multiple pull requests.
 
+**Happy coding**!
+
 
 ## Setup
 
@@ -25,6 +27,7 @@ For convenience, common tasks are wrapped up in the [Makefile](Makefile) for usa
 1. Fork and clone the project
 
 2. Run the installation command
+
 ```
 # Using global composer
 composer install
@@ -33,7 +36,10 @@ composer install
 make install
 ```
 
+
 ## Running Tests
+
+To execute testsuite, run the following command:
 
 ``` bash
 # Using global composer
@@ -43,9 +49,12 @@ composer test
 make test
 ```
 
+
 ## Code Style
 
-Formatting is automated through [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
+Formatting is automated through [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) and Github Actions.
+
+To fix the code style manually, run the following command: 
 
 ``` bash
 # Using global composer
@@ -54,5 +63,3 @@ composer fix
 # Using docker & makefile
 make fix
 ```
-
-**Happy coding**!
