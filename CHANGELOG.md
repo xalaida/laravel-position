@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
 ### Added
 - Documentation
 - `OrderByPosition` global scope
 - Support for models delete 
 - `swap` method
 
+### Changed
+- Rename `arrangeByIds` into `arrangeByKeys`
+- Extract `arrangeByKeys` method into query builder
+
+
 ## [0.1.0] - 2021-06-13
+
 ### Added
 - Base ordering features
