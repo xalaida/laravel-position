@@ -154,6 +154,21 @@ trait HasPosition
     }
 
     /**
+     * Swap the model position with another model.
+     */
+    public function swap(self $that): void
+    {
+        $thisPosition = $this->getPosition();
+        $thatPosition = $that->getPosition();
+
+        $this->setPosition($thatPosition);
+        $that->setPosition($thisPosition);
+
+        $this->save();
+        $that->save();
+    }
+
+    /**
      * Shift all models that are between the given positions to the end of the sequence.
      * TODO: find a way to extract into query builder
      */

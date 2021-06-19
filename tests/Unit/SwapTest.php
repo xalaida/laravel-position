@@ -3,7 +3,6 @@
 namespace Nevadskiy\Position\Tests\Unit;
 
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
-use Nevadskiy\Position\Tests\Support\Models\Category;
 use Nevadskiy\Position\Tests\TestCase;
 
 class SwapTest extends TestCase
@@ -17,7 +16,7 @@ class SwapTest extends TestCase
         $category1 = CategoryFactory::new()->create();
         $category2 = CategoryFactory::new()->create();
 
-        (new Category())->swap($category0, $category2);
+        $category0->swap($category2);
 
         self::assertEquals($category0->fresh()->getPosition(), 2);
         self::assertEquals($category2->fresh()->getPosition(), 0);
