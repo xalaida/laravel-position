@@ -9,7 +9,7 @@ use Nevadskiy\Position\Tests\TestCase;
 class ArrangeTest extends TestCase
 {
     /** @test */
-    public function it_can_arrange_models_by_ids(): void
+    public function it_can_arrange_models_by_keys(): void
     {
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();
@@ -17,7 +17,7 @@ class ArrangeTest extends TestCase
         $category3 = CategoryFactory::new()->create();
         $category4 = CategoryFactory::new()->create();
 
-        (new Category())->arrangeByIds([
+        Category::arrangeByKeys([
             $category2->getKey(),
             $category3->getKey(),
             $category0->getKey(),
@@ -33,7 +33,7 @@ class ArrangeTest extends TestCase
     }
 
     /** @test */
-    public function it_can_arrange_models_with_init_positions_by_ids(): void
+    public function it_can_arrange_models_with_init_positions_by_keys(): void
     {
         $initPosition = 5;
 
@@ -43,7 +43,7 @@ class ArrangeTest extends TestCase
         $category3 = CategoryFactory::new()->create();
         $category4 = CategoryFactory::new()->create();
 
-        (new Category())->arrangeByIds([
+        Category::arrangeByKeys([
             $category2->getKey(),
             $category3->getKey(),
             $category0->getKey(),

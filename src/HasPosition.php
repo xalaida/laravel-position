@@ -18,12 +18,10 @@ trait HasPosition
     {
         static::addGlobalScope(new PositioningScope());
 
-        // TODO: probably extract to a scope
         static::creating(static function (self $model) {
             $model->setPositionIfMissing();
         });
 
-        // TODO: probably extract to a scope
         static::deleted(static function (self $model) {
             $model->shiftModelsToStart($model->getPosition());
         });
@@ -196,22 +194,5 @@ trait HasPosition
                 $query->where($this->getPositionColumn(), '<=', $stopPosition);
             })
             ->decrement($this->getPositionColumn(), $shift);
-    }
-
-    /**
-     * Arrange the models by the given ordered IDs.
-     * TODO: find a way to extract into query builder
-     */
-    public function arrangeByIds(array $ids, int $startPosition = null): void
-    {
-        $startPosition = is_null($startPosition) ? $this->getInitPosition() : $startPosition;
-
-        foreach ($ids as $position => $id) {
-            $this->newPositionQuery()
-                ->whereKey($id)
-                ->update([
-                    $this->getPositionColumn() => $startPosition + $position
-                ]);
-        }
     }
 }
