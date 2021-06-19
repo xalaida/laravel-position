@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `OrderByPosition` global scope
 - Support for models delete 
 - `swap` method
+- Add PHP 8 support
 
 ### Changed
 - Rename `arrangeByIds` into `arrangeByKeys`
