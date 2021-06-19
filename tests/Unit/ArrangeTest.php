@@ -25,11 +25,11 @@ class ArrangeTest extends TestCase
             $category1->getKey(),
         ]);
 
-        self::assertEquals($category2->fresh()->getPosition(), 0);
-        self::assertEquals($category3->fresh()->getPosition(), 1);
-        self::assertEquals($category0->fresh()->getPosition(), 2);
-        self::assertEquals($category4->fresh()->getPosition(), 3);
-        self::assertEquals($category1->fresh()->getPosition(), 4);
+        self::assertEquals(0, $category2->fresh()->getPosition());
+        self::assertEquals(1, $category3->fresh()->getPosition());
+        self::assertEquals(2, $category0->fresh()->getPosition());
+        self::assertEquals(3, $category4->fresh()->getPosition());
+        self::assertEquals(4, $category1->fresh()->getPosition());
     }
 
     /** @test */
@@ -51,10 +51,10 @@ class ArrangeTest extends TestCase
             $category1->getKey(),
         ], $initPosition);
 
-        self::assertEquals($category2->fresh()->getPosition(), 0 + $initPosition);
-        self::assertEquals($category3->fresh()->getPosition(), 1 + $initPosition);
-        self::assertEquals($category0->fresh()->getPosition(), 2 + $initPosition);
-        self::assertEquals($category4->fresh()->getPosition(), 3 + $initPosition);
-        self::assertEquals($category1->fresh()->getPosition(), 4 + $initPosition);
+        self::assertEquals(0 + $initPosition, $category2->fresh()->getPosition());
+        self::assertEquals(1 + $initPosition, $category3->fresh()->getPosition());
+        self::assertEquals(2 + $initPosition, $category0->fresh()->getPosition());
+        self::assertEquals(3 + $initPosition, $category4->fresh()->getPosition());
+        self::assertEquals(4 + $initPosition, $category1->fresh()->getPosition());
     }
 }

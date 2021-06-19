@@ -17,9 +17,9 @@ class MoveTest extends TestCase
 
         $category2->move(0);
 
-        self::assertEquals($category2->fresh()->getPosition(), 0);
-        self::assertEquals($category0->fresh()->getPosition(), 1);
-        self::assertEquals($category1->fresh()->getPosition(), 2);
+        self::assertEquals(0, $category2->fresh()->getPosition());
+        self::assertEquals(1, $category0->fresh()->getPosition());
+        self::assertEquals(2, $category1->fresh()->getPosition());
     }
 
     /** @test */
@@ -31,9 +31,9 @@ class MoveTest extends TestCase
 
         $category0->move(2);
 
-        self::assertEquals($category1->fresh()->getPosition(), 0);
-        self::assertEquals($category2->fresh()->getPosition(), 1);
-        self::assertEquals($category0->fresh()->getPosition(), 2);
+        self::assertEquals(0, $category1->fresh()->getPosition());
+        self::assertEquals(1, $category2->fresh()->getPosition());
+        self::assertEquals(2, $category0->fresh()->getPosition());
     }
 
     /** @test */
