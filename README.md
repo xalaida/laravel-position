@@ -91,5 +91,5 @@ public function alwaysOrderByPosition(): bool
 The `swap` method swaps the position of two models.
 
 ```php
-$category1->swap($category3);
+$foo->swap($bar);
 ```
