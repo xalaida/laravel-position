@@ -52,16 +52,6 @@ trait HasPosition
     }
 
     /**
-     * Set the next position value to the model if it is missing.
-     */
-    public function setPositionIfMissing(): void
-    {
-        if (is_null($this->getPosition())) {
-            $this->setNextPosition();
-        }
-    }
-
-    /**
      * Get the position value of the model.
      */
     public function getPosition(): ?int
@@ -75,44 +65,6 @@ trait HasPosition
     public function setPosition(int $position): Model
     {
         return $this->setAttribute($this->getPositionColumn(), $position);
-    }
-
-    /**
-     * Set the next position value to the model.
-     */
-    public function setNextPosition(): Model
-    {
-        return $this->setPosition($this->getNextPositionInSequence());
-    }
-
-    /**
-     * Determine the next position value in the model sequence.
-     */
-    protected function getNextPositionInSequence(): int
-    {
-        $maxPosition = $this->getMaxPositionInSequence();
-
-        if (is_null($maxPosition)) {
-            return $this->getInitPosition();
-        }
-
-        return $maxPosition + 1;
-    }
-
-    /**
-     * Get the max position value in the model sequence.
-     */
-    protected function getMaxPositionInSequence(): ?int
-    {
-        return $this->newPositionQuery()->max($this->getPositionColumn());
-    }
-
-    /**
-     * Get a new position query.
-     */
-    protected function newPositionQuery(): Builder
-    {
-        return $this->newQuery();
     }
 
     /**
@@ -166,5 +118,53 @@ trait HasPosition
 
         $this->save();
         $that->save();
+    }
+
+    /**
+     * Get a new position query.
+     */
+    protected function newPositionQuery(): Builder
+    {
+        return $this->newQuery();
+    }
+
+    /**
+     * Set the next position value to the model if it is missing.
+     */
+    protected function setPositionIfMissing(): void
+    {
+        if (is_null($this->getPosition())) {
+            $this->setNextPosition();
+        }
+    }
+
+    /**
+     * Set the next position value to the model.
+     */
+    protected function setNextPosition(): Model
+    {
+        return $this->setPosition($this->getNextPositionInSequence());
+    }
+
+    /**
+     * Determine the next position value in the model sequence.
+     */
+    protected function getNextPositionInSequence(): int
+    {
+        $maxPosition = $this->getMaxPositionInSequence();
+
+        if (is_null($maxPosition)) {
+            return $this->getInitPosition();
+        }
+
+        return $maxPosition + 1;
+    }
+
+    /**
+     * Get the max position value in the model sequence.
+     */
+    protected function getMaxPositionInSequence(): ?int
+    {
+        return $this->newPositionQuery()->max($this->getPositionColumn());
     }
 }
