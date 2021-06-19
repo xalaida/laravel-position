@@ -96,7 +96,7 @@ trait HasPosition
 
         if ($newPosition < $oldPosition) {
             $this->shiftToEnd($newPosition, $oldPosition);
-        } else if ($newPosition > $oldPosition) {
+        } elseif ($newPosition > $oldPosition) {
             $this->shiftToStart($oldPosition, $newPosition);
         }
 
@@ -133,7 +133,7 @@ trait HasPosition
      */
     protected function setPositionIfMissing(): void
     {
-        if (is_null($this->getPosition())) {
+        if (null === $this->getPosition()) {
             $this->setNextPosition();
         }
     }
@@ -153,7 +153,7 @@ trait HasPosition
     {
         $maxPosition = $this->getMaxPositionInSequence();
 
-        if (is_null($maxPosition)) {
+        if (null === $maxPosition) {
             return $this->getInitPosition();
         }
 

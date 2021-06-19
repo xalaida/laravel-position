@@ -8,8 +8,7 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class ArrangeTest extends TestCase
 {
-    /** @test */
-    public function it_can_arrange_models_by_keys(): void
+    public function test_it_can_arrange_models_by_keys(): void
     {
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();
@@ -25,15 +24,14 @@ class ArrangeTest extends TestCase
             $category1->getKey(),
         ]);
 
-        self::assertEquals(0, $category2->fresh()->getPosition());
-        self::assertEquals(1, $category3->fresh()->getPosition());
-        self::assertEquals(2, $category0->fresh()->getPosition());
-        self::assertEquals(3, $category4->fresh()->getPosition());
-        self::assertEquals(4, $category1->fresh()->getPosition());
+        static::assertSame(0, $category2->fresh()->getPosition());
+        static::assertSame(1, $category3->fresh()->getPosition());
+        static::assertSame(2, $category0->fresh()->getPosition());
+        static::assertSame(3, $category4->fresh()->getPosition());
+        static::assertSame(4, $category1->fresh()->getPosition());
     }
 
-    /** @test */
-    public function it_can_arrange_models_with_init_positions_by_keys(): void
+    public function test_it_can_arrange_models_with_init_positions_by_keys(): void
     {
         $initPosition = 5;
 
@@ -51,10 +49,10 @@ class ArrangeTest extends TestCase
             $category1->getKey(),
         ], $initPosition);
 
-        self::assertEquals(0 + $initPosition, $category2->fresh()->getPosition());
-        self::assertEquals(1 + $initPosition, $category3->fresh()->getPosition());
-        self::assertEquals(2 + $initPosition, $category0->fresh()->getPosition());
-        self::assertEquals(3 + $initPosition, $category4->fresh()->getPosition());
-        self::assertEquals(4 + $initPosition, $category1->fresh()->getPosition());
+        static::assertSame(0 + $initPosition, $category2->fresh()->getPosition());
+        static::assertSame(1 + $initPosition, $category3->fresh()->getPosition());
+        static::assertSame(2 + $initPosition, $category0->fresh()->getPosition());
+        static::assertSame(3 + $initPosition, $category4->fresh()->getPosition());
+        static::assertSame(4 + $initPosition, $category1->fresh()->getPosition());
     }
 }

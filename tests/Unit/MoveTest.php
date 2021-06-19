@@ -8,8 +8,7 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class MoveTest extends TestCase
 {
-    /** @test */
-    public function it_can_move_model_to_decrease_position(): void
+    public function test_it_can_move_model_to_decrease_position(): void
     {
         $category0 = CategoryFactory::new()->onPosition(0)->create();
         $category1 = CategoryFactory::new()->onPosition(1)->create();
@@ -17,13 +16,12 @@ class MoveTest extends TestCase
 
         $category2->move(0);
 
-        self::assertEquals(0, $category2->fresh()->getPosition());
-        self::assertEquals(1, $category0->fresh()->getPosition());
-        self::assertEquals(2, $category1->fresh()->getPosition());
+        static::assertSame(0, $category2->fresh()->getPosition());
+        static::assertSame(1, $category0->fresh()->getPosition());
+        static::assertSame(2, $category1->fresh()->getPosition());
     }
 
-    /** @test */
-    public function it_can_move_model_to_increase_position(): void
+    public function test_it_can_move_model_to_increase_position(): void
     {
         $category0 = CategoryFactory::new()->onPosition(0)->create();
         $category1 = CategoryFactory::new()->onPosition(1)->create();
@@ -31,13 +29,12 @@ class MoveTest extends TestCase
 
         $category0->move(2);
 
-        self::assertEquals(0, $category1->fresh()->getPosition());
-        self::assertEquals(1, $category2->fresh()->getPosition());
-        self::assertEquals(2, $category0->fresh()->getPosition());
+        static::assertSame(0, $category1->fresh()->getPosition());
+        static::assertSame(1, $category2->fresh()->getPosition());
+        static::assertSame(2, $category0->fresh()->getPosition());
     }
 
-    /** @test */
-    public function it_does_not_move_model_to_the_same_position(): void
+    public function test_it_does_not_move_model_to_the_same_position(): void
     {
         $category = CategoryFactory::new()->onPosition(3)->create();
 
@@ -45,7 +42,7 @@ class MoveTest extends TestCase
 
         $result = $category->move(3);
 
-        self::assertEmpty(DB::connection()->getQueryLog());
-        self::assertFalse($result);
+        static::assertEmpty(DB::connection()->getQueryLog());
+        static::assertFalse($result);
     }
 }

@@ -22,7 +22,7 @@ class PositioningScope implements Scope
     /**
      * Apply the scope to a given Eloquent query builder.
      *
-     * @param Model|HasPosition $model
+     * @param HasPosition|Model $model
      */
     public function apply(Builder $query, Model $model): void
     {
@@ -36,12 +36,12 @@ class PositioningScope implements Scope
      */
     public function arrangeByKeys(Builder $builder, array $keys, int $startPosition = null): void
     {
-        $startPosition = is_null($startPosition) ? $builder->getModel()->getInitPosition() : $startPosition;
+        $startPosition = $startPosition ?? $builder->getModel()->getInitPosition();
 
         foreach ($keys as $position => $key) {
             (clone $builder)->whereKey($key)
                 ->update([
-                    $builder->getModel()->getPositionColumn() => $startPosition + $position
+                    $builder->getModel()->getPositionColumn() => $startPosition + $position,
                 ]);
         }
     }
@@ -52,7 +52,7 @@ class PositioningScope implements Scope
     public function shiftToStart(Builder $builder, int $startPosition, int $stopPosition = null): int
     {
         return $builder->where($builder->getModel()->getPositionColumn(), '>=', $startPosition)
-            ->when($stopPosition, function (Builder $builder) use ($stopPosition) {
+            ->when($stopPosition, static function (Builder $builder) use ($stopPosition) {
                 $builder->where($builder->getModel()->getPositionColumn(), '<=', $stopPosition);
             })
             ->decrement($builder->getModel()->getPositionColumn());
@@ -64,7 +64,7 @@ class PositioningScope implements Scope
     public function shiftToEnd(Builder $builder, int $startPosition, int $stopPosition = null): int
     {
         return $builder->where($builder->getModel()->getPositionColumn(), '>=', $startPosition)
-            ->when($stopPosition, function (Builder $builder) use ($stopPosition) {
+            ->when($stopPosition, static function (Builder $builder) use ($stopPosition) {
                 $builder->where($builder->getModel()->getPositionColumn(), '<=', $stopPosition);
             })
             ->increment($builder->getModel()->getPositionColumn());
