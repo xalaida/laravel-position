@@ -124,6 +124,17 @@ You can also provide a second argument as a starting position of the records.
 Category::arrangeByKeys([3, 5, 7]);
 ```
 
+### Grouping / Dealing with relations
+
+To allow models to be positioned within groups, you need to override the `newPositionQuery` method.
+
+```php
+protected function newPositionQuery()
+{
+    return $this->newQuery()->where('parent_id', $this->parent_id);
+}
+```
+
 
 ## TODO
 
