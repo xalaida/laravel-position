@@ -6,13 +6,4 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
-
-$config = new PhpCsFixer\Config();
-
-$config->setRules([
-    '@@PhpCsFixer:risky' => true,
-]);
-
-$config->setFinder($finder);
-
-return $config;
+return Nevadskiy\PhpCsFixerRules\Style::new()->lib($finder);
