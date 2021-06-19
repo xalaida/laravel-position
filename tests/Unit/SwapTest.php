@@ -7,8 +7,6 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class SwapTest extends TestCase
 {
-    // it does not break another positions
-
     /** @test */
     public function it_can_swap_models(): void
     {
@@ -20,5 +18,17 @@ class SwapTest extends TestCase
 
         self::assertEquals($category0->fresh()->getPosition(), 2);
         self::assertEquals($category2->fresh()->getPosition(), 0);
+    }
+
+    /** @test */
+    public function it_does_not_break_another_positions(): void
+    {
+        $category0 = CategoryFactory::new()->create();
+        $category1 = CategoryFactory::new()->create();
+        $category2 = CategoryFactory::new()->create();
+
+        $category2->swap($category0);
+
+        self::assertEquals($category1->fresh()->getPosition(), 1);
     }
 }
