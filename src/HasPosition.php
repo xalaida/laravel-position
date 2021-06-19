@@ -21,6 +21,10 @@ trait HasPosition
         static::creating(static function (self $model) {
             $model->setPositionIfMissing();
         });
+
+        static::deleted(static function (self $model) {
+            $model->shiftModelsToStart($model->getPosition());
+        });
     }
 
     /**

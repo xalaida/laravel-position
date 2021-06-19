@@ -41,13 +41,21 @@ Schema::create('...', function (Blueprint $table) {
 
 ## 📄 Documentation
 
-### Description
+### How it works
 
 Models have a 'position' field with an unsigned integer value that is used for their ordering.
 
-The position field serves as a sort of array index and is automatically inserted when creating a new record. 
+
+### Creating models
+
+The position field serves as a sort of array index and is automatically inserted when creating a new record.
 
 By default, the model takes a position at the very end of the sequence.
+
+
+### Deleting models
+
+When a record is deleted, the positions of another records in the sequence are updated automatically.
 
 
 ### Querying models 
