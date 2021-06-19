@@ -7,7 +7,7 @@ use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 use Nevadskiy\Position\Tests\TestCase;
 
-class SetPositionTest extends TestCase
+class CreateTest extends TestCase
 {
     /** @test */
     public function it_sets_position_value_on_model_create(): void
