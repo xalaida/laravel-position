@@ -8,6 +8,12 @@
 The package allows you to arrange the laravel models in a given order.
 
 
+## ✅ Requirements
+
+- Laravel `7.0` or newer
+- PHP `7.2` or newer
+
+
 ## 🔌 Installation
 
 Install the package via composer.
@@ -139,6 +145,25 @@ protected function newPositionQuery()
     return $this->newQuery()->where('parent_id', $this->parent_id);
 }
 ```
+
+## 📑 Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+
+
+## ☕ Contributing
+
+Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
+
+
+## 🔓 Security
+
+If you discover any security related issues, please [e-mail me](mailto:nevadskiy@gmail.com) instead of using the issue tracker.
+
+
+## 📜 License
+
+The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
 
 
 ## TODO
