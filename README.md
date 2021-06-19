@@ -66,6 +66,7 @@ To query models in the arranged sequence, use the `orderByPosition` scope.
 Category::orderByPosition()->get();
 ```
 
+
 ### Auto ordering
 
 The `orderByPosition` scope is not applied by default because the appropriate SQL-statement will be added to all queries, even where it is not required.
@@ -79,4 +80,16 @@ public function alwaysOrderByPosition(): bool
 {
     return true;
 }
+```
+
+
+### Available methods
+
+
+#### Swap
+
+The `swap` method swaps the position of two models.
+
+```php
+$category1->swap($category3);
 ```
