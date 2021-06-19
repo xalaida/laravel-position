@@ -4,7 +4,7 @@ namespace Nevadskiy\Position;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Position\Scopes\OrderByPosition;
+use Nevadskiy\Position\Scopes\PositioningScope;
 
 /**
  * @mixin Model
@@ -16,12 +16,14 @@ trait HasPosition
      */
     public static function bootHasPosition(): void
     {
-        static::addGlobalScope(new OrderByPosition());
+        static::addGlobalScope(new PositioningScope());
 
+        // TODO: probably extract to a scope
         static::creating(static function (self $model) {
             $model->setPositionIfMissing();
         });
 
+        // TODO: probably extract to a scope
         static::deleted(static function (self $model) {
             $model->shiftModelsToStart($model->getPosition());
         });

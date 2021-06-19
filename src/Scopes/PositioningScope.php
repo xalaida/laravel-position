@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Nevadskiy\Position\HasPosition;
 
-class OrderByPosition implements Scope
+class PositioningScope implements Scope
 {
     /**
      * Apply the scope to a given Eloquent query builder.
