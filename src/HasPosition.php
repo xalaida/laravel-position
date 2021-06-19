@@ -23,7 +23,7 @@ trait HasPosition
         });
 
         static::deleted(static function (self $model) {
-            $model->shiftModelsToStart($model->getPosition());
+            $model->shiftToStart($model->getPosition());
         });
     }
 
@@ -143,9 +143,9 @@ trait HasPosition
         }
 
         if ($newPosition < $oldPosition) {
-            $this->shiftModelsToEnd($newPosition, $oldPosition);
+            $this->shiftToEnd($newPosition, $oldPosition);
         } else if ($newPosition > $oldPosition) {
-            $this->shiftModelsToStart($oldPosition, $newPosition);
+            $this->shiftToStart($oldPosition, $newPosition);
         }
 
         $this->setPosition($newPosition);
@@ -166,33 +166,5 @@ trait HasPosition
 
         $this->save();
         $that->save();
-    }
-
-    /**
-     * Shift all models that are between the given positions to the end of the sequence.
-     * TODO: find a way to extract into query builder
-     */
-    protected function shiftModelsToEnd(int $startPosition, int $stopPosition = null, int $shift = 1): int
-    {
-        return $this->newPositionQuery()
-            ->where($this->getPositionColumn(), '>=', $startPosition)
-            ->when($stopPosition, function (Builder $query) use ($stopPosition) {
-                $query->where($this->getPositionColumn(), '<=', $stopPosition);
-            })
-            ->increment($this->getPositionColumn(), $shift);
-    }
-
-    /**
-     * Shift all models that are between the given positions to the beginning of the sequence.
-     * TODO: find a way to extract into query builder
-     */
-    protected function shiftModelsToStart(int $startPosition, int $stopPosition = null, int $shift = 1): int
-    {
-        return $this->newPositionQuery()
-            ->where($this->getPositionColumn(), '>=', $startPosition)
-            ->when($stopPosition, function (Builder $query) use ($stopPosition) {
-                $query->where($this->getPositionColumn(), '<=', $stopPosition);
-            })
-            ->decrement($this->getPositionColumn(), $shift);
     }
 }

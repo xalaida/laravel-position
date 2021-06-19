@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Rename `arrangeByIds` into `arrangeByKeys`
 - Extract `arrangeByKeys` method into query builder
+- Extract shift methods into query builder
 
 
 ## [0.1.0] - 2021-06-13
