@@ -57,4 +57,18 @@ class ScopePositionQueryTest extends TestCase
         static::assertSame(0, $book1->fresh()->getPosition());
         static::assertSame(2, $anotherBook->fresh()->getPosition());
     }
+
+    public function test_it_calculates_max_position_by_scoped_items(): void
+    {
+        $category0 = CategoryFactory::new()->create();
+        $category1 = CategoryFactory::new()->create();
+
+        BookFactory::new()->forCategory($category0)->create();
+        BookFactory::new()->forCategory($category0)->create();
+
+        BookFactory::new()->forCategory($category1)->create();
+        $book = BookFactory::new()->forCategory($category1)->create();
+
+        static::assertSame(1, $book->getPosition());
+    }
 }
