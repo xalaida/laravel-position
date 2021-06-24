@@ -2,35 +2,17 @@
 
 namespace Nevadskiy\Position\Tests\Support\Factories;
 
+use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 
-class CategoryFactory
+class CategoryFactory extends Factory
 {
     /**
-     * The override attributes.
-     *
-     * @var array
+     * @inheritDoc
      */
-    protected $attributes = [];
-
-    /**
-     * Make a new factory instance.
-     */
-    public static function new(): self
+    protected function newModel(): Model
     {
-        return new static();
-    }
-
-    /**
-     * Make a new model instance and save it into the database.
-     */
-    public function create(array $attributes = []): Category
-    {
-        $category = new Category();
-        $category->forceFill(array_merge($this->getDefaults(), $this->attributes, $attributes));
-        $category->save();
-
-        return $category;
+        return new Category();
     }
 
     /**
@@ -41,13 +23,5 @@ class CategoryFactory
         $this->attributes['position'] = $position;
 
         return $this;
-    }
-
-    /**
-     * Get the default values.
-     */
-    private function getDefaults(): array
-    {
-        return [];
     }
 }
