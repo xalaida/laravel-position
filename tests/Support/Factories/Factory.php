@@ -18,24 +18,22 @@ abstract class Factory
      *
      * @return static
      */
-    public static function new(): Factory
+    final public static function new(): self
     {
         return new static();
     }
 
-    abstract protected function newModel(): Model;
-
     /**
      * Make a new model instance and save it into the database.
      */
-    public function create(array $attributes = []): Model
+    final public function create(array $attributes = []): Model
     {
         $model = $this->newModel();
 
         foreach (array_merge($this->getDefaults(), $this->attributes, $attributes) as $attribute => $value) {
             $model->setAttribute(
                 $attribute,
-                $value instanceof Factory
+                $value instanceof self
                     ? $value->create()->getKey()
                     : $value
             );
@@ -45,6 +43,8 @@ abstract class Factory
 
         return $model;
     }
+
+    abstract protected function newModel(): Model;
 
     /**
      * Get the default values.

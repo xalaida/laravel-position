@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Position\Tests\Unit;
 
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Position\Tests\Support\Factories\BookFactory;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\TestCase;
@@ -23,15 +22,15 @@ class ScopePositionQueryTest extends TestCase
 
         $anotherBook = BookFactory::new()->create();
 
-        self::assertEquals(0, $book0->getPosition());
-        self::assertEquals(1, $book1->getPosition());
-        self::assertEquals(0, $anotherBook->getPosition());
+        static::assertSame(0, $book0->getPosition());
+        static::assertSame(1, $book1->getPosition());
+        static::assertSame(0, $anotherBook->getPosition());
 
         $book1->move(0);
 
-        self::assertEquals(0, $book1->fresh()->getPosition());
-        self::assertEquals(1, $book0->fresh()->getPosition());
-        self::assertEquals(0, $anotherBook->fresh()->getPosition());
+        static::assertSame(0, $book1->fresh()->getPosition());
+        static::assertSame(1, $book0->fresh()->getPosition());
+        static::assertSame(0, $anotherBook->fresh()->getPosition());
     }
 
     public function test_it_does_not_update_position_values_that_are_out_of_scope_on_delete(): void

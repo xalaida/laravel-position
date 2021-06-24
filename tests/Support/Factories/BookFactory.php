@@ -12,14 +12,6 @@ use Nevadskiy\Position\Tests\Support\Models\Category;
 class BookFactory extends Factory
 {
     /**
-     * @inheritDoc
-     */
-    protected function newModel(): Model
-    {
-        return new Book();
-    }
-
-    /**
      * Specify the given position to the model.
      */
     public function onPosition(int $position): self
@@ -37,6 +29,14 @@ class BookFactory extends Factory
         $this->attributes['category_id'] = $category->getKey();
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function newModel(): Model
+    {
+        return new Book();
     }
 
     /**
