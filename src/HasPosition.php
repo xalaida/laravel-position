@@ -23,7 +23,7 @@ trait HasPosition
         });
 
         static::deleted(static function (self $model) {
-            $model->shiftToStart($model->getPosition());
+            $model->newPositionQuery()->shiftToStart($model->getPosition());
         });
     }
 
@@ -95,9 +95,9 @@ trait HasPosition
         }
 
         if ($newPosition < $oldPosition) {
-            $this->shiftToEnd($newPosition, $oldPosition);
+            $this->newPositionQuery()->shiftToEnd($newPosition, $oldPosition);
         } elseif ($newPosition > $oldPosition) {
-            $this->shiftToStart($oldPosition, $newPosition);
+            $this->newPositionQuery()->shiftToStart($oldPosition, $newPosition);
         }
 
         $this->setPosition($newPosition);
