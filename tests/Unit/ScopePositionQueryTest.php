@@ -7,7 +7,7 @@ use Nevadskiy\Position\Tests\Support\Factories\BookFactory;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\TestCase;
 
-class MoveBelongsToTest extends TestCase
+class ScopePositionQueryTest extends TestCase
 {
     public function test_it_positioned_within_its_relation_scope(): void
     {
@@ -32,5 +32,29 @@ class MoveBelongsToTest extends TestCase
         self::assertEquals(0, $book1->fresh()->getPosition());
         self::assertEquals(1, $book0->fresh()->getPosition());
         self::assertEquals(0, $anotherBook->fresh()->getPosition());
+    }
+
+    public function test_it_does_not_update_position_values_that_are_out_of_scope_on_delete(): void
+    {
+        $category = CategoryFactory::new()->create();
+
+        $book0 = BookFactory::new()
+            ->onPosition(0)
+            ->forCategory($category)
+            ->create();
+
+        $book1 = BookFactory::new()
+            ->forCategory($category)
+            ->onPosition(1)
+            ->create();
+
+        $anotherBook = BookFactory::new()
+            ->onPosition(2)
+            ->create();
+
+        $book0->delete();
+
+        static::assertSame(0, $book1->fresh()->getPosition());
+        static::assertSame(2, $anotherBook->fresh()->getPosition());
     }
 }
