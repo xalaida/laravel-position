@@ -15,6 +15,8 @@ abstract class Factory
 
     /**
      * Make a new factory instance.
+     *
+     * @return static
      */
     public static function new(): Factory
     {

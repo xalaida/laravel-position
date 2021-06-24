@@ -5,6 +5,9 @@ namespace Nevadskiy\Position\Tests\Support\Factories;
 use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 
+/**
+ * @method static Category create(array $attributes = [])
+ */
 class CategoryFactory extends Factory
 {
     /**

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Position\Tests\Support\Models\Book;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 
+/**
+ * @method static Book create(array $attributes = [])
+ */
 class BookFactory extends Factory
 {
     /**
