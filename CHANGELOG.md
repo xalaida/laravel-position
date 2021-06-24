@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
 
+## [0.3.0] - 2021-06-24
+
+### Fixed
 - Fix position query scoping for relations
 
 
