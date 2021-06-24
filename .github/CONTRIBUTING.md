@@ -20,7 +20,7 @@ We accept contributions via Pull Requests.
 
 ## Setup
 
-The project setup is based upon [docker](https://docs.docker.com/engine/install).
+The project setup is based upon [Docker](https://docs.docker.com/engine/install).
 
 For convenience, common tasks are wrapped up in the [Makefile](Makefile) for usage with [GNU make](https://www.gnu.org/software/make/).
 
