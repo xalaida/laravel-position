@@ -19,7 +19,7 @@ trait HasPosition
         static::addGlobalScope(new PositioningScope());
 
         static::creating(static function (self $model) {
-            $model->setPositionIfMissing();
+            $model->assignPositionIfMissing();
         });
 
         static::deleted(static function (self $model) {
@@ -129,19 +129,19 @@ trait HasPosition
     }
 
     /**
-     * Set the next position value to the model if it is missing.
+     * Assign the next position value to the model if it is missing.
      */
-    protected function setPositionIfMissing(): void
+    protected function assignPositionIfMissing(): void
     {
         if (null === $this->getPosition()) {
-            $this->setNextPosition();
+            $this->assignNextPosition();
         }
     }
 
     /**
-     * Set the next position value to the model.
+     * Assign the next position value to the model.
      */
-    protected function setNextPosition(): Model
+    protected function assignNextPosition(): Model
     {
         return $this->setPosition($this->getNextPositionInSequence());
     }
