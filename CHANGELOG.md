@@ -8,12 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-05-08
+
+### Added
+- Laravel 9 support
 
 ## [0.3.0] - 2021-06-24
 
 ### Fixed
 - Fix position query scoping for relations
-
 
 ## [0.2.0] - 2021-06-19
 
@@ -28,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rename `arrangeByIds` into `arrangeByKeys`
 - Extract `arrangeByKeys` method into query builder
 - Extract shift methods into query builder
-
 
 ## [0.1.0] - 2021-06-13
 
