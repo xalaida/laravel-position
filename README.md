@@ -2,10 +2,10 @@
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
-[![Tests](https://github.com/nevadskiy/laravel-position/workflows/Tests/badge.svg)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Tests](https://github.com/nevadskiy/laravel-position/workflows/tests/badge.svg)](https://packagist.org/packages/nevadskiy/laravel-position)
 [![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-position/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
 [![License](https://poser.pugx.org/nevadskiy/laravel-position/license)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
 
 The package allows you to arrange the laravel models in a given order.
 
