@@ -6,4 +6,4 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
-return Nevadskiy\PhpCsFixerRules\Style::new()->lib($finder);
+return Nevadskiy\PhpCsFixerRules\Style::apply($finder);
