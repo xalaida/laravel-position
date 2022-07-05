@@ -24,6 +24,15 @@ Install the package via composer.
 composer require nevadskiy/laravel-position
 ````
 
+## Register the sevice provider
+
+Add the service provider in `config/app.php`
+```php
+'providers' => [
+    // ...
+    Nevadskiy\Position\HasPosition::class,
+];
+```
 
 ## 🔨 Add positions to models
 
