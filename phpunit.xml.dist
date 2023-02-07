@@ -10,6 +10,7 @@
     convertWarningsToExceptions="true"
     processIsolation="false"
     stopOnFailure="false"
+    cacheResultFile=".cache/.phpunit.result.cache"
 >
     <testsuites>
         <testsuite name="Package Test Suite">
