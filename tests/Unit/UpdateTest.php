@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Position\Tests\Unit;
 
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\TestCase;
 
@@ -11,13 +10,15 @@ class UpdateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_update_position(): void
+    public function it_updates_position_to_less_than_previous(): void
     {
         $category0 = CategoryFactory::new()->position(0)->create();
         $category1 = CategoryFactory::new()->position(1)->create();
         $category2 = CategoryFactory::new()->position(2)->create();
 
-        $category2->move(0);
+        $category2->update([
+            'position' => 0,
+        ]);
 
         static::assertSame(0, $category2->fresh()->getPosition());
         static::assertSame(1, $category0->fresh()->getPosition());
@@ -27,31 +28,18 @@ class UpdateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_move_model_to_increase_position(): void
+    public function it_can_move_model_to_greater_than_previous(): void
     {
         $category0 = CategoryFactory::new()->position(0)->create();
         $category1 = CategoryFactory::new()->position(1)->create();
         $category2 = CategoryFactory::new()->position(2)->create();
 
-        $category0->move(2);
+        $category0->update([
+            'position' => 2,
+        ]);
 
         static::assertSame(0, $category1->fresh()->getPosition());
         static::assertSame(1, $category2->fresh()->getPosition());
         static::assertSame(2, $category0->fresh()->getPosition());
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_move_model_to_the_same_position(): void
-    {
-        $category = CategoryFactory::new()->position(3)->create();
-
-        DB::connection()->enableQueryLog();
-
-        $result = $category->move(3);
-
-        static::assertEmpty(DB::connection()->getQueryLog());
-        static::assertFalse($result);
     }
 }

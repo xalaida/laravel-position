@@ -17,4 +17,6 @@ class Category extends Model
     use HasPosition;
 
     protected $table = 'categories';
+
+    protected $guarded = [];
 }

@@ -22,6 +22,12 @@ trait HasPosition
             $model->assignPositionIfMissing();
         });
 
+        static::updating(static function (self $model) {
+            if ($model->isDirty($model->getPositionColumn())) {
+                $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
+            }
+        });
+
         static::deleted(static function (self $model) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
         });
@@ -36,9 +42,9 @@ trait HasPosition
     }
 
     /**
-     * Get the initial position value.
+     * Get a value of the starting position.
      */
-    public function getInitPosition(): int
+    public function getStartPosition(): int
     {
         return 0;
     }
@@ -94,15 +100,7 @@ trait HasPosition
             return false;
         }
 
-        if ($newPosition < $oldPosition) {
-            $this->newPositionQuery()->shiftToEnd($newPosition, $oldPosition);
-        } elseif ($newPosition > $oldPosition) {
-            $this->newPositionQuery()->shiftToStart($oldPosition, $newPosition);
-        }
-
-        $this->setPosition($newPosition);
-
-        return $this->save();
+        return $this->setPosition($newPosition)->save();
     }
 
     /**
@@ -110,14 +108,16 @@ trait HasPosition
      */
     public function swap(self $that): void
     {
-        $thisPosition = $this->getPosition();
-        $thatPosition = $that->getPosition();
+        static::withoutEvents(function () use ($that) {
+            $thisPosition = $this->getPosition();
+            $thatPosition = $that->getPosition();
 
-        $this->setPosition($thatPosition);
-        $that->setPosition($thisPosition);
+            $this->setPosition($thatPosition);
+            $that->setPosition($thisPosition);
 
-        $this->save();
-        $that->save();
+            $this->save();
+            $that->save();
+        });
     }
 
     /**
@@ -143,18 +143,18 @@ trait HasPosition
      */
     protected function assignNextPosition(): Model
     {
-        return $this->setPosition($this->getNextPositionInSequence());
+        return $this->setPosition($this->getNextPosition());
     }
 
     /**
      * Determine the next position value in the model sequence.
      */
-    protected function getNextPositionInSequence(): int
+    protected function getNextPosition(): int
     {
-        $maxPosition = $this->getMaxPositionInSequence();
+        $maxPosition = $this->getMaxPosition();
 
         if (null === $maxPosition) {
-            return $this->getInitPosition();
+            return $this->getStartPosition();
         }
 
         return $maxPosition + 1;
@@ -163,8 +163,20 @@ trait HasPosition
     /**
      * Get the max position value in the model sequence.
      */
-    protected function getMaxPositionInSequence(): ?int
+    protected function getMaxPosition(): ?int
     {
         return $this->newPositionQuery()->max($this->getPositionColumn());
+    }
+
+    /**
+     * Shift models in a sequence before the move to a new position.
+     */
+    protected function shiftBeforeMove(int $newPosition, int $oldPosition): void
+    {
+        if ($newPosition < $oldPosition) {
+            $this->newPositionQuery()->shiftToEnd($newPosition, $oldPosition);
+        } elseif ($newPosition > $oldPosition) {
+            $this->newPositionQuery()->shiftToStart($oldPosition, $newPosition);
+        }
     }
 }
