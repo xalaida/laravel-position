@@ -44,11 +44,11 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_configure_initial_position_value(): void
+    public function it_can_configure_start_position_value(): void
     {
         $fakeCategory = Mockery::mock(Category::class)->makePartial();
         $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
-        $fakeCategory->shouldReceive('getInitPosition')->andReturn(23);
+        $fakeCategory->shouldReceive('getStartPosition')->andReturn(23);
         $fakeCategory->__construct();
 
         $category = Category::query()->setModel($fakeCategory)->create();
