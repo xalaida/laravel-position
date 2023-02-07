@@ -36,7 +36,7 @@ class CreateTest extends TestCase
      */
     public function it_does_not_override_position_value_if_it_is_set_already(): void
     {
-        $category = CategoryFactory::new()->onPosition(15)->create();
+        $category = CategoryFactory::new()->position(15)->create();
 
         static::assertSame(15, $category->position);
     }

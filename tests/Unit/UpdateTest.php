@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\DB;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\TestCase;
 
-class MoveTest extends TestCase
+class UpdateTest extends TestCase
 {
     /**
      * @test
      */
-    public function it_can_move_model_to_decrease_position(): void
+    public function it_can_update_position(): void
     {
         $category0 = CategoryFactory::new()->position(0)->create();
         $category1 = CategoryFactory::new()->position(1)->create();

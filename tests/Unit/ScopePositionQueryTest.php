@@ -44,17 +44,17 @@ class ScopePositionQueryTest extends TestCase
         $category = CategoryFactory::new()->create();
 
         $book0 = BookFactory::new()
-            ->onPosition(0)
+            ->position(0)
             ->forCategory($category)
             ->create();
 
         $book1 = BookFactory::new()
             ->forCategory($category)
-            ->onPosition(1)
+            ->position(1)
             ->create();
 
         $anotherBook = BookFactory::new()
-            ->onPosition(2)
+            ->position(2)
             ->create();
 
         $book0->delete();

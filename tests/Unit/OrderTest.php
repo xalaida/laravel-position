@@ -14,9 +14,9 @@ class OrderTest extends TestCase
      */
     public function it_can_order_models_by_position(): void
     {
-        $category2 = CategoryFactory::new()->onPosition(2)->create();
-        $category0 = CategoryFactory::new()->onPosition(0)->create();
-        $category1 = CategoryFactory::new()->onPosition(1)->create();
+        $category2 = CategoryFactory::new()->position(2)->create();
+        $category0 = CategoryFactory::new()->position(0)->create();
+        $category1 = CategoryFactory::new()->position(1)->create();
 
         $categories = Category::query()->orderByPosition()->get();
 
@@ -30,9 +30,9 @@ class OrderTest extends TestCase
      */
     public function it_can_order_models_by_inverse_position(): void
     {
-        $category2 = CategoryFactory::new()->onPosition(2)->create();
-        $category0 = CategoryFactory::new()->onPosition(0)->create();
-        $category1 = CategoryFactory::new()->onPosition(1)->create();
+        $category2 = CategoryFactory::new()->position(2)->create();
+        $category0 = CategoryFactory::new()->position(0)->create();
+        $category1 = CategoryFactory::new()->position(1)->create();
 
         $categories = Category::query()->orderByInversePosition()->get();
 
@@ -46,9 +46,9 @@ class OrderTest extends TestCase
      */
     public function it_can_be_ordered_by_position_by_default(): void
     {
-        $category2 = CategoryFactory::new()->onPosition(2)->create();
-        $category0 = CategoryFactory::new()->onPosition(0)->create();
-        $category1 = CategoryFactory::new()->onPosition(1)->create();
+        $category2 = CategoryFactory::new()->position(2)->create();
+        $category0 = CategoryFactory::new()->position(0)->create();
+        $category1 = CategoryFactory::new()->position(1)->create();
 
         $fakeCategory = Mockery::mock(new Category());
         $fakeCategory->shouldReceive('alwaysOrderByPosition')->andReturnTrue();
@@ -65,9 +65,9 @@ class OrderTest extends TestCase
      */
     public function it_is_not_ordered_by_position_by_default(): void
     {
-        $category2 = CategoryFactory::new()->onPosition(2)->create();
-        $category0 = CategoryFactory::new()->onPosition(0)->create();
-        $category1 = CategoryFactory::new()->onPosition(1)->create();
+        $category2 = CategoryFactory::new()->position(2)->create();
+        $category0 = CategoryFactory::new()->position(0)->create();
+        $category1 = CategoryFactory::new()->position(1)->create();
 
         $categories = Category::query()->get();
 
