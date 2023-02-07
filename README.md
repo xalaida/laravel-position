@@ -1,6 +1,6 @@
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
-# Laravel Position
+# Position for Laravel
 
 [![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
 [![Tests](https://github.com/nevadskiy/laravel-position/workflows/tests/badge.svg)](https://packagist.org/packages/nevadskiy/laravel-position)
@@ -14,7 +14,6 @@ The package allows you to arrange the laravel models in a given order.
 - Laravel `7.0` or newer
 - PHP `7.2` or newer
 
-
 ## 🔌 Installation
 
 Install the package via composer.
@@ -22,7 +21,6 @@ Install the package via composer.
 ```bash
 composer require nevadskiy/laravel-position
 ````
-
 
 ## 🔨 Add positions to models
 
@@ -50,13 +48,11 @@ Schema::create('categories', function (Blueprint $table) {
 });
 ```
 
-
 ## 📄 Documentation
 
 ### How it works
 
 Models have a 'position' field with an unsigned integer value that is used for their ordering.
-
 
 ### Creating models
 
@@ -73,11 +69,9 @@ public function getInitPosition(): int
 }
 ```
 
-
 ### Deleting models
 
 When a record is deleted, the positions of another records in the sequence are updated automatically.
-
 
 ### Querying models 
 
@@ -86,7 +80,6 @@ To query models in the arranged sequence, use the `orderByPosition` scope.
 ```php
 Category::orderByPosition()->get();
 ```
-
 
 ### Auto ordering
 
@@ -103,7 +96,6 @@ public function alwaysOrderByPosition(): bool
 }
 ```
 
-
 ### Moving items
 
 #### Move
@@ -114,7 +106,6 @@ The `move` method allows to move a model to an arbitrary position in the sequenc
 $category->move(3);
 ```
 
-
 #### Swap
 
 The `swap` method swaps the position of two models.
@@ -122,7 +113,6 @@ The `swap` method swaps the position of two models.
 ```php
 $category->swap($anotherCategory);
 ```
-
 
 #### Arrange
 
@@ -147,38 +137,18 @@ protected function newPositionQuery()
 }
 ```
 
-
 ## 📑 Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
-
 
 ## ☕ Contributing
 
 Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
 
-
 ## 🔓 Security
 
 If you discover any security related issues, please [e-mail me](mailto:nevadskiy@gmail.com) instead of using the issue tracker.
 
-
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
-
-
-## TODO
-
-- [ ] add possibility to create new models on the beginning of the sequence
-- [ ] add support for `move(-1)`, `move(-3)` to move the item at the end of the sequence
-- [ ] add `moveToStart()` method
-- [ ] add `moveToEnd()` method
-- [ ] add `moveUp()` method
-- [ ] add `moveDown()` method
-- [ ] add `moveAbove($that)` method
-- [ ] add `moveBelow($that)` method
-- [ ] add `next()` method
-- [ ] add `previous()` method
-- [ ] add support for quite moving (without `updated_at` overriding)
-- [ ] add nova plugin with drag functionality
