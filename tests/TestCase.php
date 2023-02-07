@@ -2,13 +2,12 @@
 
 namespace Nevadskiy\Position\Tests;
 
-use Illuminate\Foundation\Application;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
 {
     /**
-     * Setup the test environment.
+     * @inheritdoc
      */
     protected function setUp(): void
     {
@@ -20,9 +19,7 @@ class TestCase extends OrchestraTestCase
     }
 
     /**
-     * Get package providers.
-     *
-     * @param Application $app
+     * @inheritdoc
      */
     protected function getPackageProviders($app): array
     {
@@ -30,9 +27,7 @@ class TestCase extends OrchestraTestCase
     }
 
     /**
-     * Define environment setup.
-     *
-     * @param Application $app
+     * @inheritdoc
      */
     protected function getEnvironmentSetUp($app): void
     {
