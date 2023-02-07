@@ -7,7 +7,7 @@
 [![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-position/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
 [![License](https://poser.pugx.org/nevadskiy/laravel-position/license)](https://packagist.org/packages/nevadskiy/laravel-position)
 
-The package allows you to arrange the laravel models in a given order.
+The package allows you to arrange Laravel models in a given order.
 
 ## ✅ Requirements
 
@@ -151,4 +151,4 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 
 ## 📜 License
 
-The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
+The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
