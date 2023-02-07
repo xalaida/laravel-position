@@ -8,7 +8,10 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class MoveTest extends TestCase
 {
-    public function test_it_can_move_model_to_decrease_position(): void
+    /**
+     * @test
+     */
+    public function it_can_move_model_to_decrease_position(): void
     {
         $category0 = CategoryFactory::new()->onPosition(0)->create();
         $category1 = CategoryFactory::new()->onPosition(1)->create();
@@ -21,7 +24,10 @@ class MoveTest extends TestCase
         static::assertSame(2, $category1->fresh()->getPosition());
     }
 
-    public function test_it_can_move_model_to_increase_position(): void
+    /**
+     * @test
+     */
+    public function it_can_move_model_to_increase_position(): void
     {
         $category0 = CategoryFactory::new()->onPosition(0)->create();
         $category1 = CategoryFactory::new()->onPosition(1)->create();
@@ -34,7 +40,10 @@ class MoveTest extends TestCase
         static::assertSame(2, $category0->fresh()->getPosition());
     }
 
-    public function test_it_does_not_move_model_to_the_same_position(): void
+    /**
+     * @test
+     */
+    public function it_does_not_move_model_to_the_same_position(): void
     {
         $category = CategoryFactory::new()->onPosition(3)->create();
 

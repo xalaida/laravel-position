@@ -9,7 +9,10 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class OrderTest extends TestCase
 {
-    public function test_it_can_order_models_by_position(): void
+    /**
+     * @test
+     */
+    public function it_can_order_models_by_position(): void
     {
         $category2 = CategoryFactory::new()->onPosition(2)->create();
         $category0 = CategoryFactory::new()->onPosition(0)->create();
@@ -22,7 +25,10 @@ class OrderTest extends TestCase
         static::assertTrue($categories[2]->is($category2));
     }
 
-    public function test_it_can_order_models_by_inverse_position(): void
+    /**
+     * @test
+     */
+    public function it_can_order_models_by_inverse_position(): void
     {
         $category2 = CategoryFactory::new()->onPosition(2)->create();
         $category0 = CategoryFactory::new()->onPosition(0)->create();
@@ -35,7 +41,10 @@ class OrderTest extends TestCase
         static::assertTrue($categories[2]->is($category0));
     }
 
-    public function test_it_can_be_ordered_by_position_by_default(): void
+    /**
+     * @test
+     */
+    public function it_can_be_ordered_by_position_by_default(): void
     {
         $category2 = CategoryFactory::new()->onPosition(2)->create();
         $category0 = CategoryFactory::new()->onPosition(0)->create();
@@ -51,7 +60,10 @@ class OrderTest extends TestCase
         static::assertTrue($categories[2]->is($category2));
     }
 
-    public function test_it_is_not_ordered_by_position_by_default(): void
+    /**
+     * @test
+     */
+    public function it_is_not_ordered_by_position_by_default(): void
     {
         $category2 = CategoryFactory::new()->onPosition(2)->create();
         $category0 = CategoryFactory::new()->onPosition(0)->create();

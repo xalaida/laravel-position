@@ -8,7 +8,10 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class ScopePositionQueryTest extends TestCase
 {
-    public function test_it_positioned_within_its_relation_scope(): void
+    /**
+     * @test
+     */
+    public function it_positioned_within_its_relation_scope(): void
     {
         $category = CategoryFactory::new()->create();
 
@@ -33,7 +36,10 @@ class ScopePositionQueryTest extends TestCase
         static::assertSame(0, $anotherBook->fresh()->getPosition());
     }
 
-    public function test_it_does_not_update_position_values_that_are_out_of_scope_on_delete(): void
+    /**
+     * @test
+     */
+    public function it_does_not_update_position_values_that_are_out_of_scope_on_delete(): void
     {
         $category = CategoryFactory::new()->create();
 
@@ -57,7 +63,10 @@ class ScopePositionQueryTest extends TestCase
         static::assertSame(2, $anotherBook->fresh()->getPosition());
     }
 
-    public function test_it_calculates_max_position_by_scoped_items(): void
+    /**
+     * @test
+     */
+    public function it_calculates_max_position_by_scoped_items(): void
     {
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();
