@@ -14,7 +14,7 @@ class BookFactory extends Factory
     /**
      * Specify the given position to the model.
      */
-    public function onPosition(int $position): self
+    public function position(int $position): self
     {
         $this->attributes['position'] = $position;
 

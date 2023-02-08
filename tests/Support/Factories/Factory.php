@@ -44,6 +44,9 @@ abstract class Factory
         return $model;
     }
 
+    /**
+     * Make a new model instance.
+     */
     abstract protected function newModel(): Model;
 
     /**

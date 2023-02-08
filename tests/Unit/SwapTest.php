@@ -7,7 +7,10 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class SwapTest extends TestCase
 {
-    public function test_it_can_swap_models(): void
+    /**
+     * @test
+     */
+    public function it_can_swap_models(): void
     {
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();
@@ -19,7 +22,10 @@ class SwapTest extends TestCase
         static::assertSame($category2->fresh()->getPosition(), 0);
     }
 
-    public function test_it_does_not_break_another_positions(): void
+    /**
+     * @test
+     */
+    public function it_does_not_break_another_positions(): void
     {
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();

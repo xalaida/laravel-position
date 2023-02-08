@@ -7,7 +7,10 @@ use Nevadskiy\Position\Tests\TestCase;
 
 class DeleteTest extends TestCase
 {
-    public function test_it_updates_position_values_on_another_model_delete(): void
+    /**
+     * @test
+     */
+    public function it_updates_position_values_on_another_model_delete(): void
     {
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();
@@ -21,7 +24,10 @@ class DeleteTest extends TestCase
         static::assertSame(0, $category0->fresh()->getPosition());
     }
 
-    public function test_it_does_not_update_positions_when_last_record_is_deleted(): void
+    /**
+     * @test
+     */
+    public function it_does_not_update_positions_when_last_record_is_deleted(): void
     {
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();

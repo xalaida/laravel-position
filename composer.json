@@ -1,8 +1,8 @@
 {
     "name": "nevadskiy/laravel-position",
-    "description": "The package allows you to arrange the laravel models in a given order.",
+    "description": "Arrange Laravel models in a given order.",
     "license": "MIT",
-    "keywords": ["position", "sort", "order", "arrange", "eloquent", "laravel"],
+    "keywords": ["position", "sort", "order", "arrange", "model", "eloquent", "laravel"],
     "authors": [
         {
             "name": "Nevadskiy",
@@ -16,7 +16,7 @@
     "require-dev": {
         "phpunit/phpunit": "^8.0|^9.0",
         "orchestra/testbench": "^5.0|^6.0|^7.0",
-        "nevadskiy/php-cs-fixer-rules": "dev-master"
+        "friendsofphp/php-cs-fixer": "^3.0"
     },
     "autoload": {
         "psr-4": {
@@ -27,15 +27,5 @@
         "psr-4": {
             "Nevadskiy\\Position\\Tests\\": "tests/"
         }
-    },
-    "scripts": {
-        "test": "phpunit --colors=always",
-        "fix": "php-cs-fixer fix"
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/nevadskiy/php-cs-fixer-rules.git"
-        }
-    ]
+    }
 }

@@ -1,20 +1,18 @@
-# Laravel Position
-
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
-[![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![Tests](https://github.com/nevadskiy/laravel-position/workflows/tests/badge.svg)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-position/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![License](https://poser.pugx.org/nevadskiy/laravel-position/license)](https://packagist.org/packages/nevadskiy/laravel-position)
+# Position for Laravel
 
-The package allows you to arrange the laravel models in a given order.
+[![PHPUnit](https://img.shields.io/github/actions/workflow/status/nevadskiy/laravel-position/phpunit.yml?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Code Coverage](https://img.shields.io/codecov/c/github/nevadskiy/laravel-position?token=9X6AQQYCPA)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Latest Stable Version](http://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![License](http://poser.pugx.org/nevadskiy/laravel-position/license)](https://packagist.org/packages/nevadskiy/laravel-position)
 
+🔢 Arrange Laravel models in a given order.
 
 ## ✅ Requirements
 
 - Laravel `7.0` or newer
 - PHP `7.2` or newer
-
 
 ## 🔌 Installation
 
@@ -24,10 +22,9 @@ Install the package via composer.
 composer require nevadskiy/laravel-position
 ````
 
-
 ## 🔨 Add positions to models
 
-1. Add the `HasPosition` trait to your models that should have positions.
+Add the `HasPosition` trait to your models that should have positions.
 
 ```php
 <?php
@@ -43,7 +40,7 @@ class Category extends Model
 }
 ```
 
-2. Add a `position` column to the model tables.
+Add a `position` column to the model tables.
 
 ```php
 Schema::create('categories', function (Blueprint $table) {
@@ -51,21 +48,19 @@ Schema::create('categories', function (Blueprint $table) {
 });
 ```
 
-
 ## 📄 Documentation
 
 ### How it works
 
-Models have a 'position' field with an unsigned integer value that is used for their ordering.
-
+Models simply have an integer `position' attribute corresponding to the model's position in the sequence, which is automatically calculated on write and used for sorting the models on reads.
 
 ### Creating models
 
-The position field serves as a sort of array index and is automatically inserted when creating a new record.
+The `position' attribute is a kind of array index and is automatically inserted when a new model is created.
 
 By default, the model takes a position at the very end of the sequence.
 
-The first position gets an initial value of `0` by default. To change that, override the `getInitPosition` method
+The initial position gets a `0` value by default. To change that, override the `getInitPosition` method in the model.
 
 ```php
 public function getInitPosition(): int
@@ -74,28 +69,25 @@ public function getInitPosition(): int
 }
 ```
 
-
 ### Deleting models
 
-When a record is deleted, the positions of another records in the sequence are updated automatically.
-
+When a model is deleted, the positions of other records in the sequence are updated automatically.
 
 ### Querying models 
 
-To query models in the arranged sequence, use the `orderByPosition` scope.
+To select models in the arranged sequence, use the `orderByPosition` scope.
 
 ```php
 Category::orderByPosition()->get();
 ```
 
-
 ### Auto ordering
 
-The `orderByPosition` scope is not applied by default because the appropriate SQL-statement will be added to all queries, even where it is not required.
+The `orderByPosition` scope is not applied by default because the corresponding SQL statement will be added to all queries, even where it is not required.
 
-It is much easier to manually add the scope in all places where you actually need it.
+It is much easier to manually add the scope in all places where you need it.
 
-However, if you really want to enable auto-ordering, you can override `alwaysOrderByPosition` method in your model like this:
+However, if you want to enable auto-ordering, you can override the `alwaysOrderByPosition` method in your model like this:
 
 ```php
 public function alwaysOrderByPosition(): bool
@@ -104,17 +96,27 @@ public function alwaysOrderByPosition(): bool
 }
 ```
 
-
 ### Moving items
+
+#### Update
+
+To move a model to an arbitrary position in the sequence, you can simply update its position like this:
+
+```php
+$category->update([
+    'position' => 3
+]);
+```
+
+The positions of other models will be automatically recalculated as well.
 
 #### Move
 
-The `move` method allows to move a model to an arbitrary position in the sequence. The positions of another records will be automatically recalculated in response.
+You can also use the `move` method that sets a new position value and updates the model immediately:
 
 ```php
 $category->move(3);
 ```
-
 
 #### Swap
 
@@ -123,7 +125,6 @@ The `swap` method swaps the position of two models.
 ```php
 $category->swap($anotherCategory);
 ```
-
 
 #### Arrange
 
@@ -139,7 +140,18 @@ Category::arrangeByKeys([3, 5, 7]);
 
 ### Grouping / Dealing with relations
 
-To allow models to be positioned within groups, you need to override the `newPositionQuery` method.
+To allow models to be positioned within groups, you need to override the `newPositionQuery` method that should return a query to the grouped model sequence:
+
+```php
+use Illuminate\Database\Eloquent\Builder;
+
+protected function newPositionQuery(): Builder
+{
+    return $this->category->tasks();
+}
+```
+
+Example with self-referenced groups:
 
 ```php
 protected function newPositionQuery()
@@ -148,38 +160,18 @@ protected function newPositionQuery()
 }
 ```
 
-
 ## 📑 Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
-
 
 ## ☕ Contributing
 
 Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for more information.
 
-
 ## 🔓 Security
 
 If you discover any security related issues, please [e-mail me](mailto:nevadskiy@gmail.com) instead of using the issue tracker.
 
-
 ## 📜 License
 
-The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
-
-
-## TODO
-
-- [ ] add possibility to create new models on the beginning of the sequence
-- [ ] add support for `move(-1)`, `move(-3)` to move the item at the end of the sequence
-- [ ] add `moveToStart()` method
-- [ ] add `moveToEnd()` method
-- [ ] add `moveUp()` method
-- [ ] add `moveDown()` method
-- [ ] add `moveAbove($that)` method
-- [ ] add `moveBelow($that)` method
-- [ ] add `next()` method
-- [ ] add `previous()` method
-- [ ] add support for quite moving (without `updated_at` overriding)
-- [ ] add nova plugin with drag functionality
+The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
