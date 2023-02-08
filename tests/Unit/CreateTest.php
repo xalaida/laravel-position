@@ -48,7 +48,7 @@ class CreateTest extends TestCase
     {
         $fakeCategory = Mockery::mock(Category::class)->makePartial();
         $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
-        $fakeCategory->shouldReceive('getStartPosition')->andReturn(23);
+        $fakeCategory->shouldReceive('getInitPosition')->andReturn(23);
         $fakeCategory->__construct();
 
         $category = Category::query()->setModel($fakeCategory)->create();

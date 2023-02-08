@@ -44,7 +44,7 @@ trait HasPosition
     /**
      * Get a value of the starting position.
      */
-    public function getStartPosition(): int
+    public function getInitPosition(): int
     {
         return 0;
     }
@@ -154,7 +154,7 @@ trait HasPosition
         $maxPosition = $this->getMaxPosition();
 
         if (null === $maxPosition) {
-            return $this->getStartPosition();
+            return $this->getInitPosition();
         }
 
         return $maxPosition + 1;
