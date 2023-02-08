@@ -56,11 +56,11 @@ Models simply have an integer `position' attribute corresponding to the model's 
 
 ### Creating models
 
-The `position` attributes serves as a sort of array index and is automatically inserted when creating a new record.
+The `position' attribute is a kind of array index and is automatically inserted when a new model is created.
 
 By default, the model takes a position at the very end of the sequence.
 
-The first position gets an initial value of `0` by default. To change that, override the `getInitPosition` method
+The initial position gets a `0` value by default. To change that, override the `getInitPosition` method in the model.
 
 ```php
 public function getInitPosition(): int
@@ -71,11 +71,11 @@ public function getInitPosition(): int
 
 ### Deleting models
 
-When a record is deleted, the positions of another records in the sequence are updated automatically.
+When a model is deleted, the positions of other records in the sequence are updated automatically.
 
 ### Querying models 
 
-To query models in the arranged sequence, use the `orderByPosition` scope.
+To select models in the arranged sequence, use the `orderByPosition` scope.
 
 ```php
 Category::orderByPosition()->get();
@@ -83,11 +83,11 @@ Category::orderByPosition()->get();
 
 ### Auto ordering
 
-The `orderByPosition` scope is not applied by default because the appropriate SQL-statement will be added to all queries, even where it is not required.
+The `orderByPosition` scope is not applied by default because the corresponding SQL statement will be added to all queries, even where it is not required.
 
-It is much easier to manually add the scope in all places where you actually need it.
+It is much easier to manually add the scope in all places where you need it.
 
-However, if you really want to enable auto-ordering, you can override `alwaysOrderByPosition` method in your model like this:
+However, if you want to enable auto-ordering, you can override the `alwaysOrderByPosition` method in your model like this:
 
 ```php
 public function alwaysOrderByPosition(): bool
@@ -98,9 +98,21 @@ public function alwaysOrderByPosition(): bool
 
 ### Moving items
 
+#### Update
+
+To move a model to an arbitrary position in the sequence, you can simply update its position like this:
+
+```php
+$category->update([
+    'position' => 3
+]);
+```
+
+The positions of other models will be automatically recalculated as well.
+
 #### Move
 
-The `move` method allows to move a model to an arbitrary position in the sequence. The positions of another records will be automatically recalculated in response.
+You can also use the `move` method that sets a new position value and updates the model immediately:
 
 ```php
 $category->move(3);
@@ -128,7 +140,18 @@ Category::arrangeByKeys([3, 5, 7]);
 
 ### Grouping / Dealing with relations
 
-To allow models to be positioned within groups, you need to override the `newPositionQuery` method.
+To allow models to be positioned within groups, you need to override the `newPositionQuery` method that should return a query to the grouped model sequence:
+
+```php
+use Illuminate\Database\Eloquent\Builder;
+
+protected function newPositionQuery(): Builder
+{
+    return $this->category->tasks();
+}
+```
+
+Example with self-referenced groups:
 
 ```php
 protected function newPositionQuery()
