@@ -52,11 +52,11 @@ Schema::create('categories', function (Blueprint $table) {
 
 ### How it works
 
-Models simply have an integer `position' attribute corresponding to the model's position in the sequence, which is automatically calculated on write and used for sorting the models on reads.
+Models simply have an integer `position` attribute corresponding to the model's position in the sequence, which is automatically calculated on write and used for sorting the models on reads.
 
 ### Creating models
 
-The `position' attribute is a kind of array index and is automatically inserted when a new model is created.
+The `position` attribute is a kind of array index and is automatically inserted when a new model is created.
 
 By default, the model takes a position at the very end of the sequence.
 
