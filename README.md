@@ -2,12 +2,12 @@
 
 # Position for Laravel
 
-[![Latest Stable Version](https://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![Tests](https://github.com/nevadskiy/laravel-position/workflows/tests/badge.svg)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-position/branch/master/graphs/badge.svg?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![License](https://poser.pugx.org/nevadskiy/laravel-position/license)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![PHPUnit](https://img.shields.io/github/actions/workflow/status/nevadskiy/laravel-position/phpunit.yml?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Code Coverage](https://img.shields.io/codecov/c/github/nevadskiy/laravel-position?token=9X6AQQYCPA)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Latest Stable Version](http://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![License](http://poser.pugx.org/nevadskiy/laravel-position/license)](https://packagist.org/packages/nevadskiy/laravel-position)
 
-The package allows you to arrange Laravel models in a given order.
+🔢 Arrange Laravel models in a given order.
 
 ## ✅ Requirements
 
@@ -24,7 +24,7 @@ composer require nevadskiy/laravel-position
 
 ## 🔨 Add positions to models
 
-1. Add the `HasPosition` trait to your models that should have positions.
+Add the `HasPosition` trait to your models that should have positions.
 
 ```php
 <?php
@@ -40,7 +40,7 @@ class Category extends Model
 }
 ```
 
-2. Add a `position` column to the model tables.
+Add a `position` column to the model tables.
 
 ```php
 Schema::create('categories', function (Blueprint $table) {
@@ -52,11 +52,11 @@ Schema::create('categories', function (Blueprint $table) {
 
 ### How it works
 
-Models have a 'position' field with an unsigned integer value that is used for their ordering.
+Models simply have an integer `position' attribute corresponding to the model's position in the sequence, which is automatically calculated on write and used for sorting the models on reads.
 
 ### Creating models
 
-The position field serves as a sort of array index and is automatically inserted when creating a new record.
+The `position` attributes serves as a sort of array index and is automatically inserted when creating a new record.
 
 By default, the model takes a position at the very end of the sequence.
 

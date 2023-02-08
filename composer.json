@@ -1,6 +1,6 @@
 {
     "name": "nevadskiy/laravel-position",
-    "description": "The package allows you to arrange Laravel models in a given order.",
+    "description": "Arrange Laravel models in a given order.",
     "license": "MIT",
     "keywords": ["position", "sort", "order", "arrange", "model", "eloquent", "laravel"],
     "authors": [
