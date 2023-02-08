@@ -154,7 +154,9 @@ protected function newPositionQuery(): Builder
 Example with self-referenced groups:
 
 ```php
-protected function newPositionQuery()
+use Illuminate\Database\Eloquent\Builder;
+
+protected function newPositionQuery(): Builder
 {
     return $this->newQuery()->where('parent_id', $this->parent_id);
 }
