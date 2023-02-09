@@ -1,11 +1,10 @@
 <?php
 
-namespace Nevadskiy\Position\Tests\Unit;
+namespace Nevadskiy\Position\Tests;
 
 use Mockery;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\Support\Models\Category;
-use Nevadskiy\Position\Tests\TestCase;
 
 class OrderTest extends TestCase
 {
