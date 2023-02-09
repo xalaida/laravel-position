@@ -12,6 +12,13 @@ use Nevadskiy\Position\Scopes\PositioningScope;
 trait HasPosition
 {
     /**
+     * Indicates if the model should shift position of other models in the sequence.
+     *
+     * @var bool
+     */
+    protected $shiftPosition = false;
+
+    /**
      * Boot the trait.
      */
     public static function bootHasPosition(): void
@@ -19,11 +26,19 @@ trait HasPosition
         static::addGlobalScope(new PositioningScope());
 
         static::creating(static function (self $model) {
-            $model->assignPositionIfMissing();
+            if ($model->getPosition() === null) {
+                $model->assignPosition();
+            } else {
+                $model->withShiftPosition();
+            }
         });
 
+        // @todo consider using "saved" event for this.
         static::created(static function (self $model) {
-            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+            if ($model->shouldShiftPosition()) {
+                // @todo consider extracting into "others" method.
+                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+            }
         });
 
         static::updating(static function (self $model) {
@@ -69,6 +84,21 @@ trait HasPosition
     public function alwaysOrderByPosition(): bool
     {
         return false;
+    }
+
+    /**
+     * Determine if the model should shift position of other models in the sequence.
+     */
+    public function shouldShiftPosition(): bool
+    {
+        return $this->shiftPosition;
+    }
+
+    public function withShiftPosition(bool $value = true): self
+    {
+        $this->shiftPosition = $value;
+
+        return $this;
     }
 
     /**
@@ -142,20 +172,20 @@ trait HasPosition
         return $this->newQuery();
     }
 
-    /**
-     * Assign the next position value to the model if it is missing.
-     */
-    protected function assignPositionIfMissing(): void
-    {
-        if (null === $this->getPosition()) {
-            $this->assignNextPosition();
-        }
-    }
+//    /**
+//     * Assign the next position value to the model if it is missing.
+//     */
+//    protected function assignPositionIfMissing(): void
+//    {
+//        if (null === $this->getPosition()) {
+//            $this->assignPosition();
+//        }
+//    }
 
     /**
      * Assign the next position value to the model.
      */
-    protected function assignNextPosition(): Model
+    protected function assignPosition(): Model
     {
         return $this->setPosition($this->getNextPosition());
     }

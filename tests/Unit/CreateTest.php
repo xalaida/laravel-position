@@ -12,7 +12,7 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_sets_position_value_on_model_create(): void
+    public function it_assigns_position_value_when_model_is_creating(): void
     {
         $category = CategoryFactory::new()->create();
 
@@ -22,14 +22,30 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_sets_next_position_value_in_model_sequence(): void
+    public function it_creates_model_at_end_of_sequence(): void
     {
-        $categories = CategoryFactory::new()->createMany(3);
+        CategoryFactory::new()->createMany(2);
 
-        static::assertSame(2, $categories[1]->position);
+        $category = CategoryFactory::new()->create();
+
+        static::assertSame(2, $category->position);
+
+        // @todo what if we start to update position after that? previous "shift" value is still working.
     }
 
-    // @todo ensure it produces single database query when model is created at the end of the sequence
+    /**
+     * @test
+     */
+    public function it_executes_2_queries_to_create_model_at_end_of_sequence(): void
+    {
+        CategoryFactory::new()->createMany(2);
+
+        Category::query()->getConnection()->enableQueryLog();
+
+        CategoryFactory::new()->create();
+
+        self::assertCount(2, Category::query()->getConnection()->getQueryLog());
+    }
 
     /**
      * @test
