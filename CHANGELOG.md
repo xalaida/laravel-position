@@ -8,19 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2023-02-08
+
+### Added
+
+- Possibility to update `position` attribute along with other attributes
+
 ## [0.4.0] - 2022-05-08
 
 ### Added
+
 - Laravel 9 support
 
 ## [0.3.0] - 2021-06-24
 
 ### Fixed
+
 - Fix position query scoping for relations
 
 ## [0.2.0] - 2021-06-19
 
 ### Added
+
 - Documentation
 - `OrderByPosition` global scope
 - Support for models delete 
@@ -28,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add PHP 8 support
 
 ### Changed
+
 - Rename `arrangeByIds` into `arrangeByKeys`
 - Extract `arrangeByKeys` method into query builder
 - Extract shift methods into query builder
@@ -35,4 +45,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-06-13
 
 ### Added
+
 - Base ordering features
