@@ -12,11 +12,12 @@ class PositioningScope implements Scope
     /**
      * Extend the query builder with the needed functions.
      */
-    public function extend(Builder $builder): void
+    public function extend(Builder $query): void
     {
-        $builder->macro('arrangeByKeys', [$this, 'arrangeByKeys']);
-        $builder->macro('shiftToStart', [$this, 'shiftToStart']);
-        $builder->macro('shiftToEnd', [$this, 'shiftToEnd']);
+        $query->macro('wherePositionBetween', [$this, 'wherePositionBetween']);
+        $query->macro('shiftToStart', [$this, 'shiftToStart']);
+        $query->macro('shiftToEnd', [$this, 'shiftToEnd']);
+        $query->macro('arrangeByKeys', [$this, 'arrangeByKeys']);
     }
 
     /**
@@ -32,41 +33,51 @@ class PositioningScope implements Scope
     }
 
     /**
-     * Arrange the models according to the given ordered keys.
+     * Select all models that are between the given positions.
      */
-    public function arrangeByKeys(Builder $builder, array $keys, int $startPosition = null): void
+    public function wherePositionBetween(Builder $query, int $startPosition = null, int $endPosition = null): Builder
     {
-        $startPosition = $startPosition ?: $builder->getModel()->startPosition();
+        $query->when($startPosition !== null, static function (Builder $query) use ($startPosition) {
+            $query->where($query->getModel()->getPositionColumn(), '>=', $startPosition);
+        });
 
-        foreach ($keys as $position => $key) {
-            (clone $builder)->whereKey($key)
-                ->update([
-                    $builder->getModel()->getPositionColumn() => $startPosition + $position,
-                ]);
-        }
+        $query->when($endPosition !== null, static function (Builder $query) use ($endPosition) {
+            $query->where($query->getModel()->getPositionColumn(), '<=', $endPosition);
+        });
+
+        return $query;
     }
 
     /**
      * Shift all models that are between the given positions to the beginning of the sequence.
      */
-    public function shiftToStart(Builder $builder, int $startPosition, int $stopPosition = null): int
+    public function shiftToStart(Builder $query, int $fromPosition = null, int $toPosition = null, int $amount = 1): int
     {
-        return $builder->where($builder->getModel()->getPositionColumn(), '>=', $startPosition)
-            ->when($stopPosition, static function (Builder $builder) use ($stopPosition) {
-                $builder->where($builder->getModel()->getPositionColumn(), '<=', $stopPosition);
-            })
-            ->decrement($builder->getModel()->getPositionColumn());
+        return $query->wherePositionBetween($fromPosition, $toPosition)
+            ->decrement($query->getModel()->getPositionColumn(), $amount);
     }
 
     /**
      * Shift all models that are between the given positions to the end of the sequence.
      */
-    public function shiftToEnd(Builder $builder, int $startPosition, int $stopPosition = null): int
+    public function shiftToEnd(Builder $query, int $fromPosition, int $toPosition = null, int $amount = 1): int
     {
-        return $builder->where($builder->getModel()->getPositionColumn(), '>=', $startPosition)
-            ->when($stopPosition, static function (Builder $builder) use ($stopPosition) {
-                $builder->where($builder->getModel()->getPositionColumn(), '<=', $stopPosition);
-            })
-            ->increment($builder->getModel()->getPositionColumn());
+        return $query->wherePositionBetween($fromPosition, $toPosition)
+            ->increment($query->getModel()->getPositionColumn(), $amount);
+    }
+
+    /**
+     * Arrange the models according to the given ordered keys.
+     */
+    public function arrangeByKeys(Builder $query, array $keys, int $startPosition = null): void
+    {
+        $startPosition = $startPosition ?: $query->getModel()->startPosition();
+
+        foreach ($keys as $position => $key) {
+            (clone $query)->whereKey($key)
+                ->update([
+                    $query->getModel()->getPositionColumn() => $startPosition + $position,
+                ]);
+        }
     }
 }
