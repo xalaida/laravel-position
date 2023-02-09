@@ -44,10 +44,12 @@ trait HasPosition
 
         static::updated(static function (self $model) {
             if ($model->shouldShiftPosition()) {
-                if ($model->getPosition() < $model->getOriginal($model->getPositionColumn())) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
-                } elseif ($model->getPosition() > $model->getOriginal($model->getPositionColumn())) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($model->getOriginal($model->getPositionColumn()), $model->getPosition());
+                [$currentPosition, $previousPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
+
+                if ($currentPosition < $previousPosition) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($currentPosition, $previousPosition);
+                } elseif ($currentPosition > $previousPosition) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($previousPosition, $currentPosition);
                 }
 
                 $model->disableShiftingPosition();
@@ -172,6 +174,7 @@ trait HasPosition
      */
     public function swap(self $that): void
     {
+        // @todo refactor with disabled shifting...
         static::withoutEvents(function () use ($that) {
             $thisPosition = $this->getPosition();
             $thatPosition = $that->getPosition();
