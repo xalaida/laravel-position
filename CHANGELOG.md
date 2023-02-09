@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Rename method `getInitPosition` to `startPosition`
+- Models now are shifted after the model update
 
 ## [0.4.1] - 2023-02-08
 
