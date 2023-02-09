@@ -16,7 +16,7 @@ trait HasPosition
      *
      * @var bool
      */
-    protected $shiftPosition = false;
+    protected static $shiftPosition = true;
 
     /**
      * Boot the trait.
@@ -30,15 +30,14 @@ trait HasPosition
         });
 
         static::created(static function (self $model) {
-            if ($model->shouldShiftPosition()) {
+            // @todo consider marking as dirty as well...
+            if (static::shouldShiftPosition()) {
                 $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
-
-                $model->disableShiftingPosition();
             }
         });
 
         static::updated(static function (self $model) {
-            if ($model->isDirty($model->getPositionColumn())) {
+            if (static::shouldShiftPosition() && $model->isDirty($model->getPositionColumn())) {
                 [$currentPosition, $previousPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
                 if ($currentPosition < $previousPosition) {
@@ -50,7 +49,9 @@ trait HasPosition
         });
 
         static::deleted(static function (self $model) {
-            $model->newPositionQuery()->shiftToStart($model->getPosition());
+            if (static::shouldShiftPosition()) {
+                $model->newPositionQuery()->shiftToStart($model->getPosition());
+            }
         });
     }
 
@@ -62,19 +63,6 @@ trait HasPosition
         $this->mergeCasts([
             $this->getPositionColumn() => 'int',
         ]);
-    }
-
-    public static function withoutShiftingPosition(callable $callback)
-    {
-        $shifting = static::$shiftPosition;
-
-        static::$shiftPosition = false;
-
-        $result = $callback();
-
-        static::$shiftPosition = $shifting;
-
-        return $result;
     }
 
     /**
@@ -102,31 +90,27 @@ trait HasPosition
     }
 
     /**
+     * Execute a callback without shifting position of models.
+     */
+    public static function withoutShiftingPosition(callable $callback)
+    {
+        $shifting = static::$shiftPosition;
+
+        static::$shiftPosition = false;
+
+        $result = $callback();
+
+        static::$shiftPosition = $shifting;
+
+        return $result;
+    }
+
+    /**
      * Determine if the model should shift position of other models in the sequence.
      */
-    public function shouldShiftPosition(): bool
+    public static function shouldShiftPosition(): bool
     {
-        return $this->shiftPosition;
-    }
-
-    /**
-     * Specify that the model should shift position of other models in the sequence.
-     */
-    public function enableShiftingPosition(): self
-    {
-        $this->shiftPosition = true;
-
-        return $this;
-    }
-
-    /**
-     * Specify that the model should not shift position of other models in the sequence.
-     */
-    public function disableShiftingPosition(): self
-    {
-        $this->shiftPosition = true;
-
-        return $this;
+        return static::$shiftPosition;
     }
 
     /**
@@ -211,7 +195,7 @@ trait HasPosition
         }
 
         if ($this->getPosition() !== null) {
-            $this->enableShiftingPosition();
+            // @todo mark as dirty...
         } else {
             $this->setPosition($this->getEndPosition());
         }

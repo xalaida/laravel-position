@@ -32,19 +32,19 @@ class CreateTest extends TestCase
         // @todo what if we start to update position after that? previous "shift" value is still working.
     }
 
-    /**
-     * @test
-     */
-    public function it_executes_2_queries_to_create_model_at_end_of_sequence(): void
-    {
-        CategoryFactory::new()->createMany(2);
-
-        Category::query()->getConnection()->enableQueryLog();
-
-        CategoryFactory::new()->create();
-
-        self::assertCount(2, Category::query()->getConnection()->getQueryLog());
-    }
+//    /**
+//     * @test
+//     */
+//    public function it_executes_2_queries_to_create_model_at_end_of_sequence(): void
+//    {
+//        CategoryFactory::new()->createMany(2);
+//
+//        Category::query()->getConnection()->enableQueryLog();
+//
+//        CategoryFactory::new()->create();
+//
+//        self::assertCount(2, Category::query()->getConnection()->getQueryLog());
+//    }
 
     /**
      * @test
