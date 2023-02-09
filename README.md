@@ -137,13 +137,13 @@ $category->swap($anotherCategory);
 
 #### Without shifting
 
-By default, the package automatically updates position of other models when the model position is updated. 
+By default, the package automatically updates the position of other models when the model position is updated.
 
-[//]: # (TODO:)
+If you want to update the model position without shifting the positions of other models, you can use the `withoutShifting` method:
 
 ```php
 Category::withoutShifting(function () {
-    // @todo
+    $category->move(5);
 })
 ```
 
