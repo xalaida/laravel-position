@@ -26,11 +26,7 @@ trait HasPosition
         static::addGlobalScope(new PositioningScope());
 
         static::creating(static function (self $model) {
-            if ($model->getPosition() === null) {
-                $model->assignPosition();
-            } else {
-                $model->withShiftPosition();
-            }
+            $model->assignPosition();
         });
 
         // @todo consider using "saved" event for this.
@@ -73,7 +69,7 @@ trait HasPosition
     /**
      * Get a value of the starting position.
      */
-    public function getInitPosition(): int
+    public function startPosition(): int
     {
         return 0;
     }
@@ -94,9 +90,12 @@ trait HasPosition
         return $this->shiftPosition;
     }
 
-    public function withShiftPosition(bool $value = true): self
+    /**
+     * Specify that the model should shift position of other models in the sequence.
+     */
+    public function withShiftPosition(): self
     {
-        $this->shiftPosition = $value;
+        $this->shiftPosition = true;
 
         return $this;
     }
@@ -112,7 +111,7 @@ trait HasPosition
     /**
      * Set the position to the given value.
      */
-    public function setPosition(int $position): Model
+    public function setPosition(?int $position): Model
     {
         return $this->setAttribute($this->getPositionColumn(), $position);
     }
@@ -172,33 +171,39 @@ trait HasPosition
         return $this->newQuery();
     }
 
-//    /**
-//     * Assign the next position value to the model if it is missing.
-//     */
-//    protected function assignPositionIfMissing(): void
-//    {
-//        if (null === $this->getPosition()) {
-//            $this->assignPosition();
-//        }
-//    }
-
     /**
      * Assign the next position value to the model.
      */
-    protected function assignPosition(): Model
+    protected function assignPosition(): void
     {
-        return $this->setPosition($this->getNextPosition());
+        if ($this->getPosition() === null) {
+            $this->setPosition($this->nextPosition());
+        }
+
+        if ($this->getPosition() !== null) {
+            $this->withShiftPosition();
+        } else {
+            $this->setPosition($this->getEndPosition());
+        }
+    }
+
+    /**
+     * Get the next position in the sequence for the model.
+     */
+    protected function nextPosition(): ?int
+    {
+        return null;
     }
 
     /**
      * Determine the next position value in the model sequence.
      */
-    protected function getNextPosition(): int
+    protected function getEndPosition(): int
     {
         $maxPosition = $this->getMaxPosition();
 
         if (null === $maxPosition) {
-            return $this->getInitPosition();
+            return $this->startPosition();
         }
 
         return $maxPosition + 1;
@@ -214,6 +219,8 @@ trait HasPosition
 
     /**
      * Shift models in a sequence before the move to a new position.
+     *
+     * @todo rework to shift after move.
      */
     protected function shiftBeforeMove(int $newPosition, int $oldPosition): void
     {

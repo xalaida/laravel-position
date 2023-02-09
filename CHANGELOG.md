@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Possibility to create model in the middle of the sequence
+- Possibility to create model in the beginning of the sequence
+
+### Changed
+
+- Rename method `getInitPosition` to `startPosition`
 
 ## [0.4.1] - 2023-02-08
 

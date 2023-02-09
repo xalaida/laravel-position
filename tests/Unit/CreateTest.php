@@ -64,9 +64,10 @@ class CreateTest extends TestCase
      */
     public function it_can_configure_start_position_value(): void
     {
-        $fakeCategory = Mockery::mock(Category::class)->makePartial();
+        $fakeCategory = Mockery::mock(Category::class);
+        $fakeCategory->makePartial();
         $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
-        $fakeCategory->shouldReceive('getInitPosition')->andReturn(23);
+        $fakeCategory->shouldReceive('startPosition')->andReturn(23);
         $fakeCategory->__construct();
 
         $category = Category::query()->setModel($fakeCategory)->create();
@@ -77,7 +78,7 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_create_model_in_the_middle_of_the_sequence(): void
+    public function it_can_create_model_in_middle_of_sequence(): void
     {
         $categories = CategoryFactory::new()->createMany(2);
 
@@ -87,6 +88,44 @@ class CreateTest extends TestCase
 
         static::assertSame(1, $category->position);
         static::assertSame($categories[0]->fresh()->position, 0);
+        static::assertSame($categories[1]->fresh()->position, 2);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_create_model_at_start_of_sequence(): void
+    {
+        $categories = CategoryFactory::new()->createMany(2);
+
+        $category = CategoryFactory::new()
+            ->position(0)
+            ->create();
+
+        static::assertSame(0, $category->position);
+        static::assertSame($categories[0]->fresh()->position, 1);
+        static::assertSame($categories[1]->fresh()->position, 2);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_automatically_create_model_at_start_of_sequence(): void
+    {
+        $categories = CategoryFactory::new()->createMany(2);
+
+        $fakeCategory = Mockery::mock(Category::class);
+        $fakeCategory->makePartial();
+        $fakeCategory->shouldAllowMockingProtectedMethods();
+        $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
+        $fakeCategory->shouldReceive('startPosition')->andReturn(0);
+        $fakeCategory->shouldReceive('nextPosition')->andReturn(0);
+        $fakeCategory->__construct();
+
+        $category = Category::query()->setModel($fakeCategory)->create();
+
+        static::assertSame(0, $category->position);
+        static::assertSame($categories[0]->fresh()->position, 1);
         static::assertSame($categories[1]->fresh()->position, 2);
     }
 }

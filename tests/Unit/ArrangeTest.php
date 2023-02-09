@@ -37,9 +37,9 @@ class ArrangeTest extends TestCase
     /**
      * @test
      */
-    public function it_can_arrange_models_with_init_positions_by_keys(): void
+    public function it_can_arrange_models_with_start_positions_by_keys(): void
     {
-        $initPosition = 5;
+        $startPosition = 5;
 
         $category0 = CategoryFactory::new()->create();
         $category1 = CategoryFactory::new()->create();
@@ -53,12 +53,12 @@ class ArrangeTest extends TestCase
             $category0->getKey(),
             $category4->getKey(),
             $category1->getKey(),
-        ], $initPosition);
+        ], $startPosition);
 
-        static::assertSame(0 + $initPosition, $category2->fresh()->getPosition());
-        static::assertSame(1 + $initPosition, $category3->fresh()->getPosition());
-        static::assertSame(2 + $initPosition, $category0->fresh()->getPosition());
-        static::assertSame(3 + $initPosition, $category4->fresh()->getPosition());
-        static::assertSame(4 + $initPosition, $category1->fresh()->getPosition());
+        static::assertSame(0 + $startPosition, $category2->fresh()->getPosition());
+        static::assertSame(1 + $startPosition, $category3->fresh()->getPosition());
+        static::assertSame(2 + $startPosition, $category0->fresh()->getPosition());
+        static::assertSame(3 + $startPosition, $category4->fresh()->getPosition());
+        static::assertSame(4 + $startPosition, $category1->fresh()->getPosition());
     }
 }
