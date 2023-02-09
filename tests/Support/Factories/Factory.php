@@ -45,6 +45,20 @@ abstract class Factory
     }
 
     /**
+     * Create many model instances and save them into the database.
+     */
+    final public function createMany(int $count, array $attributes = []): array
+    {
+        $models = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $models[] = $this->create($attributes);
+        }
+
+        return $models;
+    }
+
+    /**
      * Make a new model instance.
      */
     abstract protected function newModel(): Model;

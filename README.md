@@ -58,16 +58,25 @@ Models simply have an integer `position` attribute corresponding to the model's 
 
 The `position` attribute is a kind of array index and is automatically inserted when a new model is created.
 
-By default, the model takes a position at the very end of the sequence.
-
-The initial position gets a `0` value by default. To change that, override the `getInitPosition` method in the model.
+The starting position gets a `0` value by default. To change that, override the `startPosition` method in the model:
 
 ```php
-public function getInitPosition(): int
+public function startPosition(): int
 {
     return 0;
 }
 ```
+
+By default, the created model takes a position at the very end of the sequence. If you need to customize that behaviour, you can override the `nextPosition` method:
+
+```php
+public function nextPosition(): ?int
+{
+    return $this->startPosition();
+}
+```
+
+In that example, a new model will be created in the beginning of the sequence.
 
 ### Deleting models
 
@@ -110,12 +119,12 @@ $category->update([
 
 The positions of other models will be automatically recalculated as well.
 
-#### Move
+#### Shift / Move
 
-You can also use the `move` method that sets a new position value and updates the model immediately:
+You can also use the `shift method that sets a new position value and updates the model immediately:
 
 ```php
-$category->move(3);
+$category->shift(3);
 ```
 
 #### Swap
@@ -124,6 +133,18 @@ The `swap` method swaps the position of two models.
 
 ```php
 $category->swap($anotherCategory);
+```
+
+#### Without shifting
+
+By default, the package automatically updates the position of other models when the model position is updated.
+
+If you want to update the model position without shifting the positions of other models, you can use the `withoutShifting` method:
+
+```php
+Category::withoutShifting(function () {
+    $category->move(5);
+})
 ```
 
 #### Arrange

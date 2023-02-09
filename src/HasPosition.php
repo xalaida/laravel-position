@@ -12,25 +12,56 @@ use Nevadskiy\Position\Scopes\PositioningScope;
 trait HasPosition
 {
     /**
-     * Boot the position trait.
+     * Indicates if the model should shift position of other models in the sequence.
+     *
+     * @var bool
+     */
+    protected static $shiftPosition = true;
+
+    /**
+     * Boot the trait.
      */
     public static function bootHasPosition(): void
     {
         static::addGlobalScope(new PositioningScope());
 
         static::creating(static function (self $model) {
-            $model->assignPositionIfMissing();
+            $model->assignPosition();
         });
 
-        static::updating(static function (self $model) {
-            if ($model->isDirty($model->getPositionColumn())) {
-                $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
+        static::created(static function (self $model) {
+            if (static::shouldShiftPosition() && $model->isMoving()) {
+                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+            }
+        });
+
+        static::updated(static function (self $model) {
+            if (static::shouldShiftPosition() && $model->isMoving()) {
+                [$currentPosition, $previousPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
+
+                if ($currentPosition < $previousPosition) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($currentPosition, $previousPosition);
+                } elseif ($currentPosition > $previousPosition) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($previousPosition, $currentPosition);
+                }
             }
         });
 
         static::deleted(static function (self $model) {
-            $model->newPositionQuery()->shiftToStart($model->getPosition());
+            if (static::shouldShiftPosition()) {
+                $model->newPositionQuery()->shiftToStart($model->getPosition());
+            }
         });
+    }
+
+    /**
+     * Initialize the trait.
+     */
+    public function initializeHasPosition(): void
+    {
+        $this->mergeCasts([
+            $this->getPositionColumn() => 'int',
+        ]);
     }
 
     /**
@@ -44,7 +75,7 @@ trait HasPosition
     /**
      * Get a value of the starting position.
      */
-    public function getInitPosition(): int
+    public function startPosition(): int
     {
         return 0;
     }
@@ -58,6 +89,30 @@ trait HasPosition
     }
 
     /**
+     * Execute a callback without shifting position of models.
+     */
+    public static function withoutShiftingPosition(callable $callback)
+    {
+        $shifting = static::$shiftPosition;
+
+        static::$shiftPosition = false;
+
+        $result = $callback();
+
+        static::$shiftPosition = $shifting;
+
+        return $result;
+    }
+
+    /**
+     * Determine if the model should shift position of other models in the sequence.
+     */
+    public static function shouldShiftPosition(): bool
+    {
+        return static::$shiftPosition;
+    }
+
+    /**
      * Get the position value of the model.
      */
     public function getPosition(): ?int
@@ -68,7 +123,7 @@ trait HasPosition
     /**
      * Set the position to the given value.
      */
-    public function setPosition(int $position): Model
+    public function setPosition(?int $position): Model
     {
         return $this->setAttribute($this->getPositionColumn(), $position);
     }
@@ -104,11 +159,19 @@ trait HasPosition
     }
 
     /**
+     * Determine if the model is currently moving to a new position.
+     */
+    public function isMoving(): bool
+    {
+        return $this->isDirty($this->getPositionColumn());
+    }
+
+    /**
      * Swap the model position with another model.
      */
     public function swap(self $that): void
     {
-        static::withoutEvents(function () use ($that) {
+        static::withoutShiftingPosition(function () use ($that) {
             $thisPosition = $this->getPosition();
             $thatPosition = $that->getPosition();
 
@@ -129,32 +192,39 @@ trait HasPosition
     }
 
     /**
-     * Assign the next position value to the model if it is missing.
+     * Assign the next position value to the model.
      */
-    protected function assignPositionIfMissing(): void
+    protected function assignPosition(): void
     {
-        if (null === $this->getPosition()) {
-            $this->assignNextPosition();
+        if ($this->getPosition() === null) {
+            $this->setPosition($this->nextPosition());
+        }
+
+        if ($this->getPosition() === null) {
+            $this->setPosition($this->getEndPosition());
+
+            // Sync original attribute to not shift other models when the model will be created
+            $this->syncOriginalAttribute($this->getPositionColumn());
         }
     }
 
     /**
-     * Assign the next position value to the model.
+     * Get the next position in the sequence for the model.
      */
-    protected function assignNextPosition(): Model
+    protected function nextPosition(): ?int
     {
-        return $this->setPosition($this->getNextPosition());
+        return null;
     }
 
     /**
      * Determine the next position value in the model sequence.
      */
-    protected function getNextPosition(): int
+    protected function getEndPosition(): int
     {
         $maxPosition = $this->getMaxPosition();
 
         if (null === $maxPosition) {
-            return $this->getInitPosition();
+            return $this->startPosition();
         }
 
         return $maxPosition + 1;
@@ -166,17 +236,5 @@ trait HasPosition
     protected function getMaxPosition(): ?int
     {
         return $this->newPositionQuery()->max($this->getPositionColumn());
-    }
-
-    /**
-     * Shift models in a sequence before the move to a new position.
-     */
-    protected function shiftBeforeMove(int $newPosition, int $oldPosition): void
-    {
-        if ($newPosition < $oldPosition) {
-            $this->newPositionQuery()->shiftToEnd($newPosition, $oldPosition);
-        } elseif ($newPosition > $oldPosition) {
-            $this->newPositionQuery()->shiftToStart($oldPosition, $newPosition);
-        }
     }
 }
