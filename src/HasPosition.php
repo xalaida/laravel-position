@@ -29,19 +29,23 @@ trait HasPosition
             $model->assignPosition();
         });
 
-        // @todo consider using "saved" event for this.
         static::created(static function (self $model) {
             if ($model->shouldShiftPosition()) {
-                // @todo consider extracting into "others" method.
                 $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
             }
         });
 
         static::updating(static function (self $model) {
-            if ($model->isDirty($model->getPositionColumn())) {
+            if ($model->isMoving()) {
                 $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
             }
         });
+
+//        static::updated(static function (self $model) {
+//            if ($model->shouldShiftPosition()) {
+//                $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
+//            }
+//        });
 
         static::deleted(static function (self $model) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
@@ -215,6 +219,14 @@ trait HasPosition
     protected function getMaxPosition(): ?int
     {
         return $this->newPositionQuery()->max($this->getPositionColumn());
+    }
+
+    /**
+     * Determine if the model is moving to the new position.
+     */
+    public function isMoving(): bool
+    {
+        return $this->isDirty($this->getPositionColumn());
     }
 
     /**
