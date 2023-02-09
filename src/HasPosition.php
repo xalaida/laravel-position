@@ -12,7 +12,7 @@ use Nevadskiy\Position\Scopes\PositioningScope;
 trait HasPosition
 {
     /**
-     * Boot the position trait.
+     * Boot the trait.
      */
     public static function bootHasPosition(): void
     {
@@ -20,6 +20,10 @@ trait HasPosition
 
         static::creating(static function (self $model) {
             $model->assignPositionIfMissing();
+        });
+
+        static::created(static function (self $model) {
+            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
         });
 
         static::updating(static function (self $model) {
@@ -31,6 +35,16 @@ trait HasPosition
         static::deleted(static function (self $model) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
         });
+    }
+
+    /**
+     * Initialize the trait.
+     */
+    public function initializeHasPosition(): void
+    {
+        $this->mergeCasts([
+            $this->getPositionColumn() => 'int',
+        ]);
     }
 
     /**

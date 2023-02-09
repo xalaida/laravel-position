@@ -31,6 +31,8 @@ class CreateTest extends TestCase
         static::assertSame(2, $category2->position);
     }
 
+    // @todo ensure it produces single database query when model is created at the end of the sequence
+
     /**
      * @test
      */
@@ -54,5 +56,19 @@ class CreateTest extends TestCase
         $category = Category::query()->setModel($fakeCategory)->create();
 
         static::assertSame(23, $category->position);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_create_model_in_the_middle_of_the_sequence(): void
+    {
+        $categories = CategoryFactory::new()->createMany(2);
+
+        $category = CategoryFactory::new()->create(['position' => 1]);
+
+        static::assertSame(1, $category->position);
+        static::assertSame($categories[0]->fresh()->position, 0);
+        static::assertSame($categories[1]->fresh()->position, 2);
     }
 }
