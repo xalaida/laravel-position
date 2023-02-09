@@ -24,11 +24,9 @@ class CreateTest extends TestCase
      */
     public function it_sets_next_position_value_in_model_sequence(): void
     {
-        $category0 = CategoryFactory::new()->create();
-        $category1 = CategoryFactory::new()->create();
-        $category2 = CategoryFactory::new()->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        static::assertSame(2, $category2->position);
+        static::assertSame(2, $categories[1]->position);
     }
 
     // @todo ensure it produces single database query when model is created at the end of the sequence
@@ -38,7 +36,9 @@ class CreateTest extends TestCase
      */
     public function it_does_not_override_position_value_if_it_is_set_already(): void
     {
-        $category = CategoryFactory::new()->position(15)->create();
+        $category = CategoryFactory::new()
+            ->position(15)
+            ->create();
 
         static::assertSame(15, $category->position);
     }
@@ -65,7 +65,9 @@ class CreateTest extends TestCase
     {
         $categories = CategoryFactory::new()->createMany(2);
 
-        $category = CategoryFactory::new()->create(['position' => 1]);
+        $category = CategoryFactory::new()
+            ->position(1)
+            ->create();
 
         static::assertSame(1, $category->position);
         static::assertSame($categories[0]->fresh()->position, 0);
