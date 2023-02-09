@@ -119,12 +119,12 @@ $category->update([
 
 The positions of other models will be automatically recalculated as well.
 
-#### Move
+#### Shift / Move
 
-You can also use the `move` method that sets a new position value and updates the model immediately:
+You can also use the `shift method that sets a new position value and updates the model immediately:
 
 ```php
-$category->move(3);
+$category->shift(3);
 ```
 
 #### Swap

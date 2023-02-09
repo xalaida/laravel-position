@@ -32,18 +32,13 @@ trait HasPosition
         static::created(static function (self $model) {
             if ($model->shouldShiftPosition()) {
                 $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+
                 $model->disableShiftingPosition();
             }
         });
 
-        static::updating(static function (self $model) {
-            if ($model->isDirty($model->getPositionColumn())) {
-                $model->enableShiftingPosition();
-            }
-        });
-
         static::updated(static function (self $model) {
-            if ($model->shouldShiftPosition()) {
+            if ($model->isDirty($model->getPositionColumn())) {
                 [$currentPosition, $previousPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
                 if ($currentPosition < $previousPosition) {
@@ -69,6 +64,19 @@ trait HasPosition
         $this->mergeCasts([
             $this->getPositionColumn() => 'int',
         ]);
+    }
+
+    public static function withoutShiftingPosition(callable $callback)
+    {
+        $shifting = static::$shiftPosition;
+
+        static::$shiftPosition = false;
+
+        $result = $callback();
+
+        static::$shiftPosition = $shifting;
+
+        return $result;
     }
 
     /**
@@ -156,9 +164,9 @@ trait HasPosition
     }
 
     /**
-     * Move the model to the new position.
+     * Shift the model to the new position.
      */
-    public function move(int $newPosition): bool
+    public function shift(int $newPosition): bool
     {
         $oldPosition = $this->getPosition();
 
