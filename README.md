@@ -135,6 +135,18 @@ The `swap` method swaps the position of two models.
 $category->swap($anotherCategory);
 ```
 
+#### Without shifting
+
+By default, the package automatically updates position of other models when the model position is updated. 
+
+[//]: # (TODO:)
+
+```php
+Category::withoutShifting(function () {
+    // @todo
+})
+```
+
 #### Arrange
 
 It is also possible to arrange models by their IDs.
