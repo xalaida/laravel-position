@@ -206,7 +206,6 @@ trait HasPosition
             // Sync original attribute to not shift other models when the model will be created
             $this->syncOriginalAttribute($this->getPositionColumn());
         }
-
     }
 
     /**

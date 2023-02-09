@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Position\Tests;
 
-use Illuminate\Support\Facades\DB;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 
