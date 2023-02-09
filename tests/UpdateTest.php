@@ -11,17 +11,15 @@ class UpdateTest extends TestCase
      */
     public function it_updates_position_to_less_than_previous(): void
     {
-        $category0 = CategoryFactory::new()->position(0)->create();
-        $category1 = CategoryFactory::new()->position(1)->create();
-        $category2 = CategoryFactory::new()->position(2)->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        $category2->update([
+        $categories[2]->update([
             'position' => 0,
         ]);
 
-        static::assertSame(0, $category2->fresh()->getPosition());
-        static::assertSame(1, $category0->fresh()->getPosition());
-        static::assertSame(2, $category1->fresh()->getPosition());
+        static::assertSame(0, $categories[2]->fresh()->getPosition());
+        static::assertSame(1, $categories[0]->fresh()->getPosition());
+        static::assertSame(2, $categories[1]->fresh()->getPosition());
     }
 
     /**
@@ -29,16 +27,14 @@ class UpdateTest extends TestCase
      */
     public function it_can_move_model_to_greater_than_previous(): void
     {
-        $category0 = CategoryFactory::new()->position(0)->create();
-        $category1 = CategoryFactory::new()->position(1)->create();
-        $category2 = CategoryFactory::new()->position(2)->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        $category0->update([
+        $categories[0]->update([
             'position' => 2,
         ]);
 
-        static::assertSame(0, $category1->fresh()->getPosition());
-        static::assertSame(1, $category2->fresh()->getPosition());
-        static::assertSame(2, $category0->fresh()->getPosition());
+        static::assertSame(0, $categories[1]->fresh()->getPosition());
+        static::assertSame(1, $categories[2]->fresh()->getPosition());
+        static::assertSame(2, $categories[0]->fresh()->getPosition());
     }
 }

@@ -12,25 +12,21 @@ class ArrangeTest extends TestCase
      */
     public function it_can_arrange_models_by_keys(): void
     {
-        $category0 = CategoryFactory::new()->create();
-        $category1 = CategoryFactory::new()->create();
-        $category2 = CategoryFactory::new()->create();
-        $category3 = CategoryFactory::new()->create();
-        $category4 = CategoryFactory::new()->create();
+        $categories = CategoryFactory::new()->createMany(5);
 
         Category::arrangeByKeys([
-            $category2->getKey(),
-            $category3->getKey(),
-            $category0->getKey(),
-            $category4->getKey(),
-            $category1->getKey(),
+            $categories[2]->getKey(),
+            $categories[3]->getKey(),
+            $categories[0]->getKey(),
+            $categories[4]->getKey(),
+            $categories[1]->getKey(),
         ]);
 
-        static::assertSame(0, $category2->fresh()->getPosition());
-        static::assertSame(1, $category3->fresh()->getPosition());
-        static::assertSame(2, $category0->fresh()->getPosition());
-        static::assertSame(3, $category4->fresh()->getPosition());
-        static::assertSame(4, $category1->fresh()->getPosition());
+        static::assertSame(0, $categories[2]->fresh()->getPosition());
+        static::assertSame(1, $categories[3]->fresh()->getPosition());
+        static::assertSame(2, $categories[0]->fresh()->getPosition());
+        static::assertSame(3, $categories[4]->fresh()->getPosition());
+        static::assertSame(4, $categories[1]->fresh()->getPosition());
     }
 
     /**
@@ -40,24 +36,20 @@ class ArrangeTest extends TestCase
     {
         $startPosition = 5;
 
-        $category0 = CategoryFactory::new()->create();
-        $category1 = CategoryFactory::new()->create();
-        $category2 = CategoryFactory::new()->create();
-        $category3 = CategoryFactory::new()->create();
-        $category4 = CategoryFactory::new()->create();
+        $categories = CategoryFactory::new()->createMany(5);
 
         Category::arrangeByKeys([
-            $category2->getKey(),
-            $category3->getKey(),
-            $category0->getKey(),
-            $category4->getKey(),
-            $category1->getKey(),
+            $categories[2]->getKey(),
+            $categories[3]->getKey(),
+            $categories[0]->getKey(),
+            $categories[4]->getKey(),
+            $categories[1]->getKey(),
         ], $startPosition);
 
-        static::assertSame(0 + $startPosition, $category2->fresh()->getPosition());
-        static::assertSame(1 + $startPosition, $category3->fresh()->getPosition());
-        static::assertSame(2 + $startPosition, $category0->fresh()->getPosition());
-        static::assertSame(3 + $startPosition, $category4->fresh()->getPosition());
-        static::assertSame(4 + $startPosition, $category1->fresh()->getPosition());
+        static::assertSame(0 + $startPosition, $categories[2]->fresh()->getPosition());
+        static::assertSame(1 + $startPosition, $categories[3]->fresh()->getPosition());
+        static::assertSame(2 + $startPosition, $categories[0]->fresh()->getPosition());
+        static::assertSame(3 + $startPosition, $categories[4]->fresh()->getPosition());
+        static::assertSame(4 + $startPosition, $categories[1]->fresh()->getPosition());
     }
 }

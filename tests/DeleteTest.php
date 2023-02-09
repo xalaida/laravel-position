@@ -11,16 +11,14 @@ class DeleteTest extends TestCase
      */
     public function it_updates_position_values_on_another_model_delete(): void
     {
-        $category0 = CategoryFactory::new()->create();
-        $category1 = CategoryFactory::new()->create();
-        $category2 = CategoryFactory::new()->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        static::assertSame(2, $category2->getPosition());
+        static::assertSame(2, $categories[2]->getPosition());
 
-        $category1->delete();
+        $categories[1]->delete();
 
-        static::assertSame(1, $category2->fresh()->getPosition());
-        static::assertSame(0, $category0->fresh()->getPosition());
+        static::assertSame(1, $categories[2]->fresh()->getPosition());
+        static::assertSame(0, $categories[0]->fresh()->getPosition());
     }
 
     /**
@@ -28,13 +26,11 @@ class DeleteTest extends TestCase
      */
     public function it_does_not_update_positions_when_last_record_is_deleted(): void
     {
-        $category0 = CategoryFactory::new()->create();
-        $category1 = CategoryFactory::new()->create();
-        $category2 = CategoryFactory::new()->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        $category2->delete();
+        $categories[2]->delete();
 
-        static::assertSame(0, $category0->fresh()->getPosition());
-        static::assertSame(1, $category1->fresh()->getPosition());
+        static::assertSame(0, $categories[0]->fresh()->getPosition());
+        static::assertSame(1, $categories[1]->fresh()->getPosition());
     }
 }
