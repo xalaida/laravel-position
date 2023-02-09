@@ -32,11 +32,12 @@ trait HasPosition
         static::created(static function (self $model) {
             if ($model->shouldShiftPosition()) {
                 $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+                $model->disableShiftingPosition();
             }
         });
 
         static::updating(static function (self $model) {
-            if ($model->isMoving()) {
+            if ($model->isDirty($model->getPositionColumn())()) {
                 $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
             }
         });
@@ -44,6 +45,7 @@ trait HasPosition
 //        static::updated(static function (self $model) {
 //            if ($model->shouldShiftPosition()) {
 //                $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
+//                $model->disableShiftingPosition();
 //            }
 //        });
 
@@ -97,7 +99,17 @@ trait HasPosition
     /**
      * Specify that the model should shift position of other models in the sequence.
      */
-    public function withShiftPosition(): self
+    public function enableShiftingPosition(): self
+    {
+        $this->shiftPosition = true;
+
+        return $this;
+    }
+
+    /**
+     * Specify that the model should not shift position of other models in the sequence.
+     */
+    public function disableShiftingPosition(): self
     {
         $this->shiftPosition = true;
 
@@ -185,7 +197,7 @@ trait HasPosition
         }
 
         if ($this->getPosition() !== null) {
-            $this->withShiftPosition();
+            $this->enableShiftingPosition();
         } else {
             $this->setPosition($this->getEndPosition());
         }
@@ -219,14 +231,6 @@ trait HasPosition
     protected function getMaxPosition(): ?int
     {
         return $this->newPositionQuery()->max($this->getPositionColumn());
-    }
-
-    /**
-     * Determine if the model is moving to the new position.
-     */
-    public function isMoving(): bool
-    {
-        return $this->isDirty($this->getPositionColumn());
     }
 
     /**
