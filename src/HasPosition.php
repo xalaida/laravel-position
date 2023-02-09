@@ -37,17 +37,22 @@ trait HasPosition
         });
 
         static::updating(static function (self $model) {
-            if ($model->isDirty($model->getPositionColumn())()) {
-                $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
+            if ($model->isDirty($model->getPositionColumn())) {
+                $model->enableShiftingPosition();
             }
         });
 
-//        static::updated(static function (self $model) {
-//            if ($model->shouldShiftPosition()) {
-//                $model->shiftBeforeMove($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
-//                $model->disableShiftingPosition();
-//            }
-//        });
+        static::updated(static function (self $model) {
+            if ($model->shouldShiftPosition()) {
+                if ($model->getPosition() < $model->getOriginal($model->getPositionColumn())) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition(), $model->getOriginal($model->getPositionColumn()));
+                } elseif ($model->getPosition() > $model->getOriginal($model->getPositionColumn())) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($model->getOriginal($model->getPositionColumn()), $model->getPosition());
+                }
+
+                $model->disableShiftingPosition();
+            }
+        });
 
         static::deleted(static function (self $model) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
@@ -231,19 +236,5 @@ trait HasPosition
     protected function getMaxPosition(): ?int
     {
         return $this->newPositionQuery()->max($this->getPositionColumn());
-    }
-
-    /**
-     * Shift models in a sequence before the move to a new position.
-     *
-     * @todo rework to shift after move.
-     */
-    protected function shiftBeforeMove(int $newPosition, int $oldPosition): void
-    {
-        if ($newPosition < $oldPosition) {
-            $this->newPositionQuery()->shiftToEnd($newPosition, $oldPosition);
-        } elseif ($newPosition > $oldPosition) {
-            $this->newPositionQuery()->shiftToStart($oldPosition, $newPosition);
-        }
     }
 }
