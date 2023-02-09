@@ -43,11 +43,11 @@ class MoveTest extends TestCase
     {
         $category = CategoryFactory::new()->position(3)->create();
 
-        DB::connection()->enableQueryLog();
+        Category::query()->getConnection()->enableQueryLog();
 
         $result = $category->move(3);
 
-        static::assertEmpty(DB::connection()->getQueryLog());
+        static::assertEmpty(Category::query()->getConnection()->getQueryLog());
         static::assertFalse($result);
     }
 

@@ -30,14 +30,13 @@ trait HasPosition
         });
 
         static::created(static function (self $model) {
-            // @todo consider marking as dirty as well...
-            if (static::shouldShiftPosition()) {
+            if (static::shouldShiftPosition() && $model->isMoving()) {
                 $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
             }
         });
 
         static::updated(static function (self $model) {
-            if (static::shouldShiftPosition() && $model->isDirty($model->getPositionColumn())) {
+            if (static::shouldShiftPosition() && $model->isMoving()) {
                 [$currentPosition, $previousPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
                 if ($currentPosition < $previousPosition) {
@@ -160,12 +159,19 @@ trait HasPosition
     }
 
     /**
+     * Determine if the model is currently moving to a new position.
+     */
+    public function isMoving(): bool
+    {
+        return $this->isDirty($this->getPositionColumn());
+    }
+
+    /**
      * Swap the model position with another model.
      */
     public function swap(self $that): void
     {
-        // @todo refactor with disabled shifting...
-        static::withoutEvents(function () use ($that) {
+        static::withoutShiftingPosition(function () use ($that) {
             $thisPosition = $this->getPosition();
             $thatPosition = $that->getPosition();
 
@@ -194,11 +200,13 @@ trait HasPosition
             $this->setPosition($this->nextPosition());
         }
 
-        if ($this->getPosition() !== null) {
-            // @todo mark as dirty...
-        } else {
+        if ($this->getPosition() === null) {
             $this->setPosition($this->getEndPosition());
+
+            // Sync original attribute to not shift other models when the model will be created
+            $this->syncOriginalAttribute($this->getPositionColumn());
         }
+
     }
 
     /**

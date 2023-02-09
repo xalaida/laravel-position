@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Possibility to create model in the middle of the sequence
 - Possibility to create model in the beginning of the sequence
 - Extra argument for shift amount in `shiftToStart` and `shiftToEnd` methods  
+- Possibility to update positions without shifting other models
 
 ### Changed
 

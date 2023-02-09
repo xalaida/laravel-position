@@ -3,6 +3,7 @@
 namespace Nevadskiy\Position\Tests;
 
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
+use Nevadskiy\Position\Tests\Support\Models\Category;
 
 class SwapTest extends TestCase
 {
@@ -11,14 +12,26 @@ class SwapTest extends TestCase
      */
     public function it_can_swap_models(): void
     {
-        $category0 = CategoryFactory::new()->create();
-        $category1 = CategoryFactory::new()->create();
-        $category2 = CategoryFactory::new()->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        $category0->swap($category2);
+        $categories[0]->swap($categories[2]);
 
-        static::assertSame($category0->fresh()->getPosition(), 2);
-        static::assertSame($category2->fresh()->getPosition(), 0);
+        static::assertSame($categories[0]->fresh()->getPosition(), 2);
+        static::assertSame($categories[2]->fresh()->getPosition(), 0);
+    }
+
+    /**
+     * @test
+     */
+    public function it_executes_only_2_queries_to_swap_models(): void
+    {
+        $categories = CategoryFactory::new()->createMany(3);
+
+        Category::query()->getConnection()->enableQueryLog();
+
+        $categories[0]->swap($categories[2]);
+
+        self::assertCount(2, Category::query()->getConnection()->getQueryLog());
     }
 
     /**
@@ -26,12 +39,10 @@ class SwapTest extends TestCase
      */
     public function it_does_not_break_another_positions(): void
     {
-        $category0 = CategoryFactory::new()->create();
-        $category1 = CategoryFactory::new()->create();
-        $category2 = CategoryFactory::new()->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        $category2->swap($category0);
+        $categories[2]->swap($categories[0]);
 
-        static::assertSame($category1->fresh()->getPosition(), 1);
+        static::assertSame($categories[1]->fresh()->getPosition(), 1);
     }
 }
