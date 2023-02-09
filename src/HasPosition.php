@@ -164,9 +164,9 @@ trait HasPosition
     }
 
     /**
-     * Shift the model to the new position.
+     * Move the model to the new position.
      */
-    public function shift(int $newPosition): bool
+    public function move(int $newPosition): bool
     {
         $oldPosition = $this->getPosition();
 
