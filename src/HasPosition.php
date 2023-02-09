@@ -46,8 +46,6 @@ trait HasPosition
                 } elseif ($currentPosition > $previousPosition) {
                     $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($previousPosition, $currentPosition);
                 }
-
-                $model->disableShiftingPosition();
             }
         });
 
