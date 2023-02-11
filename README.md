@@ -58,12 +58,23 @@ Models simply have an integer `position` attribute corresponding to the model's 
 
 The `position` attribute is a kind of array index and is automatically inserted when a new model is created.
 
+```php
+$category = Category::create();
+echo $category->position; // 0
+
+$category = Category::create();
+echo $category->position; // 1
+
+$category = Category::create();
+echo $category->position; // 2
+```
+
 The starting position gets a `0` value by default. To change that, override the `startPosition` method in the model:
 
 ```php
 public function startPosition(): int
 {
-    return 0;
+    return 1;
 }
 ```
 
@@ -76,7 +87,7 @@ public function nextPosition(): ?int
 }
 ```
 
-In that example, a new model will be created in the beginning of the sequence.
+In that example, a new model will be created in the beginning of the sequence and the position of other models in the sequence will be automatically incremented.
 
 ### Deleting models
 
@@ -84,13 +95,13 @@ When a model is deleted, the positions of other records in the sequence are upda
 
 ### Querying models 
 
-To select models in the arranged sequence, use the `orderByPosition` scope.
+To select models in the arranged sequence, use the `orderByPosition` scope:
 
 ```php
 Category::orderByPosition()->get();
 ```
 
-### Auto ordering
+### Automatic ordering
 
 The `orderByPosition` scope is not applied by default because the corresponding SQL statement will be added to all queries, even where it is not required.
 
@@ -127,6 +138,12 @@ You can also use the `move` method that sets a new position value and updates th
 $category->move(3);
 ```
 
+If you want to move the model to the end of the sequence, you can use a negative position value:
+
+```php
+$category->move(-1); // Move to the end
+```
+
 #### Swap
 
 The `swap` method swaps the position of two models.
@@ -139,7 +156,7 @@ $category->swap($anotherCategory);
 
 By default, the package automatically updates the position of other models when the model position is updated.
 
-If you want to update the model position without shifting the positions of other models, you can use the `withoutShifting` method:
+If you want to update the model position without shifting the position of other models, you can use the `withoutShifting` method:
 
 ```php
 Category::withoutShifting(function () {
@@ -147,13 +164,13 @@ Category::withoutShifting(function () {
 })
 ```
 
-#### Arrange
+#### Arrange models
 
 It is also possible to arrange models by their IDs.
 
 The position of each model will be recalculated according to the index of its ID in the given array. 
 
-You can also provide a second argument as a starting position of the records.
+You can also provide a second argument as a starting position.
 
 ```php
 Category::arrangeByKeys([3, 5, 7]);
@@ -161,18 +178,32 @@ Category::arrangeByKeys([3, 5, 7]);
 
 ### Grouping / Dealing with relations
 
-To allow models to be positioned within groups, you need to override the `newPositionQuery` method that should return a query to the grouped model sequence:
+To allow models to be positioned within groups, you need to override the `newPositionQuery` method that should return a query to the grouped model sequence.
+
+Using the relation builder:
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nevadskiy\Position\HasPosition;
 
-protected function newPositionQuery(): Builder
+class Category
 {
-    return $this->category->tasks();
+    use HasPosition;
+
+    public function group(): BelongsTo
+    {
+        return $this->hasMany(Group::class);
+    }
+
+    protected function newPositionQuery(): Builder
+    {
+        return $this->group->categories();
+    }
 }
 ```
 
-Example with self-referenced groups:
+Using the `where` method:
 
 ```php
 use Illuminate\Database\Eloquent\Builder;

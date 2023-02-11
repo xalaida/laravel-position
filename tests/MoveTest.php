@@ -65,4 +65,32 @@ class MoveTest extends TestCase
         static::assertSame(1, $categories[1]->fresh()->getPosition());
         static::assertSame(2, $categories[2]->fresh()->getPosition());
     }
+
+    /**
+     * @test
+     */
+    public function it_can_move_to_end_using_negative_position(): void
+    {
+        $categories = CategoryFactory::new()->createMany(3);
+
+        $categories[0]->move(-1);
+
+        static::assertSame(2, $categories[0]->fresh()->getPosition());
+        static::assertSame(0, $categories[1]->fresh()->getPosition());
+        static::assertSame(1, $categories[2]->fresh()->getPosition());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_move_to_new_position_using_negative_position(): void
+    {
+        $categories = CategoryFactory::new()->createMany(3);
+
+        $categories[0]->move(-2);
+
+        static::assertSame(1, $categories[0]->fresh()->getPosition());
+        static::assertSame(0, $categories[1]->fresh()->getPosition());
+        static::assertSame(2, $categories[2]->fresh()->getPosition());
+    }
 }

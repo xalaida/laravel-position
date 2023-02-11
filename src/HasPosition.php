@@ -125,6 +125,10 @@ trait HasPosition
      */
     public function setPosition(?int $position): Model
     {
+        if ($position < 0) {
+            $position = ($this->getMaxPosition() + 1) + $position;
+        }
+
         return $this->setAttribute($this->getPositionColumn(), $position);
     }
 
