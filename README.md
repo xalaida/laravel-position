@@ -138,6 +138,12 @@ You can also use the `move` method that sets a new position value and updates th
 $category->move(3);
 ```
 
+If you want to move the model to the end of the sequence, you can use a negative position value:
+
+```php
+$category->move(-1); // Move to the end
+```
+
 #### Swap
 
 The `swap` method swaps the position of two models.
