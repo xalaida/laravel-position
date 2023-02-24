@@ -2,7 +2,15 @@
     "name": "nevadskiy/laravel-position",
     "description": "Arrange Laravel models in a given order.",
     "license": "MIT",
-    "keywords": ["position", "sort", "order", "arrange", "model", "eloquent", "laravel"],
+    "keywords": [
+        "position",
+        "sort",
+        "order",
+        "arrange",
+        "model",
+        "eloquent",
+        "laravel"
+    ],
     "authors": [
         {
             "name": "Nevadskiy",
