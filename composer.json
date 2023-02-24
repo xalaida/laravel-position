@@ -11,6 +11,7 @@
         "eloquent",
         "laravel"
     ],
+    "homepage": "https://github.com/nevadskiy/laravel-position",
     "authors": [
         {
             "name": "Nevadskiy",
