@@ -1,9 +1,9 @@
 # 🔢 Arrange Laravel models in a given order
 
-[![PHPUnit](https://img.shields.io/github/actions/workflow/status/nevadskiy/laravel-position/phpunit.yml?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![Code Coverage](https://img.shields.io/codecov/c/github/nevadskiy/laravel-position?token=9X6AQQYCPA)](https://packagist.org/packages/nevadskiy/laravel-position)
-[![Latest Stable Version](http://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Tests](https://github.com/nevadskiy/laravel-position/workflows/tests/badge.svg)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Code Coverage](https://codecov.io/gh/nevadskiy/laravel-position/branch/master/graphs/badge.svg?branch=master)]
 [![License](http://poser.pugx.org/nevadskiy/laravel-position/license)](https://packagist.org/packages/nevadskiy/laravel-position)
+[![Latest Stable Version](http://poser.pugx.org/nevadskiy/laravel-position/v)](https://packagist.org/packages/nevadskiy/laravel-position)
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
