@@ -1,7 +1,7 @@
 /.cache
 /.idea
-/vendor
 /.vscode
+/vendor
 /tests/.report
 .env
 .php-cs-fixer.php
