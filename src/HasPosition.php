@@ -129,6 +129,8 @@ trait HasPosition
             $position = ($this->getMaxPosition() + 1) + $position + ($this->exists ? 0 : 1);
         }
 
+        // @todo throw overflow exception when negative value is too big. @see https://github.com/es-shims/Array.prototype.at/blob/main/implementation.js#L18.
+
         return $this->setAttribute($this->getPositionColumn(), $position);
     }
 
