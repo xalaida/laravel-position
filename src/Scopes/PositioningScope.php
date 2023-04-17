@@ -67,12 +67,10 @@ class PositioningScope implements Scope
     }
 
     /**
-     * Arrange the models according to the given ordered keys.
+     * Arrange the models according to the given keys.
      */
-    public function arrangeByKeys(Builder $query, array $keys, int $startPosition = null): void
+    public function arrangeByKeys(Builder $query, array $keys, int $startPosition = 0): void
     {
-        $startPosition = $startPosition ?: $query->getModel()->startPosition();
-
         foreach ($keys as $position => $key) {
             (clone $query)->whereKey($key)
                 ->update([
