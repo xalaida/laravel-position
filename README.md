@@ -67,21 +67,12 @@ $category = Category::create();
 echo $category->position; // 2
 ```
 
-The starting position gets a `0` value by default. To change that, override the `startPosition` method in the model:
+By default, the created model takes a position at the very end of the sequence. The very first record takes the position with the value `0`. You can customize this behavior by overriding the `getNextPosition` method:
 
 ```php
-public function startPosition(): int
+public function getNextPosition(): int
 {
-    return 1;
-}
-```
-
-By default, the created model takes a position at the very end of the sequence. If you need to customize that behaviour, you can override the `nextPosition` method:
-
-```php
-public function nextPosition(): ?int
-{
-    return $this->startPosition();
+    return 0;
 }
 ```
 
