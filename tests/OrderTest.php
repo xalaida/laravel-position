@@ -37,7 +37,7 @@ class OrderTest extends TestCase
     /**
      * @test
      */
-    public function it_can_order_models_by_inverse_position(): void
+    public function it_can_order_models_by_reverse_position(): void
     {
         $category2 = CategoryFactory::new()
             ->position(2)
@@ -52,7 +52,7 @@ class OrderTest extends TestCase
             ->create();
 
         $categories = Category::query()
-            ->orderByInversePosition()
+            ->orderByReversePosition()
             ->get();
 
         static::assertTrue($categories[0]->is($category2));
