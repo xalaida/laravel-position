@@ -93,4 +93,16 @@ class MoveTest extends TestCase
         static::assertSame(0, $categories[1]->fresh()->getPosition());
         static::assertSame(2, $categories[2]->fresh()->getPosition());
     }
+
+    /**
+     * @test
+     */
+    public function it_can_create_with_negative_position(): void
+    {
+        $category = new Category();
+        $category->setPosition(-1);
+        $category->save();
+
+        static::assertSame(0, $category->fresh()->getPosition());
+    }
 }
