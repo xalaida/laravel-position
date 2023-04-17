@@ -64,7 +64,7 @@ class CreateTest extends TestCase
         $fakeCategory = Mockery::mock(Category::class);
         $fakeCategory->makePartial();
         $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
-        $fakeCategory->shouldReceive('startPosition')->andReturn(23);
+        $fakeCategory->shouldReceive('getNextPosition')->andReturn(23);
         $fakeCategory->__construct();
 
         $category = Category::query()->setModel($fakeCategory)->create();
@@ -107,16 +107,14 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_automatically_create_model_at_start_of_sequence(): void
+    public function it_can_automatically_create_models_at_start_of_sequence(): void
     {
         $categories = CategoryFactory::new()->createMany(2);
 
         $fakeCategory = Mockery::mock(Category::class);
         $fakeCategory->makePartial();
-        $fakeCategory->shouldAllowMockingProtectedMethods();
         $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
-        $fakeCategory->shouldReceive('startPosition')->andReturn(0);
-        $fakeCategory->shouldReceive('nextPosition')->andReturn(0);
+        $fakeCategory->shouldReceive('getNextPosition')->andReturn(0);
         $fakeCategory->__construct();
 
         $category = Category::query()->setModel($fakeCategory)->create();

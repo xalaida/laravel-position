@@ -26,7 +26,7 @@ trait HasPosition
         static::addGlobalScope(new PositioningScope());
 
         static::creating(static function (self $model) {
-            $model->assignPosition();
+            $model->assignPositionIfMissing();
         });
 
         static::created(static function (self $model) {
@@ -37,12 +37,12 @@ trait HasPosition
 
         static::updated(static function (self $model) {
             if (static::shouldShiftPosition() && $model->isMoving()) {
-                [$currentPosition, $previousPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
+                [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
-                if ($currentPosition < $previousPosition) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($currentPosition, $previousPosition);
-                } elseif ($currentPosition > $previousPosition) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($previousPosition, $currentPosition);
+                if ($newPosition < $oldPosition) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($newPosition, $oldPosition);
+                } elseif ($newPosition > $oldPosition) {
+                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
                 }
             }
         });
@@ -73,11 +73,11 @@ trait HasPosition
     }
 
     /**
-     * Get a value of the starting position.
+     * Get the next position in the sequence for the model.
      */
-    public function startPosition(): int
+    public function getNextPosition(): ?int
     {
-        return 0;
+        return null;
     }
 
     /**
@@ -115,7 +115,7 @@ trait HasPosition
     /**
      * Get the position value of the model.
      */
-    public function getPosition(): ?int
+    public function getPosition(): int
     {
         return $this->getAttribute($this->getPositionColumn());
     }
@@ -123,7 +123,7 @@ trait HasPosition
     /**
      * Set the position to the given value.
      */
-    public function setPosition(?int $position): Model
+    public function setPosition(int $position): Model
     {
         if ($position < 0) {
             $position = ($this->getMaxPosition() + 1) + $position;
@@ -141,9 +141,9 @@ trait HasPosition
     }
 
     /**
-     * Scope a query to sort models by inverse positions.
+     * Scope a query to sort models by reverse positions.
      */
-    public function scopeOrderByInversePosition(Builder $query): Builder
+    public function scopeOrderByReversePosition(Builder $query): Builder
     {
         return $query->orderBy($this->getPositionColumn(), 'desc');
     }
@@ -196,49 +196,27 @@ trait HasPosition
     }
 
     /**
-     * Assign the next position value to the model.
+     * Assign the next position value to the model if it is missing.
      */
-    protected function assignPosition(): void
+    protected function assignPositionIfMissing(): void
     {
-        if ($this->getPosition() === null) {
-            $this->setPosition($this->nextPosition());
+        if (is_null($this->getAttribute($this->getPositionColumn()))) {
+            $nextPosition = $this->getNextPosition();
+
+            $this->setPosition($nextPosition ?? $this->getMaxPosition() + 1);
+
+            // Sync original attribute to make it not dirty to do not shift the positions of other models.
+            if (is_null($nextPosition)) {
+                $this->syncOriginalAttribute($this->getPositionColumn());
+            }
         }
-
-        if ($this->getPosition() === null) {
-            $this->setPosition($this->getEndPosition());
-
-            // Sync original attribute to not shift other models when the model will be created
-            $this->syncOriginalAttribute($this->getPositionColumn());
-        }
-    }
-
-    /**
-     * Get the next position in the sequence for the model.
-     */
-    protected function nextPosition(): ?int
-    {
-        return null;
-    }
-
-    /**
-     * Determine the next position value in the model sequence.
-     */
-    protected function getEndPosition(): int
-    {
-        $maxPosition = $this->getMaxPosition();
-
-        if (null === $maxPosition) {
-            return $this->startPosition();
-        }
-
-        return $maxPosition + 1;
     }
 
     /**
      * Get the max position value in the model sequence.
      */
-    protected function getMaxPosition(): ?int
+    protected function getMaxPosition(): int
     {
-        return $this->newPositionQuery()->max($this->getPositionColumn());
+        return $this->newPositionQuery()->max($this->getPositionColumn()) ?? -1;
     }
 }
