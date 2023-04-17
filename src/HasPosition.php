@@ -126,7 +126,7 @@ trait HasPosition
     public function setPosition(int $position): Model
     {
         if ($position < 0) {
-            $position = $this->getMaxPosition() + $position + 1 + ($this->exists ? 0 : 1); // @todo probably broken during update... (should set max value and decrement others)
+            $position = ($this->getMaxPosition() + 1) + $position + ($this->exists ? 0 : 1);
         }
 
         return $this->setAttribute($this->getPositionColumn(), $position);
