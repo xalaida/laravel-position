@@ -3,6 +3,8 @@ FROM php:7.2-cli
 
 # Update dependencies
 RUN apt-get update \
+# Install Git
+    && apt-get -y install git \
 # Install Zip
     && apt-get install -y libzip-dev zip \
     && docker-php-ext-install zip \
