@@ -75,9 +75,9 @@ trait HasPosition
     /**
      * Get the next position in the sequence for the model.
      */
-    public function getNextPosition(): ?int
+    public function getNextPosition(): int
     {
-        return null;
+        return -1;
     }
 
     /**
@@ -126,7 +126,7 @@ trait HasPosition
     public function setPosition(int $position): Model
     {
         if ($position < 0) {
-            $position = ($this->getMaxPosition() + 1) + $position;
+            $position = $this->getMaxPosition() + $position + 1 + ($this->exists ? 0 : 1); // @todo probably broken during update... (should set max value and decrement others)
         }
 
         return $this->setAttribute($this->getPositionColumn(), $position);
@@ -203,10 +203,10 @@ trait HasPosition
         if (is_null($this->getAttribute($this->getPositionColumn()))) {
             $nextPosition = $this->getNextPosition();
 
-            $this->setPosition($nextPosition ?? $this->getMaxPosition() + 1);
+            $this->setPosition($nextPosition);
 
             // Sync original attribute to make it not dirty to do not shift the positions of other models.
-            if (is_null($nextPosition)) {
+            if ($nextPosition < 0) {
                 $this->syncOriginalAttribute($this->getPositionColumn());
             }
         }
