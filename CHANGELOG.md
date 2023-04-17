@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.0 - 2023-04-17
+
+### Changed
+
+- Rename method `orderByInversePosition` to `orderByReversePosition`
+- Rename method `nextPosition` to `getNextPosition`
+- Method `getNextPosition` can return negative position
+- Method `getMaxPosition` returns -1 when no records
+
+### Removed
+
+- The `startPosition` method
+
 ## 0.5.2 - 2023-02-18
 
 ### Added
