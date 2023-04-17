@@ -1,11 +1,11 @@
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
+
 # 🔢 Arrange Laravel models in a given order
 
 [![PHPUnit](https://img.shields.io/github/actions/workflow/status/nevadskiy/laravel-position/phpunit.yml?branch=master)](https://packagist.org/packages/nevadskiy/laravel-position)
 [![Code Coverage](https://img.shields.io/codecov/c/github/nevadskiy/laravel-position?token=9X6AQQYCPA)](https://packagist.org/packages/nevadskiy/laravel-position)
 [![Latest Stable Version](https://img.shields.io/packagist/v/nevadskiy/laravel-position)](https://packagist.org/packages/nevadskiy/laravel-position)
 [![License](https://img.shields.io/github/license/nevadskiy/laravel-position)](https://packagist.org/packages/nevadskiy/laravel-position)
-
-[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
 
 ## ✅ Requirements
 
@@ -70,7 +70,7 @@ echo $category->position; // 2
 By default, the created model takes a position at the very end of the sequence. The very first record takes the position with the value `0`. You can customize this behavior by overriding the `getNextPosition` method:
 
 ```php
-public function getNextPosition(): ?int
+public function getNextPosition(): int
 {
     return 0;
 }
