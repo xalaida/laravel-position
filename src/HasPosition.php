@@ -208,7 +208,7 @@ trait HasPosition
             $this->setPosition($nextPosition);
 
             // Sync original attribute to make it not dirty to do not shift the positions of other models.
-            if ($nextPosition < 0) {
+            if ($nextPosition === -1) {
                 $this->syncOriginalAttribute($this->getPositionColumn());
             }
         }
