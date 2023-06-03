@@ -112,7 +112,7 @@ echo $first->position; // 2 (automatically updated again)
 
 #### Starting position
 
-The first record in the sequence is assigned a position value of `0`. If you want to specify custom number that should be used to start counting models, override the `getStartPosition` method:
+By default, the first record in the sequence is assigned a position value of `0`. If you want to specify a custom number to start counting models, you can override the `getStartPosition` method in your model:
 
 ```php
 public function getStartPosition(): int
@@ -121,7 +121,9 @@ public function getStartPosition(): int
 }
 ```
 
-You also can override the `getNextPosition` method like this to create models in reverse order using the specified starting position:
+By doing this, the first record will be assigned a position value of `1`.
+
+If you want to create models in reverse order using the specified starting position, you can override the `getNextPosition` method as well:
 
 ```php
 public function getStartPosition(): int
