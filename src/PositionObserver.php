@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Position;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class PositionObserver
@@ -24,7 +25,7 @@ class PositionObserver
     public function created(Model $model): void
     {
         if ($model::shouldShiftPosition() && $model->isMoving()) {
-            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+            $this->others($model)->shiftToEnd($model->getPosition());
         }
     }
 
@@ -39,9 +40,9 @@ class PositionObserver
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($newPosition, $oldPosition);
+                $this->others($model)->shiftToEnd($newPosition, $oldPosition);
             } elseif ($newPosition > $oldPosition) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
+                $this->others($model)->shiftToStart($oldPosition, $newPosition);
             }
         }
     }
@@ -54,7 +55,23 @@ class PositionObserver
     public function deleted(Model $model): void
     {
         if ($model::shouldShiftPosition()) {
-            $model->newPositionQuery()->shiftToStart($model->getPosition());
+            $this->others($model)->shiftToStart($model->getPosition());
         }
+    }
+
+    /**
+     * Get other models in the sequence.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function others(Model $model): Builder
+    {
+        $query = $model->newPositionQuery();
+
+        if ($model->exists) {
+            $query->whereKeyNot($model->getKey());
+        }
+
+        return $query;
     }
 }
