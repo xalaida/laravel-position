@@ -246,6 +246,5 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 ## 🛠️ To Do List
 
 - [ ] `getStartPosition` start counting using different position value
-- [ ] `shiftWithoutTimestamps` method that preserve `updated_at` timestamp on other models
 - [ ] `lockPosition` method that is useful to speedup tests (also add possibility to use some kind of static counter)
 - [ ] shift positions when group is changed (should be 2 separate queries for new group and old group)
