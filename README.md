@@ -177,10 +177,10 @@ $category->swap($anotherCategory);
 
 By default, the positions of other models are automatically shifted when the model position is updated.
 
-If you want to change the model position without shifting the position of other models, you can use the `withoutShifting` method. For example:
+If you want to change the model position without shifting the position of other models, you can use the `withoutShiftingPosition` method. For example:
 
 ```php
-Category::withoutShifting(function () {
+Category::withoutShiftingPosition(function () {
     $category->move(5);
 })
 ```
