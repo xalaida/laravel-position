@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Position\Tests;
 
-use Mockery;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 
@@ -77,12 +76,7 @@ class OrderTest extends TestCase
             ->position(1)
             ->create();
 
-        $fakeCategory = Mockery::mock(new Category());
-        $fakeCategory->shouldReceive('alwaysOrderByPosition')->andReturnTrue();
-
-        $categories = Category::query()
-            ->setModel($fakeCategory)
-            ->get();
+        $categories = OrderedCategory::query()->get();
 
         static::assertTrue($categories[0]->is($category0));
         static::assertTrue($categories[1]->is($category1));
@@ -111,5 +105,13 @@ class OrderTest extends TestCase
         static::assertTrue($categories[0]->is($category2));
         static::assertTrue($categories[1]->is($category0));
         static::assertTrue($categories[2]->is($category1));
+    }
+}
+
+class OrderedCategory extends Category
+{
+    public function alwaysOrderByPosition(): bool
+    {
+        return true;
     }
 }

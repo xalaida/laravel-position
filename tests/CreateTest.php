@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Position\Tests;
 
-use Mockery;
 use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 
@@ -59,22 +58,6 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_configure_start_position_value(): void
-    {
-        $fakeCategory = Mockery::mock(Category::class);
-        $fakeCategory->makePartial();
-        $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
-        $fakeCategory->shouldReceive('getNextPosition')->andReturn(23);
-        $fakeCategory->__construct();
-
-        $category = Category::query()->setModel($fakeCategory)->create();
-
-        static::assertSame(23, $category->position);
-    }
-
-    /**
-     * @test
-     */
     public function it_can_create_model_in_middle_of_sequence(): void
     {
         $categories = CategoryFactory::new()->createMany(2);
@@ -109,18 +92,23 @@ class CreateTest extends TestCase
      */
     public function it_can_automatically_create_models_at_start_of_sequence(): void
     {
-        $categories = CategoryFactory::new()->createMany(2);
+        $categories = CategoryFactory::new()
+            ->using(ReverseCategory::class)
+            ->createMany(2);
 
-        $fakeCategory = Mockery::mock(Category::class);
-        $fakeCategory->makePartial();
-        $fakeCategory->shouldReceive('newInstance')->andReturnSelf();
-        $fakeCategory->shouldReceive('getNextPosition')->andReturn(0);
-        $fakeCategory->__construct();
-
-        $category = Category::query()->setModel($fakeCategory)->create();
+        $category = new ReverseCategory();
+        $category->save();
 
         static::assertSame(0, $category->position);
-        static::assertSame($categories[0]->fresh()->position, 1);
-        static::assertSame($categories[1]->fresh()->position, 2);
+        static::assertSame($categories[1]->fresh()->position, 1);
+        static::assertSame($categories[0]->fresh()->position, 2);
+    }
+}
+
+class ReverseCategory extends Category
+{
+    public function getNextPosition(): int
+    {
+        return 0;
     }
 }
