@@ -1,11 +1,10 @@
 <?php
 
-namespace Nevadskiy\Position\Scopes;
+namespace Nevadskiy\Position;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
-use Nevadskiy\Position\HasPosition;
 
 class PositioningScope implements Scope
 {

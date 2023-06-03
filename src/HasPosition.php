@@ -4,7 +4,6 @@ namespace Nevadskiy\Position;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Position\Scopes\PositioningScope;
 
 /**
  * @mixin Model
