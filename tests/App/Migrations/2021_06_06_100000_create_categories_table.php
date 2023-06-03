@@ -13,7 +13,7 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', static function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('position')->unsigned()->index();
+            $table->integer('position')->index();
             $table->timestamps();
         });
     }

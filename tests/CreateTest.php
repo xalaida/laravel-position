@@ -171,6 +171,20 @@ class CreateTest extends TestCase
         static::assertSame(2, $categories[3]->fresh()->position);
         static::assertSame(3, $categories[4]->fresh()->position);
     }
+
+    /**
+     * @test
+     */
+    public function it_can_create_models_with_negative_positions(): void
+    {
+        $categories = CategoryFactory::new()
+            ->using(NegativeStartCategory::class)
+            ->createMany(3);
+
+        static::assertSame(-10, $categories[0]->fresh()->position);
+        static::assertSame(-9, $categories[1]->fresh()->position);
+        static::assertSame(-8, $categories[2]->fresh()->position);
+    }
 }
 
 class ReverseCategory extends Category
@@ -212,5 +226,13 @@ class PreLastStartCategory extends Category
     public function getNextPosition(): int
     {
         return -2;
+    }
+}
+
+class NegativeStartCategory extends Category
+{
+    public function getStartPosition(): int
+    {
+        return -10;
     }
 }
