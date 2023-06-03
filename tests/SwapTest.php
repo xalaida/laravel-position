@@ -16,8 +16,8 @@ class SwapTest extends TestCase
 
         $categories[0]->swap($categories[2]);
 
-        static::assertSame($categories[0]->fresh()->getPosition(), 2);
-        static::assertSame($categories[2]->fresh()->getPosition(), 0);
+        static::assertSame(2, $categories[0]->fresh()->getPosition());
+        static::assertSame(0, $categories[2]->fresh()->getPosition());
     }
 
     /**
@@ -43,6 +43,6 @@ class SwapTest extends TestCase
 
         $categories[2]->swap($categories[0]);
 
-        static::assertSame($categories[1]->fresh()->getPosition(), 1);
+        static::assertSame(1, $categories[1]->fresh()->getPosition());
     }
 }
