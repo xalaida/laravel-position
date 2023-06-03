@@ -8,13 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 class PositionObserver
 {
     /**
-     * Handle the "creating" event for the model.
+     * Handle the "saving" event for the model.
      *
      * @param Model|HasPosition $model
      */
-    public function creating(Model $model): void
+    public function saving(Model $model): void
     {
-        $model->assignPositionIfMissing();
+        $this->assignPositionIfMissing($model);
+
+        $position = $model->getPosition();
+
+        if ($position < 0) {
+            $model->setPosition($this->count($model) + $position);
+        }
+
+        // @todo cover with tests when position = -2
+        // Do not shift positions of other models when models is created at the end of the sequence.
+        if ($position === -1 && ! $model->exists) {
+            $model->syncOriginalAttributes($model->getPositionColumn());
+        }
     }
 
     /**
@@ -60,6 +72,18 @@ class PositionObserver
     }
 
     /**
+     * Assign the position value to the model if it is missing.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function assignPositionIfMissing(Model $model): void
+    {
+        if (is_null($model->getAttribute($model->getPositionColumn()))) {
+            $model->setPosition($model->getNextPosition());
+        }
+    }
+
+    /**
      * Get other models in the sequence.
      *
      * @param Model|HasPosition $model
@@ -73,5 +97,15 @@ class PositionObserver
         }
 
         return $query;
+    }
+
+    /**
+     * Get the models count in the sequence.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function count(Model $model): int
+    {
+        return $model->newPositionQuery()->count() + ($model->exists ? 0 : 1);
     }
 }

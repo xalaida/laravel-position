@@ -98,10 +98,6 @@ trait HasPosition
      */
     public function setPosition(int $position): Model
     {
-        if ($position < 0) {
-            $position = ($this->getMaxPosition() + 1) + ($this->exists ? 0 : 1) + $position;
-        }
-
         return $this->setAttribute($this->getPositionColumn(), $position);
     }
 
@@ -166,30 +162,5 @@ trait HasPosition
     public function newPositionQuery(): Builder
     {
         return $this->newQuery();
-    }
-
-    /**
-     * Assign the next position value to the model if it is missing.
-     */
-    public function assignPositionIfMissing(): void
-    {
-        if (is_null($this->getAttribute($this->getPositionColumn()))) {
-            $nextPosition = $this->getNextPosition();
-
-            $this->setPosition($nextPosition);
-
-            // Sync original attribute to make it not dirty to do not shift the positions of other models.
-            if ($nextPosition < 0) {
-                $this->syncOriginalAttributes($this->getPositionColumn());
-            }
-        }
-    }
-
-    /**
-     * Get the max position value in the model sequence.
-     */
-    protected function getMaxPosition(): int
-    {
-        return $this->newPositionQuery()->max($this->getPositionColumn()) ?? -1;
     }
 }
