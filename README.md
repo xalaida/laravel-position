@@ -272,5 +272,5 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🛠️ To Do List
 
-- [ ] `lockPosition` method that is useful to speedup tests (also add possibility to use some kind of static counter)
+- [ ] add doc about `lockPositions` method
 - [ ] shift positions when group is changed (should be 2 separate queries for new group and old group)
