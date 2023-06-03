@@ -89,6 +89,6 @@ class PositionObserver
      */
     protected function count(Model $model): int
     {
-        return $model->newPositionQuery()->count() + ($model->exists ? 0 : 1);
+        return $model->getStartPosition() + $model->newPositionQuery()->count() + ($model->exists ? 0 : 1);
     }
 }

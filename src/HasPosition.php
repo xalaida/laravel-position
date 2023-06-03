@@ -46,6 +46,14 @@ trait HasPosition
     }
 
     /**
+     * Get the starting position for the model.
+     */
+    public function getStartPosition(): int
+    {
+        return 0;
+    }
+
+    /**
      * Get the next position in the sequence for the model.
      */
     public function getNextPosition(): int
@@ -66,13 +74,13 @@ trait HasPosition
      */
     public static function withoutShiftingPosition(callable $callback)
     {
-        $shifting = static::$shiftPosition;
+        $shiftPosition = static::$shiftPosition;
 
         static::$shiftPosition = false;
 
         $result = $callback();
 
-        static::$shiftPosition = $shifting;
+        static::$shiftPosition = $shiftPosition;
 
         return $result;
     }

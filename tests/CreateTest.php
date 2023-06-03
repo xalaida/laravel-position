@@ -90,6 +90,21 @@ class CreateTest extends TestCase
     /**
      * @test
      */
+    public function it_can_create_models_at_custom_start_position(): void
+    {
+        $categories = CategoryFactory::new()
+            ->using(CustomStartPositionCategory::class)
+            ->createMany(3);
+
+        static::assertSame(1, $categories[0]->position);
+        static::assertSame(2, $categories[1]->position);
+        static::assertSame(3, $categories[2]->position);
+    }
+
+
+    /**
+     * @test
+     */
     public function it_can_automatically_create_models_at_start_of_sequence(): void
     {
         $categories = CategoryFactory::new()
@@ -102,6 +117,14 @@ class CreateTest extends TestCase
         static::assertSame(0, $category->position);
         static::assertSame($categories[1]->fresh()->position, 1);
         static::assertSame($categories[0]->fresh()->position, 2);
+    }
+}
+
+class CustomStartPositionCategory extends Category
+{
+    public function getStartPosition(): int
+    {
+        return 1;
     }
 }
 
