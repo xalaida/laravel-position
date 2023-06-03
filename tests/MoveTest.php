@@ -2,8 +2,8 @@
 
 namespace Nevadskiy\Position\Tests;
 
-use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
-use Nevadskiy\Position\Tests\Support\Models\Category;
+use Nevadskiy\Position\Tests\App\Factories\CategoryFactory;
+use Nevadskiy\Position\Tests\App\Models\Category;
 
 class MoveTest extends TestCase
 {

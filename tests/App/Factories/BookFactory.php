@@ -1,9 +1,9 @@
 <?php
 
-namespace Nevadskiy\Position\Tests\Support\Factories;
+namespace Nevadskiy\Position\Tests\App\Factories;
 
-use Nevadskiy\Position\Tests\Support\Models\Book;
-use Nevadskiy\Position\Tests\Support\Models\Category;
+use Nevadskiy\Position\Tests\App\Models\Book;
+use Nevadskiy\Position\Tests\App\Models\Category;
 
 /**
  * @method static Book create(array $attributes = [])

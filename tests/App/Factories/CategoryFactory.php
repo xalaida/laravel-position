@@ -1,9 +1,9 @@
 <?php
 
-namespace Nevadskiy\Position\Tests\Support\Factories;
+namespace Nevadskiy\Position\Tests\App\Factories;
 
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Position\Tests\Support\Models\Category;
+use Nevadskiy\Position\Tests\App\Models\Category;
 
 /**
  * @method static Category create(array $attributes = [])

@@ -1,6 +1,6 @@
 <?php
 
-namespace Nevadskiy\Position\Tests\Support\Factories;
+namespace Nevadskiy\Position\Tests\App\Factories;
 
 use Illuminate\Database\Eloquent\Model;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Nevadskiy\Position\Tests\Support\Models;
+namespace Nevadskiy\Position\Tests\App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
