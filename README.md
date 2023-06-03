@@ -22,7 +22,7 @@ composer require nevadskiy/laravel-position
 
 ## 🔨 Add positions to models
 
-Add the `HasPosition` trait to your models that should have positions:
+Add the `HasPosition` trait to the models that should have positions:
 
 ```php
 <?php
@@ -38,7 +38,7 @@ class Category extends Model
 }
 ```
 
-Add a `position` column to the model tables:
+You also need to add a `position` column to the model's table using a migration:
 
 ```php
 Schema::create('categories', function (Blueprint $table) {
@@ -46,17 +46,18 @@ Schema::create('categories', function (Blueprint $table) {
 });
 ```
 
-That is all.
+And that's it!
 
 ## 📄 Documentation
 
 ### How it works
 
-Models have an `integer` attribute named position that indicates their `position` in the sequence. This attribute is automatically calculated upon insertion and is utilized for sorting the models during query operations.
+Models with positions have an integer attribute named position, which indicates their `position` in the sequence. 
+This attribute is automatically calculated upon insertion and is utilized for sorting the models during query operations.
 
 ### Creating models
 
-The `position` attribute is a kind of array index and is automatically inserted when a new model is created:
+The `position` attribute is a kind of array index and is automatically inserted when a new model is created. For example:
 
 ```php
 $category = Category::create();
@@ -71,7 +72,7 @@ echo $category->position; // 2
 
 #### Default ordering
 
-By default, the newly created model is assigned the position at the end of the sequence. The first record in the sequence is assigned a position value of `0`. That behavior is configured by the `getNextPosition` method:
+By default, the newly created model is assigned the position at the end of the sequence. The first record in the sequence is assigned a position value of `0`. You can modify this behavior by overriding the `getNextPosition` method in your model:
 
 ```php
 public function getNextPosition(): int
@@ -80,7 +81,7 @@ public function getNextPosition(): int
 }
 ```
 
-The negative positions can be used to calculate position from the end of the sequence and `-1` is almost identical to this: `static::count() - 1`.
+The negative positions can be used to calculate position from the end of the sequence, and `-1` is almost identical to `static::count() - 1`.
 
 #### Reverse ordering
 
@@ -93,7 +94,7 @@ public function getNextPosition(): int
 }
 ```
 
-In this example, a new model will be created at the beginning of the sequence. The position of other models in the sequence will be **automatically** updated:
+In this example, a new model will be created at the beginning of the sequence. The position of other models in the sequence will be **automatically** updated. For example:
 
 ```php
 $first = Category::create();
@@ -111,11 +112,11 @@ echo $first->position; // 2 (automatically updated again)
 
 ### Deleting models
 
-When a model is deleted, the positions of other records in the sequence are updated automatically.
+When a model is deleted, the positions of other records in the sequence are automatically updated.
 
 ### Querying models 
 
-To select models in the arranged sequence, use the `orderByPosition` scope:
+To select models in the arranged sequence, you can use the `orderByPosition` scope. For example:
 
 ```php
 Category::orderByPosition()->get();
@@ -125,9 +126,9 @@ Category::orderByPosition()->get();
 
 The `orderByPosition` scope is not applied by default because the corresponding SQL statement will be added to all queries, even where it is not required.
 
-It is much easier to manually add the scope in all places where you need it.
+It is recommended to manually add the scope in all places where you need it.
 
-However, if you want to enable auto-ordering for all query operations, you can override the `alwaysOrderByPosition` method in your model like this:
+However, if you want to enable auto-ordering for all query operations, you can override the `alwaysOrderByPosition` method in your model as following:
 
 ```php
 public function alwaysOrderByPosition(): bool
@@ -140,7 +141,7 @@ public function alwaysOrderByPosition(): bool
 
 #### Update
 
-To move a model to an arbitrary position in the sequence, you can simply update its position like this:
+To move a model to an arbitrary position in the sequence, you can simply update its position. For example:
 
 ```php
 $category->update([
@@ -152,13 +153,13 @@ The positions of other models will be automatically recalculated as well.
 
 #### Move
 
-You can also use the `move` method that sets a new position value and updates the model immediately:
+You can also use the `move` method, which sets a new position value and updates the model immediately. For example:
 
 ```php
 $category->move(3);
 ```
 
-If you want to move the model to the end of the sequence, you can use a negative position value:
+If you want to move the model to the end of the sequence, you can use a negative position value. For example:
 
 ```php
 $category->move(-1); // Move to the end
@@ -166,7 +167,7 @@ $category->move(-1); // Move to the end
 
 #### Swap
 
-The `swap` method swaps the position of two models.
+The `swap` method swaps the position of two models. For example:
 
 ```php
 $category->swap($anotherCategory);
@@ -174,9 +175,9 @@ $category->swap($anotherCategory);
 
 #### Without shifting
 
-By default, the position of other models are automatically shifted when the model position is updated.
+By default, the positions of other models are automatically shifted when the model position is updated.
 
-If you want to change the model position without shifting the position of other models, you can use the `withoutShifting` method:
+If you want to change the model position without shifting the position of other models, you can use the `withoutShifting` method. For example:
 
 ```php
 Category::withoutShifting(function () {
@@ -187,39 +188,31 @@ Category::withoutShifting(function () {
 #### Arrange models
 
 It is also possible to arrange models by their IDs.
-
-The position of each model will be recalculated according to the index of its ID in the given array. 
-
-You can also provide a second argument as a starting position.
+The position of each model will be recalculated according to the index of its ID in the given array.
+You can also provide a second argument as a starting position. For example:
 
 ```php
-Category::arrangeByKeys([3, 5, 7]);
+Category::arrangeByKeys([3, 5, 7], 0);
 ```
 
 ### Grouping / Dealing with relations
 
-To allow models to be positioned within groups, you need to override the `newPositionQuery` method that should return a query to the grouped model sequence.
+To allow models to be positioned within groups, you need to override the `newPositionQuery` method in your model. This method should return a query to the grouped model sequence.
 
 Using the relation builder:
 
 ```php
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Nevadskiy\Position\HasPosition;
+use Illuminate\Database\Eloquent\Builder;
 
-class Category
+public function group(): BelongsTo
 {
-    use HasPosition;
+    return $this->hasMany(Group::class);
+}
 
-    public function group(): BelongsTo
-    {
-        return $this->hasMany(Group::class);
-    }
-
-    protected function newPositionQuery(): Builder
-    {
-        return $this->group->categories();
-    }
+protected function newPositionQuery(): Builder
+{
+    return $this->group->categories();
 }
 ```
 
