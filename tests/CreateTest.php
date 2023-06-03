@@ -203,7 +203,7 @@ class CustomStartReserveCategory extends Category
 
     public function getNextPosition(): int
     {
-        return 1;
+        return $this->getStartPosition();
     }
 }
 

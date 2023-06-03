@@ -110,6 +110,31 @@ echo $second->position; // 1 (automatically updated)
 echo $first->position; // 2 (automatically updated again)
 ```
 
+#### Starting position
+
+The first record in the sequence is assigned a position value of `0`. If you want to specify custom number that should be used to start counting models, override the `getStartPosition` method:
+
+```php
+public function getStartPosition(): int
+{
+    return 1;
+}
+```
+
+You also can override the `getNextPosition` method like this to create models in reverse order using the specified starting position:
+
+```php
+public function getStartPosition(): int
+{
+    return 1;
+}
+
+public function getNextPosition(): int
+{
+    return $this->getStartPosition();
+}
+```
+
 ### Deleting models
 
 When a model is deleted, the positions of other records in the sequence are automatically updated.
@@ -245,6 +270,5 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🛠️ To Do List
 
-- [ ] `getStartPosition` start counting using different position value
 - [ ] `lockPosition` method that is useful to speedup tests (also add possibility to use some kind of static counter)
 - [ ] shift positions when group is changed (should be 2 separate queries for new group and old group)
