@@ -126,10 +126,8 @@ trait HasPosition
     public function setPosition(int $position): Model
     {
         if ($position < 0) {
-            $position = ($this->getMaxPosition() + 1) + $position + ($this->exists ? 0 : 1);
+            $position = ($this->getMaxPosition() + 1) + ($this->exists ? 0 : 1) + $position;
         }
-
-        // @todo throw overflow exception when negative value is too big. @see https://github.com/es-shims/Array.prototype.at/blob/main/implementation.js#L18.
 
         return $this->setAttribute($this->getPositionColumn(), $position);
     }
@@ -208,7 +206,7 @@ trait HasPosition
             $this->setPosition($nextPosition);
 
             // Sync original attribute to make it not dirty to do not shift the positions of other models.
-            if ($nextPosition === -1) {
+            if ($nextPosition < 0) {
                 $this->syncOriginalAttribute($this->getPositionColumn());
             }
         }
