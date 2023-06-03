@@ -35,7 +35,7 @@ class PositionObserver
      */
     public function created(Model $model): void
     {
-        if ($model::shouldShiftPosition() && $model->isMoving()) {
+        if ($model->isMoving() && $model::shouldShiftPositions()) {
             $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
         }
     }
@@ -47,7 +47,7 @@ class PositionObserver
      */
     public function updated(Model $model): void
     {
-        if ($model::shouldShiftPosition() && $model->isMoving()) {
+        if ($model->isMoving() && $model::shouldShiftPositions()) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
@@ -65,7 +65,7 @@ class PositionObserver
      */
     public function deleted(Model $model): void
     {
-        if ($model::shouldShiftPosition()) {
+        if ($model::shouldShiftPositions()) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
         }
     }
@@ -78,8 +78,22 @@ class PositionObserver
     protected function assignPositionIfMissing(Model $model): void
     {
         if (is_null($model->getAttribute($model->getPositionColumn()))) {
-            $model->setPosition($model->getNextPosition());
+            $model->setPosition($this->getNextPosition($model));
         }
+    }
+
+    /**
+     * Get the next position for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function getNextPosition(Model $model): int
+    {
+        if ($model::positionLocker()) {
+            return $model::positionLocker()($model);
+        }
+
+        return $model->getNextPosition();
     }
 
     /**

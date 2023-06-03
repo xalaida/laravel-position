@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait HasPosition
 {
+    use PositionLocker;
+
     /**
      * Indicates if the model should shift position of other models in the sequence.
      *
@@ -67,30 +69,6 @@ trait HasPosition
     public function alwaysOrderByPosition(): bool
     {
         return false;
-    }
-
-    /**
-     * Execute a callback without shifting position of models.
-     */
-    public static function withoutShiftingPosition(callable $callback)
-    {
-        $shiftPosition = static::$shiftPosition;
-
-        static::$shiftPosition = false;
-
-        $result = $callback();
-
-        static::$shiftPosition = $shiftPosition;
-
-        return $result;
-    }
-
-    /**
-     * Determine if the model should shift position of other models in the sequence.
-     */
-    public static function shouldShiftPosition(): bool
-    {
-        return static::$shiftPosition;
     }
 
     /**
@@ -170,5 +148,29 @@ trait HasPosition
     public function newPositionQuery(): Builder
     {
         return $this->newQuery();
+    }
+
+    /**
+     * Execute a callback without shifting positions of models.
+     */
+    public static function withoutShiftingPosition(callable $callback)
+    {
+        $shiftPosition = static::$shiftPosition;
+
+        static::$shiftPosition = false;
+
+        $result = $callback();
+
+        static::$shiftPosition = $shiftPosition;
+
+        return $result;
+    }
+
+    /**
+     * Determine if the model should shift positions of other models in the sequence.
+     */
+    public static function shouldShiftPositions(): bool
+    {
+        return static::$shiftPosition && is_null(static::$positionLocker);
     }
 }
