@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Position;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class PositionObserver
@@ -37,7 +36,7 @@ class PositionObserver
     public function created(Model $model): void
     {
         if ($model::shouldShiftPosition() && $model->isMoving()) {
-            $this->others($model)->shiftToEnd($model->getPosition());
+            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
         }
     }
 
@@ -52,9 +51,9 @@ class PositionObserver
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
-                $this->others($model)->shiftToEnd($newPosition, $oldPosition);
+               $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($newPosition, $oldPosition);
             } elseif ($newPosition > $oldPosition) {
-                $this->others($model)->shiftToStart($oldPosition, $newPosition);
+               $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
             }
         }
     }
@@ -67,7 +66,7 @@ class PositionObserver
     public function deleted(Model $model): void
     {
         if ($model::shouldShiftPosition()) {
-            $this->others($model)->shiftToStart($model->getPosition());
+            $model->newPositionQuery()->shiftToStart($model->getPosition());
         }
     }
 
@@ -81,22 +80,6 @@ class PositionObserver
         if (is_null($model->getAttribute($model->getPositionColumn()))) {
             $model->setPosition($model->getNextPosition());
         }
-    }
-
-    /**
-     * Get other models in the sequence.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function others(Model $model): Builder
-    {
-        $query = $model->newPositionQuery();
-
-        if ($model->exists) {
-            $query->whereKeyNot($model->getKey());
-        }
-
-        return $query;
     }
 
     /**
