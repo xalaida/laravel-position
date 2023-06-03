@@ -17,13 +17,13 @@ class PositionObserver
 
         $position = $model->getPosition();
 
-        if ($position < 0) {
-            $model->setPosition($this->count($model) + $position);
+        if ($position < $model->getStartPosition()) {
+            $model->setPosition(max($this->count($model) + $position, $model->getStartPosition()));
         }
 
         // @todo cover with tests when position = -2
         // Do not shift positions of other models when models is created at the end of the sequence.
-        if ($position === -1 && ! $model->exists) {
+        if (($position === ($model->getStartPosition() - 1)) && ! $model->exists) {
             $model->syncOriginalAttributes($model->getPositionColumn());
         }
     }
@@ -89,6 +89,6 @@ class PositionObserver
      */
     protected function count(Model $model): int
     {
-        return $model->getStartPosition() + $model->newPositionQuery()->count() + ($model->exists ? 0 : 1);
+        return $model->newPositionQuery()->count() + ($model->exists ? 0 : 1);
     }
 }

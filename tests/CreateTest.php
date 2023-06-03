@@ -67,8 +67,8 @@ class CreateTest extends TestCase
             ->create();
 
         static::assertSame(1, $category->position);
-        static::assertSame($categories[0]->fresh()->position, 0);
-        static::assertSame($categories[1]->fresh()->position, 2);
+        static::assertSame(0, $categories[0]->fresh()->position);
+        static::assertSame(2, $categories[1]->fresh()->position);
     }
 
     /**
@@ -83,8 +83,8 @@ class CreateTest extends TestCase
             ->create();
 
         static::assertSame(0, $category->position);
-        static::assertSame($categories[0]->fresh()->position, 1);
-        static::assertSame($categories[1]->fresh()->position, 2);
+        static::assertSame(1, $categories[0]->fresh()->position);
+        static::assertSame(2, $categories[1]->fresh()->position);
     }
 
     /**
@@ -93,14 +93,27 @@ class CreateTest extends TestCase
     public function it_can_create_models_at_custom_start_position(): void
     {
         $categories = CategoryFactory::new()
-            ->using(CustomStartPositionCategory::class)
+            ->using(CustomStartCategory::class)
             ->createMany(3);
 
-        static::assertSame(1, $categories[0]->position);
-        static::assertSame(2, $categories[1]->position);
-        static::assertSame(3, $categories[2]->position);
+        static::assertSame(1, $categories[0]->fresh()->position);
+        static::assertSame(2, $categories[1]->fresh()->position);
+        static::assertSame(3, $categories[2]->fresh()->position);
     }
 
+    /**
+     * @test
+     */
+    public function it_can_create_models_at_custom_start_position_in_reverse_order(): void
+    {
+        $categories = CategoryFactory::new()
+            ->using(CustomStartReserveCategory::class)
+            ->createMany(3);
+
+        static::assertSame(3, $categories[0]->fresh()->position);
+        static::assertSame(2, $categories[1]->fresh()->position);
+        static::assertSame(1, $categories[2]->fresh()->position);
+    }
 
     /**
      * @test
@@ -109,22 +122,54 @@ class CreateTest extends TestCase
     {
         $categories = CategoryFactory::new()
             ->using(ReverseCategory::class)
-            ->createMany(2);
+            ->createMany(3);
 
-        $category = new ReverseCategory();
-        $category->save();
-
-        static::assertSame(0, $category->position);
-        static::assertSame($categories[1]->fresh()->position, 1);
-        static::assertSame($categories[0]->fresh()->position, 2);
+        static::assertSame(2, $categories[0]->fresh()->position);
+        static::assertSame(1, $categories[1]->fresh()->position);
+        static::assertSame(0, $categories[2]->fresh()->position);
     }
-}
 
-class CustomStartPositionCategory extends Category
-{
-    public function getStartPosition(): int
+    /**
+     * @test
+     */
+    public function it_can_create_model_at_pre_last_position(): void
     {
-        return 1;
+        $category1 = CategoryFactory::new()
+            ->position(0)
+            ->create();
+
+        $category2 = CategoryFactory::new()
+            ->position(1)
+            ->create();
+
+        $category3 = CategoryFactory::new()
+            ->position(2)
+            ->create();
+
+        $category = CategoryFactory::new()
+            ->position(-2)
+            ->create();
+
+        static::assertSame(0, $category1->fresh()->position);
+        static::assertSame(1, $category2->fresh()->position);
+        static::assertSame(3, $category3->fresh()->position);
+        static::assertSame(2, $category->fresh()->position);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_create_models_using_at_pre_last_position(): void
+    {
+        $categories = CategoryFactory::new()
+            ->using(PreLastStartCategory::class)
+            ->createMany(5);
+
+        static::assertSame(4, $categories[0]->fresh()->position);
+        static::assertSame(0, $categories[1]->fresh()->position);
+        static::assertSame(1, $categories[2]->fresh()->position);
+        static::assertSame(2, $categories[3]->fresh()->position);
+        static::assertSame(3, $categories[4]->fresh()->position);
     }
 }
 
@@ -133,5 +178,39 @@ class ReverseCategory extends Category
     public function getNextPosition(): int
     {
         return 0;
+    }
+}
+
+class CustomStartCategory extends Category
+{
+    public function getStartPosition(): int
+    {
+        return 1;
+    }
+
+    public function getNextPosition(): int
+    {
+        return 0;
+    }
+}
+
+class CustomStartReserveCategory extends Category
+{
+    public function getStartPosition(): int
+    {
+        return 1;
+    }
+
+    public function getNextPosition(): int
+    {
+        return 1;
+    }
+}
+
+class PreLastStartCategory extends Category
+{
+    public function getNextPosition(): int
+    {
+        return -2;
     }
 }
