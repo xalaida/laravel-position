@@ -20,7 +20,7 @@ class Book extends Model
 
     protected $table = 'books';
 
-    protected function newPositionQuery(): Builder
+    public function newPositionQuery(): Builder
     {
         return $this->newQuery()->where('category_id', $this->category_id);
     }

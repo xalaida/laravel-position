@@ -24,33 +24,7 @@ trait HasPosition
     {
         static::addGlobalScope(new PositioningScope());
 
-        static::creating(static function (self $model) {
-            $model->assignPositionIfMissing();
-        });
-
-        static::created(static function (self $model) {
-            if (static::shouldShiftPosition() && $model->isMoving()) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
-            }
-        });
-
-        static::updated(static function (self $model) {
-            if (static::shouldShiftPosition() && $model->isMoving()) {
-                [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
-
-                if ($newPosition < $oldPosition) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($newPosition, $oldPosition);
-                } elseif ($newPosition > $oldPosition) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
-                }
-            }
-        });
-
-        static::deleted(static function (self $model) {
-            if (static::shouldShiftPosition()) {
-                $model->newPositionQuery()->shiftToStart($model->getPosition());
-            }
-        });
+        static::observe(new PositionObserver());
     }
 
     /**
@@ -134,7 +108,7 @@ trait HasPosition
     /**
      * Scope a query to sort models by positions.
      */
-    public function scopeOrderByPosition(Builder $query): Builder
+    protected function scopeOrderByPosition(Builder $query): Builder
     {
         return $query->orderBy($this->getPositionColumn());
     }
@@ -142,7 +116,7 @@ trait HasPosition
     /**
      * Scope a query to sort models by reverse positions.
      */
-    public function scopeOrderByReversePosition(Builder $query): Builder
+    protected function scopeOrderByReversePosition(Builder $query): Builder
     {
         return $query->orderBy($this->getPositionColumn(), 'desc');
     }
@@ -189,7 +163,7 @@ trait HasPosition
     /**
      * Get a new position query.
      */
-    protected function newPositionQuery(): Builder
+    public function newPositionQuery(): Builder
     {
         return $this->newQuery();
     }
@@ -197,7 +171,7 @@ trait HasPosition
     /**
      * Assign the next position value to the model if it is missing.
      */
-    protected function assignPositionIfMissing(): void
+    public function assignPositionIfMissing(): void
     {
         if (is_null($this->getAttribute($this->getPositionColumn()))) {
             $nextPosition = $this->getNextPosition();
@@ -206,7 +180,7 @@ trait HasPosition
 
             // Sync original attribute to make it not dirty to do not shift the positions of other models.
             if ($nextPosition < 0) {
-                $this->syncOriginalAttribute($this->getPositionColumn());
+                $this->syncOriginalAttributes($this->getPositionColumn());
             }
         }
     }

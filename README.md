@@ -210,7 +210,7 @@ public function group(): BelongsTo
     return $this->hasMany(Group::class);
 }
 
-protected function newPositionQuery(): Builder
+public function newPositionQuery(): Builder
 {
     return $this->group->categories();
 }
@@ -221,7 +221,7 @@ Using the `where` method:
 ```php
 use Illuminate\Database\Eloquent\Builder;
 
-protected function newPositionQuery(): Builder
+public function newPositionQuery(): Builder
 {
     return $this->newQuery()->where('parent_id', $this->parent_id);
 }
@@ -251,3 +251,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 - [ ] `shiftWithoutTimestamps` method that preserve `updated_at` timestamp on other models
 - [ ] `lockPosition` method that is useful to speedup tests (also add possibility to use some kind of static counter)
 - [ ] shift positions when group is changed (should be 2 separate queries for new group and old group)
+- [ ] refactor tests
