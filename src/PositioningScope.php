@@ -22,7 +22,7 @@ class PositioningScope implements Scope
     /**
      * Apply the scope to a given Eloquent query builder.
      *
-     * @param HasPosition|Model $model
+     * @param Model|HasPosition $model
      */
     public function apply(Builder $query, Model $model): void
     {
