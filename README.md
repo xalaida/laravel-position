@@ -14,7 +14,7 @@
 
 ## 🔌 Installation
 
-Install the package via composer.
+Install the package via Composer:
 
 ```bash
 composer require nevadskiy/laravel-position
@@ -22,7 +22,7 @@ composer require nevadskiy/laravel-position
 
 ## 🔨 Add positions to models
 
-Add the `HasPosition` trait to your models that should have positions.
+Add the `HasPosition` trait to your models that should have positions:
 
 ```php
 <?php
@@ -38,7 +38,7 @@ class Category extends Model
 }
 ```
 
-Add a `position` column to the model tables.
+Add a `position` column to the model tables:
 
 ```php
 Schema::create('categories', function (Blueprint $table) {
@@ -46,15 +46,17 @@ Schema::create('categories', function (Blueprint $table) {
 });
 ```
 
+That is all.
+
 ## 📄 Documentation
 
 ### How it works
 
-Models simply have an integer `position` attribute corresponding to the model's position in the sequence, which is automatically calculated on write and used for sorting the models on reads.
+Models have an `integer` attribute named position that indicates their `position` in the sequence. This attribute is automatically calculated upon insertion and is utilized for sorting the models during query operations.
 
 ### Creating models
 
-The `position` attribute is a kind of array index and is automatically inserted when a new model is created.
+The `position` attribute is a kind of array index and is automatically inserted when a new model is created:
 
 ```php
 $category = Category::create();
@@ -67,7 +69,22 @@ $category = Category::create();
 echo $category->position; // 2
 ```
 
-By default, the created model takes a position at the very end of the sequence. The very first record takes the position with the value `0`. You can customize this behavior by overriding the `getNextPosition` method:
+#### Default ordering
+
+By default, the newly created model is assigned the position at the end of the sequence. The first record in the sequence is assigned a position value of `0`. That behavior is configured by the `getNextPosition` method:
+
+```php
+public function getNextPosition(): int
+{
+    return -1;
+}
+```
+
+The negative positions can be used to calculate position from the end of the sequence and `-1` is almost identical to this: `static::count() - 1`.
+
+#### Reverse ordering
+
+If you want to create models in reverse order, you can specify the next position of the model to be `0`:
 
 ```php
 public function getNextPosition(): int
@@ -76,7 +93,21 @@ public function getNextPosition(): int
 }
 ```
 
-In that example, a new model will be created in the beginning of the sequence and the position of other models in the sequence will be automatically incremented.
+In this example, a new model will be created at the beginning of the sequence. The position of other models in the sequence will be **automatically** updated:
+
+```php
+$first = Category::create();
+echo $first->position; // 0
+
+$second = Category::create();
+echo $second->position; // 0
+echo $first->position; // 1 (automatically updated)
+
+$third = Category::create();
+echo $third->position; // 0
+echo $second->position; // 1 (automatically updated)
+echo $first->position; // 2 (automatically updated again)
+```
 
 ### Deleting models
 
@@ -96,7 +127,7 @@ The `orderByPosition` scope is not applied by default because the corresponding 
 
 It is much easier to manually add the scope in all places where you need it.
 
-However, if you want to enable auto-ordering, you can override the `alwaysOrderByPosition` method in your model like this:
+However, if you want to enable auto-ordering for all query operations, you can override the `alwaysOrderByPosition` method in your model like this:
 
 ```php
 public function alwaysOrderByPosition(): bool
@@ -143,9 +174,9 @@ $category->swap($anotherCategory);
 
 #### Without shifting
 
-By default, the package automatically updates the position of other models when the model position is updated.
+By default, the position of other models are automatically shifted when the model position is updated.
 
-If you want to update the model position without shifting the position of other models, you can use the `withoutShifting` method:
+If you want to change the model position without shifting the position of other models, you can use the `withoutShifting` method:
 
 ```php
 Category::withoutShifting(function () {
