@@ -249,3 +249,12 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
+
+## 🛠️ To Do List
+
+- [ ] use `count` instead of `max` for calculating positioning from the end
+- [ ] refactor with observer
+- [ ] `getStartPosition` start counting using different position value
+- [ ] `shiftWithoutTimestamps` method that preserve `updated_at` timestamp on other models
+- [ ] `lockPosition` method that is useful to speedup tests (also add possibility to use some kind of static counter)
+- [ ] shift positions when group is changed (should be 2 separate queries for new group and old group)
