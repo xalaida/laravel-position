@@ -219,7 +219,7 @@ The position of each model will be recalculated according to the index of its ID
 You can also provide a second argument as a starting position. For example:
 
 ```php
-Category::arrangeByKeys([3, 5, 7], 0);
+Category::arrangeByKeys([3, 5, 7]);
 ```
 
 ### Grouping / Dealing with relations
