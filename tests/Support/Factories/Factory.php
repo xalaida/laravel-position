@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 abstract class Factory
 {
     /**
+     * The model class of the factory.
+     *
+     * @var string
+     */
+    protected $model;
+
+    /**
      * The override attributes.
      *
      * @var array
@@ -21,6 +28,16 @@ abstract class Factory
     final public static function new(): self
     {
         return new static();
+    }
+
+    /**
+     * Use the given model class for the factory.
+     */
+    final public function using(string $model): self
+    {
+        $this->model = $model;
+
+        return $this;
     }
 
     /**
@@ -61,7 +78,12 @@ abstract class Factory
     /**
      * Make a new model instance.
      */
-    abstract protected function newModel(): Model;
+    protected function newModel(): Model
+    {
+        $model = $this->model;
+
+        return new $model();
+    }
 
     /**
      * Get the default values.

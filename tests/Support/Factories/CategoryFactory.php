@@ -11,6 +11,11 @@ use Nevadskiy\Position\Tests\Support\Models\Category;
 class CategoryFactory extends Factory
 {
     /**
+     * @inheritdoc
+     */
+    protected $model = Category::class;
+
+    /**
      * Specify the given position to the model.
      */
     public function position(int $position): self
@@ -18,13 +23,5 @@ class CategoryFactory extends Factory
         $this->attributes['position'] = $position;
 
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function newModel(): Model
-    {
-        return new Category();
     }
 }

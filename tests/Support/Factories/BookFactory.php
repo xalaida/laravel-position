@@ -2,7 +2,6 @@
 
 namespace Nevadskiy\Position\Tests\Support\Factories;
 
-use Illuminate\Database\Eloquent\Model;
 use Nevadskiy\Position\Tests\Support\Models\Book;
 use Nevadskiy\Position\Tests\Support\Models\Category;
 
@@ -11,6 +10,11 @@ use Nevadskiy\Position\Tests\Support\Models\Category;
  */
 class BookFactory extends Factory
 {
+    /**
+     * @inheritdoc
+     */
+    protected $model = Book::class;
+
     /**
      * Specify the given position to the model.
      */
@@ -29,14 +33,6 @@ class BookFactory extends Factory
         $this->attributes['category_id'] = $category->getKey();
 
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function newModel(): Model
-    {
-        return new Book();
     }
 
     /**
