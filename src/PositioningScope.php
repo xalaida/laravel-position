@@ -67,7 +67,7 @@ class PositioningScope implements Scope
      */
     public function shiftToStart(Builder $query, int $startPosition = null, int $endPosition = null, int $amount = 1): int
     {
-        return $this->preservingTimestamps($query->getModel(), function () use ($query, $startPosition, $endPosition, $amount) {
+        return $this->preserveTimestamps($query->getModel(), function () use ($query, $startPosition, $endPosition, $amount) {
             return $query->wherePositionBetween($startPosition, $endPosition)
                 ->decrement($query->getModel()->getPositionColumn(), $amount);
         });
@@ -78,7 +78,7 @@ class PositioningScope implements Scope
      */
     public function shiftToEnd(Builder $query, int $startPosition, int $endPosition = null, int $amount = 1): int
     {
-        return $this->preservingTimestamps($query->getModel(), function () use ($query, $startPosition, $endPosition, $amount) {
+        return $this->preserveTimestamps($query->getModel(), function () use ($query, $startPosition, $endPosition, $amount) {
             return $query->wherePositionBetween($startPosition, $endPosition)
                 ->increment($query->getModel()->getPositionColumn(), $amount);
         });
@@ -100,7 +100,7 @@ class PositioningScope implements Scope
     /**
      * Execute the given callback with preserving timestamps.
      */
-    protected function preservingTimestamps(Model $model, callable $callback)
+    protected function preserveTimestamps(Model $model, callable $callback)
     {
         if (! $this->shouldPreserveTimestamps($model)) {
             return $callback();
