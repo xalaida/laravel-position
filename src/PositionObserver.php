@@ -21,9 +21,8 @@ class PositionObserver
             $model->setPosition(max($this->count($model) + $position, $model->getStartPosition()));
         }
 
-        // @todo cover with tests when position = -2
-        // Do not shift positions of other models when models is created at the end of the sequence.
-        if (($position === ($model->getStartPosition() - 1)) && ! $model->exists) {
+        if ($this->isSavingAsLatest($model, $position)) {
+            // Prevent shifting the position of other models, avoiding the need for extra database query.
             $model->syncOriginalAttributes($model->getPositionColumn());
         }
     }
@@ -94,6 +93,20 @@ class PositionObserver
         }
 
         return $model->getNextPosition();
+    }
+
+    /**
+     * Determine if the model is being saved at the end of the sequence.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function isSavingAsLatest(Model $model, int $position): bool
+    {
+        if ($model->exists) {
+            return false;
+        }
+
+        return $position === ($model->getStartPosition() - 1);
     }
 
     /**

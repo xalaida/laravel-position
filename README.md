@@ -273,4 +273,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 ## 🛠️ To Do List
 
 - [ ] add doc about `lockPositions` method
-- [ ] shift positions when group is changed (should be 2 separate queries for new group and old group)
+- [ ] shift positions when group is changed (should be 2 separate queries for new and old groups)
