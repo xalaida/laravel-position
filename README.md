@@ -149,7 +149,7 @@ To select models in the arranged sequence, you can use the `orderByPosition` sco
 Category::orderByPosition()->get();
 ```
 
-### Automatic ordering
+### Automatic ordering when querying models
 
 The `orderByPosition` scope is not applied by default because the corresponding SQL statement will be added to all queries, even where it is not required.
 
@@ -254,6 +254,50 @@ public function newPositionQuery(): Builder
 }
 ```
 
+### Locking positions
+
+By default, when a model is created at the end of the sequence, an extra database query is executed to calculate the latest position in the sequence. 
+Similarly, when a model is created at the beginning or any other position but the latest, additional database queries are needed to shift the positions of other models accordingly. 
+In some cases, you may want to insert models without these additional queries associated with calculating and shifting positions.
+For such scenarios, you can use the `lockPositions` method, which disables all post-insert database queries and assigns positions to models using a specified locker. 
+This can be particularly useful to speed up your tests.
+
+By default, the positions are locked to the value returned by the `getStartPosition` method in your model:
+
+```php
+Categogy::lockPositions();
+
+$category = Category::create();
+echo $category->position; // 0
+
+$category = Category::create();
+echo $category->position; // 0
+
+$category = Category::create();
+echo $category->position; // 0
+```
+
+Alternatively, you can provide a callback function as the locker. For example:
+
+```php
+Category::lockPositions(static function () {
+    static $count = 0;
+
+    return $count++;
+});
+
+$category = Category::create();
+echo $category->position; // 0
+
+$category = Category::create();
+echo $category->position; // 1
+
+$category = Category::create();
+echo $category->position; // 2
+```
+
+In this example, the callback function is used to increment the position for each new model created, starting from `0`.
+
 ## 📑 Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
@@ -272,5 +316,4 @@ The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
 
 ## 🛠️ To Do List
 
-- [ ] add doc about `lockPositions` method
 - [ ] shift positions when group is changed (should be 2 separate queries for new and old groups)
