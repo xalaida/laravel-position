@@ -60,9 +60,7 @@ class LockTest extends TestCase
 
         Category::query()->getConnection()->enableQueryLog();
 
-        $categories = CategoryFactory::new()
-            ->using(ReverseCategory::class)
-            ->createMany(3);
+        $categories = CategoryFactory::new()->createMany(3);
 
         static::assertCount(3, Category::query()->getConnection()->getQueryLog());
         static::assertSame(0, $categories[0]->fresh()->getPosition());

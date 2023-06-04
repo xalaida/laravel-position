@@ -22,15 +22,9 @@ trait PositionLocker
     public static function lockPositions($locker = null): void
     {
         static::$positionLocker = is_callable($locker) ? $locker : static function (self $model) use ($locker) {
-            if (is_int($locker)) {
-                return $locker;
-            }
-
-            static $counter = 0;
-
-            $counter += $model->getStartPosition();
-
-            return $counter++;
+            return is_int($locker)
+                ? $locker
+                : $model->getStartPosition();
         };
     }
 
