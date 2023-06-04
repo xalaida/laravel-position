@@ -1,14 +1,28 @@
 <?php
 
-namespace Nevadskiy\Position\Scopes;
+namespace Nevadskiy\Position;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
-use Nevadskiy\Position\HasPosition;
 
 class PositioningScope implements Scope
 {
+    /**
+     * Indicates if the models timestamps should be updated when shifting models.
+     *
+     * @var bool
+     */
+    protected static $shiftWithTimestamps = false;
+
+    /**
+     * Update timestamps when shifting models.
+     */
+    public static function shiftWithTimestamps(bool $timestamps = true): void
+    {
+        static::$shiftWithTimestamps = $timestamps;
+    }
+
     /**
      * Extend the query builder with the needed functions.
      */
@@ -23,7 +37,7 @@ class PositioningScope implements Scope
     /**
      * Apply the scope to a given Eloquent query builder.
      *
-     * @param HasPosition|Model $model
+     * @param Model|HasPosition $model
      */
     public function apply(Builder $query, Model $model): void
     {
@@ -51,19 +65,23 @@ class PositioningScope implements Scope
     /**
      * Shift all models that are between the given positions to the beginning of the sequence.
      */
-    public function shiftToStart(Builder $query, int $fromPosition = null, int $toPosition = null, int $amount = 1): int
+    public function shiftToStart(Builder $query, int $startPosition = null, int $endPosition = null, int $amount = 1): int
     {
-        return $query->wherePositionBetween($fromPosition, $toPosition)
-            ->decrement($query->getModel()->getPositionColumn(), $amount);
+        return $this->preserveTimestamps($query->getModel(), function () use ($query, $startPosition, $endPosition, $amount) {
+            return $query->wherePositionBetween($startPosition, $endPosition)
+                ->decrement($query->getModel()->getPositionColumn(), $amount);
+        });
     }
 
     /**
      * Shift all models that are between the given positions to the end of the sequence.
      */
-    public function shiftToEnd(Builder $query, int $fromPosition, int $toPosition = null, int $amount = 1): int
+    public function shiftToEnd(Builder $query, int $startPosition, int $endPosition = null, int $amount = 1): int
     {
-        return $query->wherePositionBetween($fromPosition, $toPosition)
-            ->increment($query->getModel()->getPositionColumn(), $amount);
+        return $this->preserveTimestamps($query->getModel(), function () use ($query, $startPosition, $endPosition, $amount) {
+            return $query->wherePositionBetween($startPosition, $endPosition)
+                ->increment($query->getModel()->getPositionColumn(), $amount);
+        });
     }
 
     /**
@@ -77,5 +95,33 @@ class PositioningScope implements Scope
                     $query->getModel()->getPositionColumn() => $startPosition + $position,
                 ]);
         }
+    }
+
+    /**
+     * Execute the given callback with preserving timestamps.
+     */
+    protected function preserveTimestamps(Model $model, callable $callback)
+    {
+        if (! $this->shouldPreserveTimestamps($model)) {
+            return $callback();
+        }
+
+        $timestamps = $model->timestamps;
+
+        $model->timestamps = false;
+
+        $result = $callback();
+
+        $model->timestamps = $timestamps;
+
+        return $result;
+    }
+
+    /**
+     * Determine whether the timestamps should be preserved.
+     */
+    protected function shouldPreserveTimestamps(Model $model): bool
+    {
+        return $model->usesTimestamps() && ! static::$shiftWithTimestamps;
     }
 }

@@ -14,7 +14,7 @@
 
 ## 🔌 Installation
 
-Install the package via composer.
+Install the package via Composer:
 
 ```bash
 composer require nevadskiy/laravel-position
@@ -22,7 +22,7 @@ composer require nevadskiy/laravel-position
 
 ## 🔨 Add positions to models
 
-Add the `HasPosition` trait to your models that should have positions.
+Add the `HasPosition` trait to the models that should have positions:
 
 ```php
 <?php
@@ -38,7 +38,7 @@ class Category extends Model
 }
 ```
 
-Add a `position` column to the model tables.
+You also need to add a `position` column to the model's table using a migration:
 
 ```php
 Schema::create('categories', function (Blueprint $table) {
@@ -46,15 +46,18 @@ Schema::create('categories', function (Blueprint $table) {
 });
 ```
 
+And that's it!
+
 ## 📄 Documentation
 
 ### How it works
 
-Models simply have an integer `position` attribute corresponding to the model's position in the sequence, which is automatically calculated on write and used for sorting the models on reads.
+Models with positions have an integer attribute named position, which indicates their `position` in the sequence. 
+This attribute is automatically calculated upon insertion and is utilized for sorting the models during query operations.
 
 ### Creating models
 
-The `position` attribute is a kind of array index and is automatically inserted when a new model is created.
+The `position` attribute is a kind of array index and is automatically inserted when a new model is created. For example:
 
 ```php
 $category = Category::create();
@@ -67,7 +70,22 @@ $category = Category::create();
 echo $category->position; // 2
 ```
 
-By default, the created model takes a position at the very end of the sequence. The very first record takes the position with the value `0`. You can customize this behavior by overriding the `getNextPosition` method:
+#### Default ordering
+
+By default, the newly created model is assigned the position at the end of the sequence. The first record in the sequence is assigned a position value of `0`. You can modify this behavior by overriding the `getNextPosition` method in your model:
+
+```php
+public function getNextPosition(): int
+{
+    return -1;
+}
+```
+
+The negative positions can be used to calculate position from the end of the sequence, and `-1` is almost identical to `static::count() - 1`.
+
+#### Reverse ordering
+
+If you want to create models in reverse order, you can specify the next position of the model to be `0`:
 
 ```php
 public function getNextPosition(): int
@@ -76,27 +94,68 @@ public function getNextPosition(): int
 }
 ```
 
-In that example, a new model will be created in the beginning of the sequence and the position of other models in the sequence will be automatically incremented.
+In this example, a new model will be created at the beginning of the sequence. The position of other models in the sequence will be **automatically** updated. For example:
+
+```php
+$first = Category::create();
+echo $first->position; // 0
+
+$second = Category::create();
+echo $second->position; // 0
+echo $first->position; // 1 (automatically updated)
+
+$third = Category::create();
+echo $third->position; // 0
+echo $second->position; // 1 (automatically updated)
+echo $first->position; // 2 (automatically updated again)
+```
+
+#### Starting position
+
+By default, the first record in the sequence is assigned a position value of `0`. If you want to specify a custom number to start counting models, you can override the `getStartPosition` method in your model:
+
+```php
+public function getStartPosition(): int
+{
+    return 1;
+}
+```
+
+By doing this, the first record will be assigned a position value of `1`.
+
+If you want to create models in reverse order using the specified starting position, you can override the `getNextPosition` method as well:
+
+```php
+public function getStartPosition(): int
+{
+    return 1;
+}
+
+public function getNextPosition(): int
+{
+    return $this->getStartPosition();
+}
+```
 
 ### Deleting models
 
-When a model is deleted, the positions of other records in the sequence are updated automatically.
+When a model is deleted, the positions of other records in the sequence are automatically updated.
 
 ### Querying models 
 
-To select models in the arranged sequence, use the `orderByPosition` scope:
+To select models in the arranged sequence, you can use the `orderByPosition` scope. For example:
 
 ```php
 Category::orderByPosition()->get();
 ```
 
-### Automatic ordering
+### Automatic ordering when querying models
 
 The `orderByPosition` scope is not applied by default because the corresponding SQL statement will be added to all queries, even where it is not required.
 
-It is much easier to manually add the scope in all places where you need it.
+It is recommended to manually add the scope in all places where you need it.
 
-However, if you want to enable auto-ordering, you can override the `alwaysOrderByPosition` method in your model like this:
+However, if you want to enable auto-ordering for all query operations, you can override the `alwaysOrderByPosition` method in your model as following:
 
 ```php
 public function alwaysOrderByPosition(): bool
@@ -109,7 +168,7 @@ public function alwaysOrderByPosition(): bool
 
 #### Update
 
-To move a model to an arbitrary position in the sequence, you can simply update its position like this:
+To move a model to an arbitrary position in the sequence, you can simply update its position. For example:
 
 ```php
 $category->update([
@@ -121,13 +180,13 @@ The positions of other models will be automatically recalculated as well.
 
 #### Move
 
-You can also use the `move` method that sets a new position value and updates the model immediately:
+You can also use the `move` method, which sets a new position value and updates the model immediately. For example:
 
 ```php
 $category->move(3);
 ```
 
-If you want to move the model to the end of the sequence, you can use a negative position value:
+If you want to move the model to the end of the sequence, you can use a negative position value. For example:
 
 ```php
 $category->move(-1); // Move to the end
@@ -135,7 +194,7 @@ $category->move(-1); // Move to the end
 
 #### Swap
 
-The `swap` method swaps the position of two models.
+The `swap` method swaps the position of two models. For example:
 
 ```php
 $category->swap($anotherCategory);
@@ -143,12 +202,12 @@ $category->swap($anotherCategory);
 
 #### Without shifting
 
-By default, the package automatically updates the position of other models when the model position is updated.
+By default, the positions of other models are automatically shifted when the model position is updated.
 
-If you want to update the model position without shifting the position of other models, you can use the `withoutShifting` method:
+If you want to change the model position without shifting the position of other models, you can use the `withoutShiftingPosition` method. For example:
 
 ```php
-Category::withoutShifting(function () {
+Category::withoutShiftingPosition(function () {
     $category->move(5);
 })
 ```
@@ -156,10 +215,8 @@ Category::withoutShifting(function () {
 #### Arrange models
 
 It is also possible to arrange models by their IDs.
-
-The position of each model will be recalculated according to the index of its ID in the given array. 
-
-You can also provide a second argument as a starting position.
+The position of each model will be recalculated according to the index of its ID in the given array.
+You can also provide a second argument as a starting position. For example:
 
 ```php
 Category::arrangeByKeys([3, 5, 7]);
@@ -167,28 +224,22 @@ Category::arrangeByKeys([3, 5, 7]);
 
 ### Grouping / Dealing with relations
 
-To allow models to be positioned within groups, you need to override the `newPositionQuery` method that should return a query to the grouped model sequence.
+To allow models to be positioned within groups, you need to override the `newPositionQuery` method in your model. This method should return a query to the grouped model sequence.
 
 Using the relation builder:
 
 ```php
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Nevadskiy\Position\HasPosition;
+use Illuminate\Database\Eloquent\Builder;
 
-class Category
+public function group(): BelongsTo
 {
-    use HasPosition;
+    return $this->hasMany(Group::class);
+}
 
-    public function group(): BelongsTo
-    {
-        return $this->hasMany(Group::class);
-    }
-
-    protected function newPositionQuery(): Builder
-    {
-        return $this->group->categories();
-    }
+public function newPositionQuery(): Builder
+{
+    return $this->group->categories();
 }
 ```
 
@@ -197,11 +248,55 @@ Using the `where` method:
 ```php
 use Illuminate\Database\Eloquent\Builder;
 
-protected function newPositionQuery(): Builder
+public function newPositionQuery(): Builder
 {
     return $this->newQuery()->where('parent_id', $this->parent_id);
 }
 ```
+
+### Locking positions
+
+By default, when a model is created at the end of the sequence, an extra database query is executed to calculate the latest position in the sequence. 
+Similarly, when a model is created at the beginning or any other position but the latest, additional database queries are needed to shift the positions of other models accordingly. 
+In some cases, you may want to insert models without these additional queries associated with calculating and shifting positions.
+For such scenarios, you can use the `lockPositions` method, which disables all post-insert database queries and assigns positions to models using a specified locker. 
+This can be particularly useful to speed up your tests.
+
+By default, the positions are locked to the value returned by the `getStartPosition` method in your model:
+
+```php
+Categogy::lockPositions();
+
+$category = Category::create();
+echo $category->position; // 0
+
+$category = Category::create();
+echo $category->position; // 0
+
+$category = Category::create();
+echo $category->position; // 0
+```
+
+Alternatively, you can provide a callback function as the locker. For example:
+
+```php
+Category::lockPositions(static function () {
+    static $count = 0;
+
+    return $count++;
+});
+
+$category = Category::create();
+echo $category->position; // 0
+
+$category = Category::create();
+echo $category->position; // 1
+
+$category = Category::create();
+echo $category->position; // 2
+```
+
+In this example, the callback function is used to increment the position for each new model created, starting from `0`.
 
 ## 📑 Changelog
 
@@ -218,3 +313,7 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
+
+## 🛠️ To Do List
+
+- [ ] shift positions when group is changed (should be 2 separate queries for new and old groups)

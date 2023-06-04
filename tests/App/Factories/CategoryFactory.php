@@ -1,15 +1,20 @@
 <?php
 
-namespace Nevadskiy\Position\Tests\Support\Factories;
+namespace Nevadskiy\Position\Tests\App\Factories;
 
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Position\Tests\Support\Models\Category;
+use Nevadskiy\Position\Tests\App\Models\Category;
 
 /**
  * @method static Category create(array $attributes = [])
  */
 class CategoryFactory extends Factory
 {
+    /**
+     * @inheritdoc
+     */
+    protected $model = Category::class;
+
     /**
      * Specify the given position to the model.
      */
@@ -18,13 +23,5 @@ class CategoryFactory extends Factory
         $this->attributes['position'] = $position;
 
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function newModel(): Model
-    {
-        return new Category();
     }
 }

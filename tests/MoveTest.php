@@ -2,8 +2,10 @@
 
 namespace Nevadskiy\Position\Tests;
 
-use Nevadskiy\Position\Tests\Support\Factories\CategoryFactory;
-use Nevadskiy\Position\Tests\Support\Models\Category;
+use Carbon\Carbon;
+use Nevadskiy\Position\PositioningScope;
+use Nevadskiy\Position\Tests\App\Factories\CategoryFactory;
+use Nevadskiy\Position\Tests\App\Models\Category;
 
 class MoveTest extends TestCase
 {
@@ -97,12 +99,69 @@ class MoveTest extends TestCase
     /**
      * @test
      */
-    public function it_can_create_with_negative_position(): void
+    public function it_can_create_single_model_with_negative_position(): void
     {
         $category = new Category();
         $category->setPosition(-1);
         $category->save();
 
         static::assertSame(0, $category->fresh()->getPosition());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_shift_other_models_with_preserving_timestamps(): void
+    {
+        Carbon::setTestNow($yesterday = now()->subDay()->startOfSecond());
+
+        $category1 = new Category();
+        $category1->save();
+
+        $category2 = new Category();
+        $category2->save();
+
+        Carbon::setTestNow($now = $yesterday->clone()->addDay());
+
+        $category1->move(1);
+
+        $category1->refresh();
+        $category2->refresh();
+
+        static::assertEquals(1, $category1->getPosition());
+        static::assertTrue($category1->updated_at->eq($now));
+        static::assertEquals(0, $category2->getPosition());
+        static::assertTrue($category2->updated_at->eq($yesterday));
+    }
+
+
+    /**
+     * @test
+     */
+    public function it_can_shift_other_models_without_preserving_timestamps(): void
+    {
+        Carbon::setTestNow($yesterday = now()->subDay()->startOfSecond());
+
+        $category1 = new Category();
+        $category1->save();
+
+        $category2 = new Category();
+        $category2->save();
+
+        Carbon::setTestNow($now = $yesterday->clone()->addDay());
+
+        PositioningScope::shiftWithTimestamps();
+
+        $category1->move(1);
+
+        $category1->refresh();
+        $category2->refresh();
+
+        static::assertEquals(1, $category1->getPosition());
+        static::assertTrue($category1->updated_at->eq($now));
+        static::assertEquals(0, $category2->getPosition());
+        static::assertTrue($category2->updated_at->eq($now));
+
+        PositioningScope::shiftWithTimestamps(false);
     }
 }

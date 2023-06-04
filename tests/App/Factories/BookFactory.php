@@ -1,16 +1,20 @@
 <?php
 
-namespace Nevadskiy\Position\Tests\Support\Factories;
+namespace Nevadskiy\Position\Tests\App\Factories;
 
-use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Position\Tests\Support\Models\Book;
-use Nevadskiy\Position\Tests\Support\Models\Category;
+use Nevadskiy\Position\Tests\App\Models\Book;
+use Nevadskiy\Position\Tests\App\Models\Category;
 
 /**
  * @method static Book create(array $attributes = [])
  */
 class BookFactory extends Factory
 {
+    /**
+     * @inheritdoc
+     */
+    protected $model = Book::class;
+
     /**
      * Specify the given position to the model.
      */
@@ -29,14 +33,6 @@ class BookFactory extends Factory
         $this->attributes['category_id'] = $category->getKey();
 
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function newModel(): Model
-    {
-        return new Book();
     }
 
     /**

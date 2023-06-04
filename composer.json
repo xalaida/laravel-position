@@ -2,6 +2,7 @@
     "name": "nevadskiy/laravel-position",
     "description": "Arrange Laravel models in a given order.",
     "license": "MIT",
+    "type": "library",
     "keywords": [
         "position",
         "sort",

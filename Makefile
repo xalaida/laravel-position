@@ -51,7 +51,7 @@ phpunit.coverage.clover:
 	docker compose run --rm phpunit --coverage-clover tests/.report/clover.xml
 
 # Run PHPUnit with a coverage analysis
-phpunit.coverage: phpunit.coverage.text
+coverage: phpunit.coverage.text
 
 # Fix the code style
 php.cs.fix:
@@ -60,6 +60,9 @@ php.cs.fix:
 # Check the code style
 php.cs.check:
 	docker compose run --rm php-cs-fixer fix --dry-run
+
+# Alias to fix the code style
+style: php.cs.fix
 
 # Remove installation files
 uninstall: down composer.uninstall

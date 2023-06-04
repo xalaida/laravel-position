@@ -4,13 +4,14 @@ namespace Nevadskiy\Position;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Nevadskiy\Position\Scopes\PositioningScope;
 
 /**
  * @mixin Model
  */
 trait HasPosition
 {
+    use PositionLocker;
+
     /**
      * Indicates if the model should shift position of other models in the sequence.
      *
@@ -25,33 +26,7 @@ trait HasPosition
     {
         static::addGlobalScope(new PositioningScope());
 
-        static::creating(static function (self $model) {
-            $model->assignPositionIfMissing();
-        });
-
-        static::created(static function (self $model) {
-            if (static::shouldShiftPosition() && $model->isMoving()) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
-            }
-        });
-
-        static::updated(static function (self $model) {
-            if (static::shouldShiftPosition() && $model->isMoving()) {
-                [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
-
-                if ($newPosition < $oldPosition) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($newPosition, $oldPosition);
-                } elseif ($newPosition > $oldPosition) {
-                    $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
-                }
-            }
-        });
-
-        static::deleted(static function (self $model) {
-            if (static::shouldShiftPosition()) {
-                $model->newPositionQuery()->shiftToStart($model->getPosition());
-            }
-        });
+        static::observe(new PositionObserver());
     }
 
     /**
@@ -73,11 +48,19 @@ trait HasPosition
     }
 
     /**
+     * Get the starting position for the model.
+     */
+    public function getStartPosition(): int
+    {
+        return 0;
+    }
+
+    /**
      * Get the next position in the sequence for the model.
      */
     public function getNextPosition(): int
     {
-        return -1;
+        return $this->getStartPosition() - 1;
     }
 
     /**
@@ -86,30 +69,6 @@ trait HasPosition
     public function alwaysOrderByPosition(): bool
     {
         return false;
-    }
-
-    /**
-     * Execute a callback without shifting position of models.
-     */
-    public static function withoutShiftingPosition(callable $callback)
-    {
-        $shifting = static::$shiftPosition;
-
-        static::$shiftPosition = false;
-
-        $result = $callback();
-
-        static::$shiftPosition = $shifting;
-
-        return $result;
-    }
-
-    /**
-     * Determine if the model should shift position of other models in the sequence.
-     */
-    public static function shouldShiftPosition(): bool
-    {
-        return static::$shiftPosition;
     }
 
     /**
@@ -125,10 +84,6 @@ trait HasPosition
      */
     public function setPosition(int $position): Model
     {
-        if ($position < 0) {
-            $position = ($this->getMaxPosition() + 1) + $position + ($this->exists ? 0 : 1);
-        }
-
         return $this->setAttribute($this->getPositionColumn(), $position);
     }
 
@@ -190,33 +145,32 @@ trait HasPosition
     /**
      * Get a new position query.
      */
-    protected function newPositionQuery(): Builder
+    public function newPositionQuery(): Builder
     {
         return $this->newQuery();
     }
 
     /**
-     * Assign the next position value to the model if it is missing.
+     * Execute a callback without shifting positions of models.
      */
-    protected function assignPositionIfMissing(): void
+    public static function withoutShiftingPosition(callable $callback)
     {
-        if (is_null($this->getAttribute($this->getPositionColumn()))) {
-            $nextPosition = $this->getNextPosition();
+        $shiftPosition = static::$shiftPosition;
 
-            $this->setPosition($nextPosition);
+        static::$shiftPosition = false;
 
-            // Sync original attribute to make it not dirty to do not shift the positions of other models.
-            if ($nextPosition < 0) {
-                $this->syncOriginalAttribute($this->getPositionColumn());
-            }
-        }
+        $result = $callback();
+
+        static::$shiftPosition = $shiftPosition;
+
+        return $result;
     }
 
     /**
-     * Get the max position value in the model sequence.
+     * Determine if the model should shift positions of other models in the sequence.
      */
-    protected function getMaxPosition(): int
+    public static function shouldShiftPosition(): bool
     {
-        return $this->newPositionQuery()->max($this->getPositionColumn()) ?? -1;
+        return static::$shiftPosition && is_null(static::$positionLocker);
     }
 }
