@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.0 - 2023-06-04
+
+### Added
+
+- `getStartPosition` method to define from what number start counting models
+- `shiftWithTimestamps` method to update timestamps when shifting models
+- Experimental `lockPositions` method to disable database queries during insertions
+
+### Changed
+
+- Now timestamps will be preserved by default when shifting model positions
+- Method `newPositionQuery` now is public
+- Use SQL `count` method instead of `max` for calculating position at the end
+- Refactored using `PositionObserver`
+
 ## 0.6.0 - 2023-04-17
 
 ### Changed
