@@ -35,7 +35,7 @@ class PositionObserver
      */
     public function created(Model $model): void
     {
-        if ($model->isMoving() && $model::shouldShiftPositions()) {
+        if ($model->isMoving() && $model::shouldShiftPosition()) {
             $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
         }
     }
@@ -47,7 +47,7 @@ class PositionObserver
      */
     public function updated(Model $model): void
     {
-        if ($model->isMoving() && $model::shouldShiftPositions()) {
+        if ($model->isMoving() && $model::shouldShiftPosition()) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
@@ -65,7 +65,7 @@ class PositionObserver
      */
     public function deleted(Model $model): void
     {
-        if ($model::shouldShiftPositions()) {
+        if ($model::shouldShiftPosition()) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
         }
     }

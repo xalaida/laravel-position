@@ -169,7 +169,7 @@ trait HasPosition
     /**
      * Determine if the model should shift positions of other models in the sequence.
      */
-    public static function shouldShiftPositions(): bool
+    public static function shouldShiftPosition(): bool
     {
         return static::$shiftPosition && is_null(static::$positionLocker);
     }
