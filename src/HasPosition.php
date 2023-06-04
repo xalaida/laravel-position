@@ -90,7 +90,7 @@ trait HasPosition
     /**
      * Scope a query to sort models by positions.
      */
-    protected function scopeOrderByPosition(Builder $query): Builder
+    public function scopeOrderByPosition(Builder $query): Builder
     {
         return $query->orderBy($this->getPositionColumn());
     }
@@ -98,7 +98,7 @@ trait HasPosition
     /**
      * Scope a query to sort models by reverse positions.
      */
-    protected function scopeOrderByReversePosition(Builder $query): Builder
+    public function scopeOrderByReversePosition(Builder $query): Builder
     {
         return $query->orderBy($this->getPositionColumn(), 'desc');
     }
