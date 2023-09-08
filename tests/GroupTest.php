@@ -82,7 +82,7 @@ class GroupTest extends TestCase
     /**
      * @test
      */
-    public function it_shifts_position_when_group_is_changed(): void
+    public function it_syncs_positions_when_group_is_changed(): void
     {
         $category = CategoryFactory::new()->create();
         $anotherCategory = CategoryFactory::new()->create();
