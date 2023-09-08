@@ -10,28 +10,28 @@ class GroupTest extends TestCase
     /**
      * @test
      */
-    public function it_positioned_within_its_relation_scope(): void
+    public function it_groups_positions(): void
     {
         $category = CategoryFactory::new()->create();
-
-        $book0 = BookFactory::new()
-            ->forCategory($category)
-            ->create();
 
         $book1 = BookFactory::new()
             ->forCategory($category)
             ->create();
 
+        $book2 = BookFactory::new()
+            ->forCategory($category)
+            ->create();
+
         $anotherBook = BookFactory::new()->create();
 
-        static::assertSame(0, $book0->getPosition());
-        static::assertSame(1, $book1->getPosition());
+        static::assertSame(0, $book1->getPosition());
+        static::assertSame(1, $book2->getPosition());
         static::assertSame(0, $anotherBook->getPosition());
 
-        $book1->move(0);
+        $book2->move(0);
 
-        static::assertSame(0, $book1->fresh()->getPosition());
-        static::assertSame(1, $book0->fresh()->getPosition());
+        static::assertSame(0, $book2->fresh()->getPosition());
+        static::assertSame(1, $book1->fresh()->getPosition());
         static::assertSame(0, $anotherBook->fresh()->getPosition());
     }
 
