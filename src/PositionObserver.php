@@ -13,7 +13,9 @@ class PositionObserver
      */
     public function saving(Model $model): void
     {
-        $this->assignPositionIfMissing($model);
+        if ($this->shouldSetNextPosition($model)) {
+            $model->setPosition($this->getNextPosition($model));
+        }
 
         $position = $model->getPosition();
 
@@ -25,6 +27,22 @@ class PositionObserver
             // Prevent shifting the position of other models, avoiding the need for extra database query.
             $model->syncOriginalAttributes($model->getPositionColumn());
         }
+    }
+
+    /**
+     * Determine whether it should set position to the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function shouldSetNextPosition(Model $model): bool
+    {
+        if ($model->getAttribute($model->getPositionColumn()) === null) {
+            return true;
+        }
+
+        $groupAttributes = $model->groupPositionBy();
+
+        return $model->exists && $groupAttributes && $model->isDirty($groupAttributes);
     }
 
     /**
@@ -46,6 +64,17 @@ class PositionObserver
      */
     public function updated(Model $model): void
     {
+        $this->syncPositionGroup($model);
+        $this->syncOriginalPositionGroup($model);
+    }
+
+    /**
+     * Sync the position group.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function syncPositionGroup(Model $model): void
+    {
         if ($model->isMoving() && $model::shouldShiftPosition()) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
@@ -58,6 +87,22 @@ class PositionObserver
     }
 
     /**
+     * Sync the original position group.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function syncOriginalPositionGroup(Model $model): void
+    {
+        $groupAttributes = $model->groupPositionBy();
+
+        if ($groupAttributes && $model->wasChanged($groupAttributes)) {
+            $model->newOriginalPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToStart($model->getOriginal($model->getPositionColumn()));
+        }
+    }
+
+    /**
      * Handle the "deleted" event for the model.
      *
      * @param Model|HasPosition $model
@@ -66,18 +111,6 @@ class PositionObserver
     {
         if ($model::shouldShiftPosition()) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
-        }
-    }
-
-    /**
-     * Assign the position value to the model if it is missing.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function assignPositionIfMissing(Model $model): void
-    {
-        if (is_null($model->getAttribute($model->getPositionColumn()))) {
-            $model->setPosition($this->getNextPosition($model));
         }
     }
 

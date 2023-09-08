@@ -78,4 +78,32 @@ class ScopePositionQueryTest extends TestCase
 
         static::assertSame(1, $book->getPosition());
     }
+
+    /**
+     * @test
+     */
+    public function it_shifts_position_when_group_is_changed(): void
+    {
+        $category = CategoryFactory::new()->create();
+        $anotherCategory = CategoryFactory::new()->create();
+
+        $categoryBook1 = BookFactory::new()->forCategory($category)->create();
+        $categoryBook2 = BookFactory::new()->forCategory($category)->create();
+        $categoryBook3 = BookFactory::new()->forCategory($category)->create();
+
+        static::assertSame(0, $categoryBook1->getPosition());
+        static::assertSame(1, $categoryBook2->getPosition());
+        static::assertSame(2, $categoryBook3->getPosition());
+
+        $categoryBook2->category()
+            ->associate($anotherCategory)
+            ->save();
+
+        static::assertSame(0, $categoryBook1->fresh()->getPosition());
+        static::assertSame(0, $categoryBook2->fresh()->getPosition());
+        static::assertSame(1, $categoryBook3->fresh()->getPosition());
+    }
+
+    // @todo change group & position together
+    // @todo change group with reverse ordering
 }

@@ -143,11 +143,39 @@ trait HasPosition
     }
 
     /**
+     * Get attributes for grouping position.
+     */
+    public function groupPositionBy(): array
+    {
+        return [];
+    }
+
+    /**
      * Get a new position query.
      */
     public function newPositionQuery(): Builder
     {
-        return $this->newQuery();
+        $query = $this->newQuery();
+
+        foreach ($this->groupPositionBy() as $attribute) {
+            $query->where([$attribute => $this->getAttribute($attribute)]);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Get a new original position query.
+     */
+    public function newOriginalPositionQuery(): Builder
+    {
+        $query = $this->newQuery();
+
+        foreach ($this->groupPositionBy() as $attribute) {
+            $query->where([$attribute => $this->getOriginal($attribute)]);
+        }
+
+        return $query;
     }
 
     /**
