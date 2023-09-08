@@ -5,7 +5,7 @@ namespace Nevadskiy\Position\Tests;
 use Nevadskiy\Position\Tests\App\Factories\BookFactory;
 use Nevadskiy\Position\Tests\App\Factories\CategoryFactory;
 
-class ScopePositionQueryTest extends TestCase
+class GroupTest extends TestCase
 {
     /**
      * @test
