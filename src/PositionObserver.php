@@ -7,42 +7,75 @@ use Illuminate\Database\Eloquent\Model;
 class PositionObserver
 {
     /**
-     * Handle the "saving" event for the model.
+     * Handle the "creating" event for the model.
      *
      * @param Model|HasPosition $model
      */
-    public function saving(Model $model): void
+    public function creating(Model $model): void
     {
-        if ($this->shouldSetNextPosition($model)) {
-            $model->setPosition($this->getNextPosition($model));
-        }
+        if ($model->getAttribute($model->getPositionColumn()) === null) {
+            $position = $this->getNextPosition($model);
 
-        $position = $model->getPosition();
+            if ($position < $model->getStartPosition()) {
+                $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
 
-        if ($position < $model->getStartPosition()) {
-            $model->setPosition(max($this->count($model) + $position, $model->getStartPosition()));
-        }
+                $position += $count;
 
-        if ($this->isSavingAsLatest($model, $position)) {
-            // Prevent shifting the position of other models, avoiding the need for extra database query.
-            $model->syncOriginalAttributes($model->getPositionColumn());
+                $position++;
+
+                if ($position === $count) {
+                    $model->terminal = true;
+                }
+
+                $position = max($position, $model->getStartPosition());
+            }
+
+            $model->setPosition($position);
         }
     }
 
     /**
-     * Determine whether it should set position to the model.
+     * Handle the "updating" event for the model.
      *
      * @param Model|HasPosition $model
      */
-    protected function shouldSetNextPosition(Model $model): bool
+    public function updating(Model $model): void
     {
-        if ($model->getAttribute($model->getPositionColumn()) === null) {
-            return true;
-        }
-
         $groupAttributes = $model->groupPositionBy();
 
-        return $model->exists && $groupAttributes && $model->isDirty($groupAttributes);
+        if ($groupAttributes && $model->isDirty($groupAttributes)) {
+            $position = $this->getNextPosition($model);
+
+            if ($position < $model->getStartPosition()) {
+                $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
+
+                $position += $count;
+
+                $position++;
+
+                if ($position === $count) {
+                    $model->terminal = true;
+                }
+
+                $position = max($position, $model->getStartPosition());
+            }
+
+            $model->setPosition($position);
+        }
+    }
+
+    /**
+     * Get the next position for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function getNextPosition(Model $model): int
+    {
+        if ($model::positionLocker()) {
+            return $model::positionLocker()($model);
+        }
+
+        return $model->getNextPosition();
     }
 
     /**
@@ -52,7 +85,7 @@ class PositionObserver
      */
     public function created(Model $model): void
     {
-        if ($model->isMoving() && $model::shouldShiftPosition()) {
+        if (! $model->terminal && $model::shouldShiftPosition()) {
             $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
         }
     }
@@ -75,7 +108,9 @@ class PositionObserver
      */
     protected function syncPositionGroup(Model $model): void
     {
-        if ($model->isMoving() && $model::shouldShiftPosition()) {
+        $groupAttributes = $model->groupPositionBy();
+
+        if ($model->isMoving() && $model::shouldShiftPosition() && (!$groupAttributes || !$model->wasChanged($groupAttributes))) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
@@ -112,43 +147,5 @@ class PositionObserver
         if ($model::shouldShiftPosition()) {
             $model->newPositionQuery()->shiftToStart($model->getPosition());
         }
-    }
-
-    /**
-     * Get the next position for the model.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function getNextPosition(Model $model): int
-    {
-        if ($model::positionLocker()) {
-            return $model::positionLocker()($model);
-        }
-
-        return $model->getNextPosition();
-    }
-
-    /**
-     * Determine if the model is being saved at the end of the sequence.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function isSavingAsLatest(Model $model, int $position): bool
-    {
-        if ($model->exists) {
-            return false;
-        }
-
-        return $position === ($model->getStartPosition() - 1);
-    }
-
-    /**
-     * Get the models count in the sequence.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function count(Model $model): int
-    {
-        return $model->newPositionQuery()->count() + ($model->exists ? 0 : 1);
     }
 }

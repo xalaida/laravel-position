@@ -87,23 +87,53 @@ class GroupTest extends TestCase
         $category = CategoryFactory::new()->create();
         $anotherCategory = CategoryFactory::new()->create();
 
-        $categoryBook1 = BookFactory::new()->forCategory($category)->create();
-        $categoryBook2 = BookFactory::new()->forCategory($category)->create();
-        $categoryBook3 = BookFactory::new()->forCategory($category)->create();
+        $categoryBooks = BookFactory::new()
+            ->forCategory($category)
+            ->createMany(3);
 
-        static::assertSame(0, $categoryBook1->getPosition());
-        static::assertSame(1, $categoryBook2->getPosition());
-        static::assertSame(2, $categoryBook3->getPosition());
+        static::assertSame(0, $categoryBooks[0]->getPosition());
+        static::assertSame(1, $categoryBooks[1]->getPosition());
+        static::assertSame(2, $categoryBooks[2]->getPosition());
 
-        $categoryBook2->category()
+        BookFactory::new()
+            ->forCategory($anotherCategory)
+            ->create();
+
+        $categoryBooks[1]->category()
             ->associate($anotherCategory)
             ->save();
 
-        static::assertSame(0, $categoryBook1->fresh()->getPosition());
-        static::assertSame(0, $categoryBook2->fresh()->getPosition());
-        static::assertSame(1, $categoryBook3->fresh()->getPosition());
+        static::assertSame(0, $categoryBooks[0]->fresh()->getPosition());
+        static::assertSame(1, $categoryBooks[1]->fresh()->getPosition());
+        static::assertSame(1, $categoryBooks[2]->fresh()->getPosition());
     }
 
-    // @todo change group & position together
-    // @todo change group with reverse ordering
+    /**
+     * @test
+     */
+    public function it_sets_next_position_correctly_when_group_is_changed(): void
+    {
+        $category = CategoryFactory::new()->create();
+        $anotherCategory = CategoryFactory::new()->create();
+
+        $categoryBook = BookFactory::new()
+            ->forCategory($category)
+            ->create();
+
+        $anotherCategoryBook = BookFactory::new()
+            ->forCategory($anotherCategory)
+            ->create();
+
+        $categoryBook->category()
+            ->associate($anotherCategory)
+            ->save();
+
+        static::assertSame(0, $anotherCategoryBook->fresh()->getPosition());
+        static::assertSame(1, $categoryBook->fresh()->getPosition());
+    }
+
+    // @todo change group & position together.
+    // @todo change group with reverse ordering.
+    // @todo handle complex groups with multiple column.
+    // @todo expose hooks to model for manually verifying if group is changed.
 }

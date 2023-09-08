@@ -159,7 +159,7 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_create_models_using_at_pre_last_position(): void
+    public function it_can_create_models_using_pre_last_position(): void
     {
         $categories = CategoryFactory::new()
             ->using(PreLastStartCategory::class)

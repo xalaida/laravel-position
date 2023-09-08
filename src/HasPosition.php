@@ -20,6 +20,13 @@ trait HasPosition
     protected static $shiftPosition = true;
 
     /**
+     * Indicates if the model was placed at the end of the sequence.
+     *
+     * @var bool
+     */
+    public $terminal = false;
+
+    /**
      * Boot the trait.
      */
     public static function bootHasPosition(): void
@@ -122,7 +129,7 @@ trait HasPosition
      */
     public function isMoving(): bool
     {
-        return $this->isDirty($this->getPositionColumn());
+        return $this->isDirty($this->getPositionColumn()) && ! $this->terminal;
     }
 
     /**
