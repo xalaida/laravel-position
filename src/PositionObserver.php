@@ -105,26 +105,20 @@ class PositionObserver
      */
     public function updated(Model $model): void
     {
-        $this->syncPositionGroup($model);
-        $this->syncOriginalPositionGroup($model);
-    }
-
-    /**
-     * Sync the position group.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function syncPositionGroup(Model $model): void
-    {
         if (! $model::shouldShiftPosition()) {
             return;
         }
 
         $groupAttributes = $model->groupPositionBy();
 
-        // @todo ensure not terminal...
         if ($groupAttributes && $model->wasChanged($groupAttributes)) {
-            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+            $model->newOriginalPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToStart($model->getOriginal($model->getPositionColumn()));
+
+            $model->newPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToEnd($model->getPosition());
         } else if ($model->wasChanged($model->getPositionColumn())) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
@@ -133,22 +127,6 @@ class PositionObserver
             } elseif ($newPosition > $oldPosition) {
                 $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
             }
-        }
-    }
-
-    /**
-     * Sync the original position group.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function syncOriginalPositionGroup(Model $model): void
-    {
-        $groupAttributes = $model->groupPositionBy();
-
-        if ($groupAttributes && $model->wasChanged($groupAttributes)) {
-            $model->newOriginalPositionQuery()
-                ->whereKeyNot($model->getKey())
-                ->shiftToStart($model->getOriginal($model->getPositionColumn()));
         }
     }
 
