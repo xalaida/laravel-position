@@ -129,20 +129,20 @@ class GroupTest extends TestCase
         $category = CategoryFactory::new()->create();
         $anotherCategory = CategoryFactory::new()->create();
 
-        $categoryBook = BookFactory::new()
+        $book = BookFactory::new()
             ->forCategory($category)
             ->create();
 
-        $anotherCategoryBook = BookFactory::new()
+        $anotherBook = BookFactory::new()
             ->forCategory($anotherCategory)
             ->create();
 
-        $categoryBook->category()
+        $book->category()
             ->associate($anotherCategory)
             ->save();
 
-        static::assertSame(0, $anotherCategoryBook->fresh()->getPosition());
-        static::assertSame(1, $categoryBook->fresh()->getPosition());
+        static::assertSame(0, $anotherBook->fresh()->getPosition());
+        static::assertSame(1, $book->fresh()->getPosition());
     }
 
     /**
@@ -174,8 +174,4 @@ class GroupTest extends TestCase
         static::assertSame(2, $anotherBooks[1]->fresh()->position);
         static::assertSame(3, $anotherBooks[2]->fresh()->position);
     }
-
-    // @todo change group with reverse ordering.
-    // @todo handle complex groups with multiple column.
-    // @todo expose hooks to model for manually verifying if group is changed.
 }
