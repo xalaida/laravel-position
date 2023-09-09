@@ -93,7 +93,11 @@ class PositionObserver
      */
     public function created(Model $model): void
     {
-        if (! $model->terminal && $model::shouldShiftPosition()) {
+        if (! $model::shouldShiftPosition()) {
+            return;
+        }
+
+        if (! $model->terminal) {
             $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
         }
     }
@@ -137,8 +141,10 @@ class PositionObserver
      */
     public function deleted(Model $model): void
     {
-        if ($model::shouldShiftPosition()) {
-            $model->newPositionQuery()->shiftToStart($model->getPosition());
+        if (! $model::shouldShiftPosition()) {
+            return;
         }
+
+        $model->newPositionQuery()->shiftToStart($model->getPosition());
     }
 }
