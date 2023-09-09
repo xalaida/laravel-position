@@ -199,35 +199,18 @@ You can also provide a second argument as a starting position. For example:
 Category::arrangeByKeys([3, 5, 7]);
 ```
 
-### Grouping / Dealing with relations
+### Grouping models
 
-To allow models to be positioned within groups, you need to override the `newPositionQuery` method in your model. This method should return a query to the grouped model sequence.
+Position grouping is particularly useful when you want to maintain position sequences separately for different groups of records within the same table.
 
-Using the relation builder:
-
-```php
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
-
-public function group(): BelongsTo
-{
-    return $this->hasMany(Group::class);
-}
-
-public function newPositionQuery(): Builder
-{
-    return $this->group->categories();
-}
-```
-
-Using the `where` method:
+To enable position grouping, you can specify one or more database columns that act as the grouping criteria for positions using the `groupPositionBy` method in your model:
 
 ```php
-use Illuminate\Database\Eloquent\Builder;
-
-public function newPositionQuery(): Builder
+public function groupPositionBy(): array
 {
-    return $this->newQuery()->where('parent_id', $this->parent_id);
+    return [
+        'category_id',
+    ];
 }
 ```
 
@@ -290,7 +273,3 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
-
-## 🛠️ To Do List
-
-- [ ] shift positions when group is changed (should be 2 separate queries for new and old groups)
