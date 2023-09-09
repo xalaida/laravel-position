@@ -120,6 +120,7 @@ class PositionObserver
                 ->whereKeyNot($model->getKey())
                 ->shiftToStart($model->getOriginal($model->getPositionColumn()));
 
+            // @todo ensure is not terminal...
             $model->newPositionQuery()
                 ->whereKeyNot($model->getKey())
                 ->shiftToEnd($model->getPosition());
