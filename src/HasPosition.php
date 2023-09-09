@@ -20,7 +20,7 @@ trait HasPosition
     protected static $shiftPosition = true;
 
     /**
-     * Indicates if the model was placed at the end of the sequence.
+     * Indicates if the model was positioned at the end of the sequence during the current request lifecycle.
      *
      * @var bool
      */
@@ -122,15 +122,6 @@ trait HasPosition
         }
 
         return $this->setPosition($newPosition)->save();
-    }
-
-    /**
-     * Determine if the model is currently moving to a new position.
-     */
-    public function isMoving(): bool
-    {
-        return $this->isDirty($this->getPositionColumn());
-//            && ! $this->terminal;
     }
 
     /**
