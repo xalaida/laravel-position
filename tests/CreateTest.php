@@ -153,22 +153,6 @@ class CreateTest extends TestCase
     /**
      * @test
      */
-    public function it_can_create_models_using_pre_last_position(): void
-    {
-        $categories = CategoryFactory::new()
-            ->using(PreLastStartCategory::class)
-            ->createMany(5);
-
-        static::assertSame(4, $categories[0]->fresh()->position);
-        static::assertSame(0, $categories[1]->fresh()->position);
-        static::assertSame(1, $categories[2]->fresh()->position);
-        static::assertSame(2, $categories[3]->fresh()->position);
-        static::assertSame(3, $categories[4]->fresh()->position);
-    }
-
-    /**
-     * @test
-     */
     public function it_can_create_models_with_negative_positions(): void
     {
         $categories = CategoryFactory::new()
@@ -212,14 +196,6 @@ class CustomStartReserveCategory extends Category
     public function getNextPosition(): int
     {
         return $this->getStartPosition();
-    }
-}
-
-class PreLastStartCategory extends Category
-{
-    public function getNextPosition(): int
-    {
-        return -2;
     }
 }
 

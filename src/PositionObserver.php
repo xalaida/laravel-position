@@ -85,7 +85,7 @@ class PositionObserver
             $position++;
         }
 
-        $model->setPosition(max($position, $model->getStartPosition()));
+        $model->setPosition($position);
     }
 
     /**
