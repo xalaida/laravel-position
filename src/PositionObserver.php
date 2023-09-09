@@ -13,14 +13,19 @@ class PositionObserver
      */
     public function saving(Model $model): void
     {
+        $this->assignPosition($model);
+        $this->markAsTerminal($model);
+        $this->normalizePosition($model);
+    }
+
+    /**
+     * @param Model|HasPosition $model
+     */
+    protected function assignPosition(Model $model): void
+    {
         if ($this->shouldSetPosition($model)) {
             $model->setPosition($this->getNextPosition($model));
         }
-
-        $this->markAsTerminal($model);
-
-        // @todo normalize using mutator...
-        $this->normalizePosition($model);
     }
 
     /**
@@ -56,23 +61,31 @@ class PositionObserver
     }
 
     /**
+     * Mark the model as terminal if it will be positioned at the end of the sequence.
+     */
+    protected function markAsTerminal($model): void
+    {
+        if ($model->getPosition() === ($model->getStartPosition() - 1)) {
+            $model->terminal = true;
+        }
+    }
+
+    /**
      * @param Model|HasPosition $model
      */
     protected function normalizePosition(Model $model): void
     {
-        if ($model->getPosition() < $model->getStartPosition()) {
-            $position = $model->getPosition();
-
-            $position += $model->newPositionQuery()->count();
-
-            if (! $model->exists || $this->isChangingPositionGroup($model)) {
-                $position++;
-            }
-
-            $position = max($position, $model->getStartPosition());
-
-            $model->setPosition($position);
+        if ($model->getPosition() >= $model->getStartPosition()) {
+            return;
         }
+
+        $position = $model->getPosition() + $model->newPositionQuery()->count();
+
+        if (! $model->exists || $this->isChangingPositionGroup($model)) {
+            $position++;
+        }
+
+        $model->setPosition(max($position, $model->getStartPosition()));
     }
 
     /**
@@ -156,15 +169,5 @@ class PositionObserver
     protected function wasChangedPositionGroup(Model $model): bool
     {
         return $model->groupPositionBy() && $model->wasChanged($model->groupPositionBy());
-    }
-
-    /**
-     * Mark the model as terminal if it will be positioned at the end of the sequence.
-     */
-    protected function markAsTerminal($model): void
-    {
-        if ($model->getPosition() === ($model->getStartPosition() - 1)) {
-            $model->terminal = true;
-        }
     }
 }
