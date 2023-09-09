@@ -142,7 +142,7 @@ trait HasPosition
     }
 
     /**
-     * Get attributes for grouping position.
+     * Get attributes for grouping positions.
      */
     public function groupPositionBy(): array
     {
