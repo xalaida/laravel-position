@@ -14,7 +14,7 @@ class PositionObserver
     public function saving(Model $model): void
     {
         $this->assignPosition($model);
-        $this->handleTerminalPosition($model);
+        $this->markAsTerminalPosition($model);
         $this->normalizePosition($model);
     }
 
@@ -67,11 +67,9 @@ class PositionObserver
      *
      * @param Model|HasPosition $model
      */
-    protected function handleTerminalPosition(Model $model): void
+    protected function markAsTerminalPosition(Model $model): void
     {
-        if ($model->getPosition() === ($model->getStartPosition() - 1)) {
-            $model->terminal = true;
-        }
+        $model->terminal = $model->getPosition() === ($model->getStartPosition() - 1);
     }
 
     /**
@@ -126,10 +124,11 @@ class PositionObserver
                 ->whereKeyNot($model->getKey())
                 ->shiftToStart($model->getOriginal($model->getPositionColumn()));
 
-            // @todo ensure is not terminal...
-            $model->newPositionQuery()
-                ->whereKeyNot($model->getKey())
-                ->shiftToEnd($model->getPosition());
+            if (! $model->terminal) {
+                $model->newPositionQuery()
+                    ->whereKeyNot($model->getKey())
+                    ->shiftToEnd($model->getPosition());
+            }
         } else if ($model->wasChanged($model->getPositionColumn())) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 

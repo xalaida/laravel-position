@@ -4,6 +4,7 @@ namespace Nevadskiy\Position\Tests;
 
 use Nevadskiy\Position\Tests\App\Factories\BookFactory;
 use Nevadskiy\Position\Tests\App\Factories\CategoryFactory;
+use Nevadskiy\Position\Tests\App\Models\Category;
 
 class GroupTest extends TestCase
 {
@@ -173,5 +174,26 @@ class GroupTest extends TestCase
         static::assertSame(1, $books[0]->fresh()->position);
         static::assertSame(2, $anotherBooks[1]->fresh()->position);
         static::assertSame(3, $anotherBooks[2]->fresh()->position);
+    }
+
+    /**
+     * @test
+     */
+    public function it_executes_3_queries_to_move_model_at_end_of_sequence_of_another_group(): void
+    {
+        $category = CategoryFactory::new()->create();
+        $anotherCategory = CategoryFactory::new()->create();
+
+        $book = BookFactory::new()
+            ->forCategory($category)
+            ->create();
+
+        Category::query()->getConnection()->enableQueryLog();
+
+        $book->category()
+            ->associate($anotherCategory)
+            ->save();
+
+        self::assertCount(3, Category::query()->getConnection()->getQueryLog());
     }
 }
