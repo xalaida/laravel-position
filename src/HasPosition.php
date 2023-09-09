@@ -129,7 +129,8 @@ trait HasPosition
      */
     public function isMoving(): bool
     {
-        return $this->isDirty($this->getPositionColumn()) && ! $this->terminal;
+        return $this->isDirty($this->getPositionColumn());
+//            && ! $this->terminal;
     }
 
     /**

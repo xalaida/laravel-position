@@ -30,9 +30,7 @@ class PositionObserver
                 $position++;
             }
 
-            if ($position === $count) {
-                $model->terminal = true;
-            }
+            $model->terminal = $position === $count;
 
             $position = max($position, $model->getStartPosition());
 
@@ -49,7 +47,7 @@ class PositionObserver
     {
         $groupAttributes = $model->groupPositionBy();
 
-        if ($groupAttributes && $model->isDirty($groupAttributes)) {
+        if ($groupAttributes && $model->isDirty($groupAttributes) && ! $model->isDirty($model->getPositionColumn())) {
             $model->setPosition($this->getNextPosition($model));
         }
 
@@ -118,13 +116,16 @@ class PositionObserver
      */
     protected function syncPositionGroup(Model $model): void
     {
-        $groupAttributes = $model->groupPositionBy();
-
         if (! $model::shouldShiftPosition()) {
             return;
         }
 
-        if (($model->isMoving() || (!$groupAttributes || !$model->wasChanged($groupAttributes)))) {
+        $groupAttributes = $model->groupPositionBy();
+
+        // @todo ensure not terminal...
+        if ($groupAttributes && $model->wasChanged($groupAttributes)) {
+            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+        } else if ($model->isMoving()) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
