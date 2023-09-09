@@ -47,7 +47,23 @@ class PositionObserver
             return true;
         }
 
-        return $this->isPositionGroupChanging($model);
+        return $this->isGroupChanging($model);
+    }
+
+    /**
+     * Determine if the position group is changing for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function isGroupChanging(Model $model): bool
+    {
+        $groupPositionColumns = $model->groupPositionBy();
+
+        if (! $groupPositionColumns) {
+            return false;
+        }
+
+        return $model->isDirty($groupPositionColumns);
     }
 
     /**
@@ -75,6 +91,8 @@ class PositionObserver
     }
 
     /**
+     * Normalize the position value for the model.
+     *
      * @param Model|HasPosition $model
      */
     protected function normalizePosition(Model $model): void
@@ -85,7 +103,7 @@ class PositionObserver
 
         $position = $model->getPosition() + $model->newPositionQuery()->count();
 
-        if (! $model->exists || $this->isPositionGroupChanging($model)) {
+        if (! $model->exists || $this->isGroupChanging($model)) {
             $position++;
         }
 
@@ -103,6 +121,16 @@ class PositionObserver
             return;
         }
 
+        $this->handleAddToGroup($model);
+    }
+
+    /**
+     * Handle the model adding to the position group.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function handleAddToGroup(Model $model): void
+    {
         if (! $model->terminal) {
             $model->newPositionQuery()
                 ->whereKeyNot($model->getKey())
@@ -121,8 +149,8 @@ class PositionObserver
             return;
         }
 
-        if ($this->wasPositionGroupChanged($model)) {
-            $this->handlePositionGroupChange($model);
+        if ($this->wasGroupChanged($model)) {
+            $this->handleGroupChange($model);
         } else if ($this->wasPositionChanged($model)) {
             $this->handlePositionChange($model);
         }
@@ -133,9 +161,15 @@ class PositionObserver
      *
      * @param Model|HasPosition $model
      */
-    protected function wasPositionGroupChanged(Model $model): bool
+    protected function wasGroupChanged(Model $model): bool
     {
-        return $model->groupPositionBy() && $model->wasChanged($model->groupPositionBy());
+        $groupPositionColumns = $model->groupPositionBy();
+
+        if (! $groupPositionColumns) {
+            return false;
+        }
+
+        return $model->wasChanged($groupPositionColumns);
     }
 
     /**
@@ -143,7 +177,7 @@ class PositionObserver
      *
      * @param Model|HasPosition $model
      */
-    protected function wasPositionChanged($model): bool
+    protected function wasPositionChanged(Model $model): bool
     {
         return $model->wasChanged($model->getPositionColumn());
     }
@@ -153,19 +187,10 @@ class PositionObserver
      *
      * @param Model|HasPosition $model
      */
-    protected function handlePositionGroupChange(Model $model): void
+    protected function handleGroupChange(Model $model): void
     {
-        $positionColumn = $model->getPositionColumn();
-
-        $model->newOriginalPositionQuery()
-            ->whereKeyNot($model->getKey())
-            ->shiftToStart($model->getOriginal($positionColumn));
-
-        if (! $model->terminal) {
-            $model->newPositionQuery()
-                ->whereKeyNot($model->getKey())
-                ->shiftToEnd($model->getAttribute($positionColumn));
-        }
+        $this->handleRemoveFromGroup($model);
+        $this->handleAddToGroup($model);
     }
 
     /**
@@ -201,22 +226,19 @@ class PositionObserver
             return;
         }
 
-        $model->newPositionQuery()->shiftToStart($model->getPosition());
+        $this->handleRemoveFromGroup($model);
     }
 
     /**
-     * Determine if the position group is changing for the model.
+     * Handle the model removing for the position group.
      *
      * @param Model|HasPosition $model
      */
-    protected function isPositionGroupChanging(Model $model): bool
+    protected function handleRemoveFromGroup(Model $model): void
     {
-        $groupPositionColumns = $model->groupPositionBy();
-
-        if (! $groupPositionColumns) {
-            return false;
-        }
-
-        return $model->isDirty($groupPositionColumns);
+        $model->newOriginalPositionQuery()
+            ->shiftToStart(
+                $model->getOriginal($model->getPositionColumn())
+            );
     }
 }
