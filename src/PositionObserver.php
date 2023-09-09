@@ -151,7 +151,7 @@ class PositionObserver
 
         if ($this->wasGroupChanged($model)) {
             $this->handleGroupChange($model);
-        } else if ($this->wasPositionChanged($model)) {
+        } elseif ($this->wasPositionChanged($model)) {
             $this->handlePositionChange($model);
         }
     }
@@ -208,7 +208,7 @@ class PositionObserver
             $model->newPositionQuery()
                 ->whereKeyNot($model->getKey())
                 ->shiftToEnd($currentPosition, $originalPosition);
-        } else if ($currentPosition > $originalPosition) {
+        } elseif ($currentPosition > $originalPosition) {
             $model->newPositionQuery()
                 ->whereKeyNot($model->getKey())
                 ->shiftToStart($originalPosition, $currentPosition);
