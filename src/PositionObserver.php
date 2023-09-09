@@ -24,7 +24,11 @@ class PositionObserver
 
             $position += $count;
 
-            $position++;
+            $groupAttributes = $model->groupPositionBy();
+
+            if (! $model->exists || ($groupAttributes && $model->isDirty($groupAttributes))) {
+                $position++;
+            }
 
             if ($position === $count) {
                 $model->terminal = true;
