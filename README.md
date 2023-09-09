@@ -70,31 +70,33 @@ $category = Category::create();
 echo $category->position; // 2
 ```
 
-#### Default ordering
+#### Starting position
 
-By default, the newly created model is assigned the position at the end of the sequence. The first record in the sequence is assigned a position value of `0`. You can modify this behavior by overriding the `getNextPosition` method in your model:
+By default, the first record in the sequence is assigned a position value of `0`. If you want to specify a custom number to start counting models, you can override the `getStartPosition` method in your model:
+
+```php
+public function getStartPosition(): int
+{
+    return 1;
+}
+```
+
+By doing this, the first record will be assigned a position value of `1`.
+
+#### Ordering
+
+By default, the newly created model is assigned the position at the end of the sequence.
+
+For example, if you want to create models at the beginning of the sequence, you can override the `getNextPosition` method in your model:
 
 ```php
 public function getNextPosition(): int
 {
-    return -1;
+    return $this->getStartPosition();
 }
 ```
 
-The negative positions can be used to calculate position from the end of the sequence, and `-1` is almost identical to `static::count() - 1`.
-
-#### Reverse ordering
-
-If you want to create models in reverse order, you can specify the next position of the model to be `0`:
-
-```php
-public function getNextPosition(): int
-{
-    return 0;
-}
-```
-
-In this example, a new model will be created at the beginning of the sequence. The position of other models in the sequence will be **automatically** updated. For example:
+In this example, each new model will be assigned the starting position and will be positioned at the beginning of the sequence. The positions of other models in the sequence will be automatically updated:
 
 ```php
 $first = Category::create();
@@ -110,32 +112,7 @@ echo $second->position; // 1 (automatically updated)
 echo $first->position; // 2 (automatically updated again)
 ```
 
-#### Starting position
-
-By default, the first record in the sequence is assigned a position value of `0`. If you want to specify a custom number to start counting models, you can override the `getStartPosition` method in your model:
-
-```php
-public function getStartPosition(): int
-{
-    return 1;
-}
-```
-
-By doing this, the first record will be assigned a position value of `1`.
-
-If you want to create models in reverse order using the specified starting position, you can override the `getNextPosition` method as well:
-
-```php
-public function getStartPosition(): int
-{
-    return 1;
-}
-
-public function getNextPosition(): int
-{
-    return $this->getStartPosition();
-}
-```
+> You can also use negative positions. For example, the -1 position indicates that the model will be positioned at the end of the sequence. It is almost identical to Model::count() - 1. This is the default behavior.
 
 ### Deleting models
 
