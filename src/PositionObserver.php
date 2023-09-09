@@ -119,27 +119,30 @@ class PositionObserver
             return;
         }
 
+        $positionColumn = $model->getPositionColumn();
+
         if ($this->wasChangedPositionGroup($model)) {
             $model->newOriginalPositionQuery()
                 ->whereKeyNot($model->getKey())
-                ->shiftToStart($model->getOriginal($model->getPositionColumn()));
+                ->shiftToStart($model->getOriginal($positionColumn));
 
             if (! $model->terminal) {
                 $model->newPositionQuery()
                     ->whereKeyNot($model->getKey())
-                    ->shiftToEnd($model->getPosition());
+                    ->shiftToEnd($model->getAttribute($positionColumn));
             }
-        } else if ($model->wasChanged($model->getPositionColumn())) {
-            [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
+        } else if ($model->wasChanged($positionColumn)) {
+            $currentPosition = $model->getAttribute($positionColumn);
+            $originalPosition = $model->getOriginal($positionColumn);
 
-            if ($newPosition < $oldPosition) {
+            if ($currentPosition < $originalPosition) {
                 $model->newPositionQuery()
                     ->whereKeyNot($model->getKey())
-                    ->shiftToEnd($newPosition, $oldPosition);
-            } elseif ($newPosition > $oldPosition) {
+                    ->shiftToEnd($currentPosition, $originalPosition);
+            } else if ($currentPosition > $originalPosition) {
                 $model->newPositionQuery()
                     ->whereKeyNot($model->getKey())
-                    ->shiftToStart($oldPosition, $newPosition);
+                    ->shiftToStart($originalPosition, $currentPosition);
             }
         }
     }
