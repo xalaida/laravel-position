@@ -13,9 +13,7 @@ class PositionObserver
      */
     public function saving(Model $model): void
     {
-        $groupAttributes = $model->groupPositionBy();
-
-        if (($groupAttributes && $model->isDirty($groupAttributes) && ! $model->isDirty($model->getPositionColumn())) || ($model->getAttribute($model->getPositionColumn()) === null)) {
+        if ($this->shouldSetPosition($model)) {
             $model->setPosition($this->getNextPosition($model));
         }
 
@@ -68,7 +66,9 @@ class PositionObserver
         }
 
         if (! $model->terminal) {
-            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
+            $model->newPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToEnd($model->getPosition());
         }
     }
 
@@ -98,9 +98,13 @@ class PositionObserver
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($newPosition, $oldPosition);
+                $model->newPositionQuery()
+                    ->whereKeyNot($model->getKey())
+                    ->shiftToEnd($newPosition, $oldPosition);
             } elseif ($newPosition > $oldPosition) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
+                $model->newPositionQuery()
+                    ->whereKeyNot($model->getKey())
+                    ->shiftToStart($oldPosition, $newPosition);
             }
         }
     }
@@ -117,5 +121,25 @@ class PositionObserver
         }
 
         $model->newPositionQuery()->shiftToStart($model->getPosition());
+    }
+
+    /**
+     * Determine whether the position should be set for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function shouldSetPosition(Model $model): bool
+    {
+        if ($model->getAttribute($model->getPositionColumn()) === null) {
+            return true;
+        }
+
+        if ($model->isDirty($model->getPositionColumn())) {
+            return false;
+        }
+
+        $groupAttributes = $model->groupPositionBy();
+
+        return $groupAttributes && $model->isDirty($groupAttributes);
     }
 }
