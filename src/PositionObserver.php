@@ -46,21 +46,25 @@ class PositionObserver
         $groupAttributes = $model->groupPositionBy();
 
         if ($groupAttributes && $model->isDirty($groupAttributes)) {
-            $position = $this->getNextPosition($model);
+            $model->setPosition($this->getNextPosition($model));
+        }
 
-            if ($position < $model->getStartPosition()) {
-                $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
+        $position = $model->getPosition();
 
-                $position += $count;
+        if ($position < $model->getStartPosition()) {
+            $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
 
+            $position += $count;
+
+            if (! $model->exists || ($groupAttributes && $model->isDirty($groupAttributes))) {
                 $position++;
-
-                if ($position === $count) {
-                    $model->terminal = true;
-                }
-
-                $position = max($position, $model->getStartPosition());
             }
+
+            if ($position === $count) {
+                $model->terminal = true;
+            }
+
+            $position = max($position, $model->getStartPosition());
 
             $model->setPosition($position);
         }
@@ -112,7 +116,11 @@ class PositionObserver
     {
         $groupAttributes = $model->groupPositionBy();
 
-        if ($model->isMoving() && $model::shouldShiftPosition() && (!$groupAttributes || !$model->wasChanged($groupAttributes))) {
+        if (! $model::shouldShiftPosition()) {
+            return;
+        }
+
+        if (($model->isMoving() || (!$groupAttributes || !$model->wasChanged($groupAttributes)))) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {

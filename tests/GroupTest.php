@@ -14,24 +14,20 @@ class GroupTest extends TestCase
     {
         $category = CategoryFactory::new()->create();
 
-        $book1 = BookFactory::new()
+        $books = BookFactory::new()
             ->forCategory($category)
-            ->create();
-
-        $book2 = BookFactory::new()
-            ->forCategory($category)
-            ->create();
+            ->createMany(2);
 
         $anotherBook = BookFactory::new()->create();
 
-        static::assertSame(0, $book1->getPosition());
-        static::assertSame(1, $book2->getPosition());
+        static::assertSame(0, $books[0]->getPosition());
+        static::assertSame(1, $books[1]->getPosition());
         static::assertSame(0, $anotherBook->getPosition());
 
-        $book2->move(0);
+        $books[1]->move(0);
 
-        static::assertSame(0, $book2->fresh()->getPosition());
-        static::assertSame(1, $book1->fresh()->getPosition());
+        static::assertSame(0, $books[1]->fresh()->getPosition());
+        static::assertSame(1, $books[0]->fresh()->getPosition());
         static::assertSame(0, $anotherBook->fresh()->getPosition());
     }
 
