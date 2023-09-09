@@ -14,21 +14,23 @@ class PositionObserver
     public function creating(Model $model): void
     {
         if ($model->getAttribute($model->getPositionColumn()) === null) {
-            $position = $this->getNextPosition($model);
+            $model->setPosition($this->getNextPosition($model));
+        }
 
-            if ($position < $model->getStartPosition()) {
-                $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
+        $position = $model->getPosition();
 
-                $position += $count;
+        if ($position < $model->getStartPosition()) {
+            $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
 
-                $position++;
+            $position += $count;
 
-                if ($position === $count) {
-                    $model->terminal = true;
-                }
+            $position++;
 
-                $position = max($position, $model->getStartPosition());
+            if ($position === $count) {
+                $model->terminal = true;
             }
+
+            $position = max($position, $model->getStartPosition());
 
             $model->setPosition($position);
         }
