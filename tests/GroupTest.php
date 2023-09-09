@@ -148,7 +148,7 @@ class GroupTest extends TestCase
     /**
      * @test
      */
-    public function it_updates_group_and_position_correctly(): void
+    public function it_updates_group_along_with_position_correctly(): void
     {
         $category = CategoryFactory::new()->create();
         $anotherCategory = CategoryFactory::new()->create();
