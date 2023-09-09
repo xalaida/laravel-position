@@ -10,7 +10,25 @@ class GroupTest extends TestCase
     /**
      * @test
      */
-    public function it_does_not_shift_positions_of_other_groups(): void
+    public function it_does_not_shift_positions_of_other_groups_on_create(): void
+    {
+        $category = CategoryFactory::new()->create();
+
+        $books = BookFactory::new()
+            ->forCategory($category)
+            ->createMany(2);
+
+        $anotherBook = BookFactory::new()->create();
+
+        static::assertSame(0, $books[0]->getPosition());
+        static::assertSame(1, $books[1]->getPosition());
+        static::assertSame(0, $anotherBook->getPosition());
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_shift_positions_of_other_groups_on_update(): void
     {
         $category = CategoryFactory::new()->create();
 
@@ -35,27 +53,21 @@ class GroupTest extends TestCase
     /**
      * @test
      */
-    public function it_does_not_update_position_values_that_are_out_of_scope_on_delete(): void
+    public function it_does_not_shift_positions_of_other_groups_on_delete(): void
     {
         $category = CategoryFactory::new()->create();
 
-        $book0 = BookFactory::new()
-            ->position(0)
+        $books = BookFactory::new()
             ->forCategory($category)
-            ->create();
-
-        $book1 = BookFactory::new()
-            ->forCategory($category)
-            ->position(1)
-            ->create();
+            ->createMany(2);
 
         $anotherBook = BookFactory::new()
             ->position(2)
             ->create();
 
-        $book0->delete();
+        $books[0]->delete();
 
-        static::assertSame(0, $book1->fresh()->getPosition());
+        static::assertSame(0, $books[1]->fresh()->getPosition());
         static::assertSame(2, $anotherBook->fresh()->getPosition());
     }
 
