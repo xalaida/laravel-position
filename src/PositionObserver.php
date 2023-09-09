@@ -125,7 +125,7 @@ class PositionObserver
         // @todo ensure not terminal...
         if ($groupAttributes && $model->wasChanged($groupAttributes)) {
             $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
-        } else if ($model->isMoving()) {
+        } else if ($model->wasChanged($model->getPositionColumn())) {
             [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
 
             if ($newPosition < $oldPosition) {
