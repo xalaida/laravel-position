@@ -81,7 +81,7 @@ public function getStartPosition(): int
 }
 ```
 
-By doing this, the first record will be assigned a position value of `1`.
+In this example, the first record will be assigned a position value of `1`.
 
 #### Ordering
 
