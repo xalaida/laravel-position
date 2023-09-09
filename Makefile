@@ -1,39 +1,42 @@
-# Install the app
+# Install app
 install: build composer.install
 
-# Start docker containers
+# Start Docker containers
 up:
 	docker compose up -d
 
-# Stop docker containers
+# Stop Docker containers
 down:
 	docker compose down --remove-orphans
 
-# Build docker containers
+# Build Docker containers
 build:
 	docker compose build
 
-# Install composer dependencies
+# Install Composer dependencies
 composer.install:
 	docker compose run --rm composer install
 
-# Update composer dependencies
+# Update Composer dependencies
 composer.update:
 	docker compose run --rm composer update
 
-# Downgrade composer dependencies to lowest versions
+# Downgrade Composer dependencies to lowest versions
 composer.lowest:
 	docker compose run --rm composer update --prefer-lowest --prefer-stable
 
-# Uninstall composer dependencies
+# Uninstall Composer dependencies
 composer.uninstall:
 	sudo rm -rf vendor
 	sudo rm composer.lock
+
+# Clear cache
+cache.clear:
 	sudo rm -rf .cache
 
 # Run PHPUnit
 phpunit:
-	docker compose run --rm phpunit --stop-on-failure
+	docker compose run --rm phpunit
 
 # Alias to run PHPUnit
 test: phpunit
@@ -54,15 +57,15 @@ phpunit.coverage.clover:
 coverage: phpunit.coverage.text
 
 # Fix the code style
-php.cs.fix:
+php-cs-fixer:
 	docker compose run --rm php-cs-fixer fix
 
 # Check the code style
-php.cs.check:
+php-cs-fixer.dry:
 	docker compose run --rm php-cs-fixer fix --dry-run
 
 # Alias to fix the code style
-style: php.cs.fix
+style: php-cs-fixer
 
 # Remove installation files
-uninstall: down composer.uninstall
+uninstall: down composer.uninstall cache.clear
