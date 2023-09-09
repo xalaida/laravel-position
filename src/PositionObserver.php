@@ -14,11 +14,13 @@ class PositionObserver
     public function saving(Model $model): void
     {
         $this->assignPosition($model);
-        $this->markAsTerminal($model);
+        $this->handleTerminalPosition($model);
         $this->normalizePosition($model);
     }
 
     /**
+     * Assign a position to the model.
+     *
      * @param Model|HasPosition $model
      */
     protected function assignPosition(Model $model): void
@@ -29,7 +31,7 @@ class PositionObserver
     }
 
     /**
-     * Determine whether the position should be set for the model.
+     * Determine if a position should be set for the model.
      *
      * @param Model|HasPosition $model
      */
@@ -61,9 +63,11 @@ class PositionObserver
     }
 
     /**
-     * Mark the model as terminal if it will be positioned at the end of the sequence.
+     * Mark the model as terminal if it is positioned at the end of the sequence.
+     *
+     * @param Model|HasPosition $model
      */
-    protected function markAsTerminal($model): void
+    protected function handleTerminalPosition(Model $model): void
     {
         if ($model->getPosition() === ($model->getStartPosition() - 1)) {
             $model->terminal = true;
