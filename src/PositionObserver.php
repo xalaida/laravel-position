@@ -7,6 +7,41 @@ use Illuminate\Database\Eloquent\Model;
 class PositionObserver
 {
     /**
+     * The list of models classes that should lock positions.
+     *
+     * @var array
+     */
+    protected static $lockedFor = [];
+
+    /**
+     * Enable the position locker for the given model.
+     */
+    public static function lockFor(string $model): void
+    {
+        static::$lockedFor[$model] = true;
+    }
+
+    /**
+     * Disable the position locker for the given model.
+     */
+    public static function unlockFor(string $model): void
+    {
+        unset(static::$lockedFor[$model]);
+    }
+
+    /**
+     * Determine whether the position is locked for the given model.
+     *
+     * @param Model|string $model
+     */
+    protected function isLockedFor($model): bool
+    {
+        $model = is_object($model) ? get_class($model) : $model;
+
+        return isset(static::$lockedFor[$model]);
+    }
+
+    /**
      * Handle the "saving" event for the model.
      *
      * @param Model|HasPosition $model

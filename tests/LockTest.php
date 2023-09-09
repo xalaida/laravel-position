@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Position\Tests;
 
+use Nevadskiy\Position\PositionObserver;
 use Nevadskiy\Position\Tests\App\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\App\Models\Category;
 
@@ -10,10 +11,24 @@ class LockTest extends TestCase
     /**
      * @test
      */
+    public function it_can_lock_positions(): void
+    {
+        $categories = CategoryFactory::new()->createMany(3);
+
+        PositionObserver::lockFor(function () use ($categories) {
+            $categories[0]->move(2);
+        });
+
+        static::assertSame(2, $categories[0]->fresh()->getPosition());
+        static::assertSame(1, $categories[1]->fresh()->getPosition());
+        static::assertSame(2, $categories[2]->fresh()->getPosition());
+    }
+
+    /**
+     * @test
+     */
     public function it_locks_position_for_created_models(): void
     {
-        Category::lockPositions(0);
-
         Category::query()->getConnection()->enableQueryLog();
 
         $categories = CategoryFactory::new()->createMany(3);
