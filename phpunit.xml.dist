@@ -9,7 +9,7 @@
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
     processIsolation="false"
-    stopOnFailure="false"
+    stopOnFailure="true"
     cacheResultFile=".cache/.phpunit.result.cache"
 >
     <testsuites>

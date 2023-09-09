@@ -13,72 +13,57 @@ class PositionObserver
      */
     public function saving(Model $model): void
     {
-        $this->assignPositionIfMissing($model);
-
-        $position = $model->getPosition();
-
-        if ($position < $model->getStartPosition()) {
-            $model->setPosition(max($this->count($model) + $position, $model->getStartPosition()));
-        }
-
-        if ($this->isSavingAsLatest($model, $position)) {
-            // Prevent shifting the position of other models, avoiding the need for extra database query.
-            $model->syncOriginalAttributes($model->getPositionColumn());
-        }
+        $this->assignPosition($model);
+        $this->markAsTerminalPosition($model);
+        $this->normalizePosition($model);
     }
 
     /**
-     * Handle the "created" event for the model.
+     * Assign a position to the model.
      *
      * @param Model|HasPosition $model
      */
-    public function created(Model $model): void
+    protected function assignPosition(Model $model): void
     {
-        if ($model->isMoving() && $model::shouldShiftPosition()) {
-            $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($model->getPosition());
-        }
-    }
-
-    /**
-     * Handle the "updated" event for the model.
-     *
-     * @param Model|HasPosition $model
-     */
-    public function updated(Model $model): void
-    {
-        if ($model->isMoving() && $model::shouldShiftPosition()) {
-            [$newPosition, $oldPosition] = [$model->getPosition(), $model->getOriginal($model->getPositionColumn())];
-
-            if ($newPosition < $oldPosition) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToEnd($newPosition, $oldPosition);
-            } elseif ($newPosition > $oldPosition) {
-                $model->newPositionQuery()->whereKeyNot($model->getKey())->shiftToStart($oldPosition, $newPosition);
-            }
-        }
-    }
-
-    /**
-     * Handle the "deleted" event for the model.
-     *
-     * @param Model|HasPosition $model
-     */
-    public function deleted(Model $model): void
-    {
-        if ($model::shouldShiftPosition()) {
-            $model->newPositionQuery()->shiftToStart($model->getPosition());
-        }
-    }
-
-    /**
-     * Assign the position value to the model if it is missing.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function assignPositionIfMissing(Model $model): void
-    {
-        if (is_null($model->getAttribute($model->getPositionColumn()))) {
+        if ($this->shouldSetPosition($model)) {
             $model->setPosition($this->getNextPosition($model));
         }
+    }
+
+    /**
+     * Determine if a position should be set for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function shouldSetPosition(Model $model): bool
+    {
+        $positionColumn = $model->getPositionColumn();
+
+        if ($model->isDirty($positionColumn)) {
+            return false;
+        }
+
+        if ($model->getAttribute($positionColumn) === null) {
+            return true;
+        }
+
+        return $this->isGroupChanging($model);
+    }
+
+    /**
+     * Determine if the position group is changing for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function isGroupChanging(Model $model): bool
+    {
+        $groupPositionColumns = $model->groupPositionBy();
+
+        if (! $groupPositionColumns) {
+            return false;
+        }
+
+        return $model->isDirty($groupPositionColumns);
     }
 
     /**
@@ -96,26 +81,164 @@ class PositionObserver
     }
 
     /**
-     * Determine if the model is being saved at the end of the sequence.
+     * Mark the model as terminal if it is positioned at the end of the sequence.
      *
      * @param Model|HasPosition $model
      */
-    protected function isSavingAsLatest(Model $model, int $position): bool
+    protected function markAsTerminalPosition(Model $model): void
     {
-        if ($model->exists) {
-            return false;
-        }
-
-        return $position === ($model->getStartPosition() - 1);
+        $model->terminal = $model->getPosition() === ($model->getStartPosition() - 1);
     }
 
     /**
-     * Get the models count in the sequence.
+     * Normalize the position value for the model.
      *
      * @param Model|HasPosition $model
      */
-    protected function count(Model $model): int
+    protected function normalizePosition(Model $model): void
     {
-        return $model->newPositionQuery()->count() + ($model->exists ? 0 : 1);
+        if ($model->getPosition() >= $model->getStartPosition()) {
+            return;
+        }
+
+        $position = $model->getPosition() + $model->newPositionQuery()->count();
+
+        if (! $model->exists || $this->isGroupChanging($model)) {
+            $position++;
+        }
+
+        $model->setPosition($position);
+    }
+
+    /**
+     * Handle the "created" event for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    public function created(Model $model): void
+    {
+        if (! $model::shouldShiftPosition()) {
+            return;
+        }
+
+        $this->handleAddToGroup($model);
+    }
+
+    /**
+     * Handle the model adding to the position group.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function handleAddToGroup(Model $model): void
+    {
+        if (! $model->terminal) {
+            $model->newPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToEnd($model->getPosition());
+        }
+    }
+
+    /**
+     * Handle the "updated" event for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    public function updated(Model $model): void
+    {
+        if (! $model::shouldShiftPosition()) {
+            return;
+        }
+
+        if ($this->wasGroupChanged($model)) {
+            $this->handleGroupChange($model);
+        } elseif ($this->wasPositionChanged($model)) {
+            $this->handlePositionChange($model);
+        }
+    }
+
+    /**
+     * Determine if the position group was changed for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function wasGroupChanged(Model $model): bool
+    {
+        $groupPositionColumns = $model->groupPositionBy();
+
+        if (! $groupPositionColumns) {
+            return false;
+        }
+
+        return $model->wasChanged($groupPositionColumns);
+    }
+
+    /**
+     * Determine if the position was changed for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function wasPositionChanged(Model $model): bool
+    {
+        return $model->wasChanged($model->getPositionColumn());
+    }
+
+    /**
+     * Handle the position group change for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function handleGroupChange(Model $model): void
+    {
+        $this->handleRemoveFromGroup($model);
+        $this->handleAddToGroup($model);
+    }
+
+    /**
+     * Handle the position change for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function handlePositionChange(Model $model): void
+    {
+        $positionColumn = $model->getPositionColumn();
+        $currentPosition = $model->getAttribute($positionColumn);
+        $originalPosition = $model->getOriginal($positionColumn);
+
+        if ($currentPosition < $originalPosition) {
+            $model->newPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToEnd($currentPosition, $originalPosition);
+        } elseif ($currentPosition > $originalPosition) {
+            $model->newPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToStart($originalPosition, $currentPosition);
+        }
+    }
+
+    /**
+     * Handle the "deleted" event for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    public function deleted(Model $model): void
+    {
+        if (! $model::shouldShiftPosition()) {
+            return;
+        }
+
+        $this->handleRemoveFromGroup($model);
+    }
+
+    /**
+     * Handle the model removing for the position group.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function handleRemoveFromGroup(Model $model): void
+    {
+        $model->newOriginalPositionQuery()
+            ->shiftToStart(
+                $model->getOriginal($model->getPositionColumn())
+            );
     }
 }

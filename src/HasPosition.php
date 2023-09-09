@@ -20,6 +20,13 @@ trait HasPosition
     protected static $shiftPosition = true;
 
     /**
+     * Indicates if the model was positioned at the end of the sequence during the current request lifecycle.
+     *
+     * @var bool
+     */
+    public $terminal = false;
+
+    /**
      * Boot the trait.
      */
     public static function bootHasPosition(): void
@@ -118,14 +125,6 @@ trait HasPosition
     }
 
     /**
-     * Determine if the model is currently moving to a new position.
-     */
-    public function isMoving(): bool
-    {
-        return $this->isDirty($this->getPositionColumn());
-    }
-
-    /**
      * Swap the model position with another model.
      */
     public function swap(self $that): void
@@ -143,11 +142,39 @@ trait HasPosition
     }
 
     /**
+     * Get attributes for grouping positions.
+     */
+    public function groupPositionBy(): array
+    {
+        return [];
+    }
+
+    /**
      * Get a new position query.
      */
     public function newPositionQuery(): Builder
     {
-        return $this->newQuery();
+        $query = $this->newQuery();
+
+        foreach ($this->groupPositionBy() as $attribute) {
+            $query->where([$attribute => $this->getAttribute($attribute)]);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Get a new original position query.
+     */
+    public function newOriginalPositionQuery(): Builder
+    {
+        $query = $this->newQuery();
+
+        foreach ($this->groupPositionBy() as $attribute) {
+            $query->where([$attribute => $this->getOriginal($attribute)]);
+        }
+
+        return $query;
     }
 
     /**

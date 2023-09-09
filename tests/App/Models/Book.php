@@ -3,16 +3,17 @@
 namespace Nevadskiy\Position\Tests\App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Nevadskiy\Position\HasPosition;
 
 /**
  * @property int id
- * @property int position
  * @property int category_id
+ * @property int position
  * @property Carbon created_at
  * @property Carbon updated_at
+ * @property-read Category category
  */
 class Book extends Model
 {
@@ -20,8 +21,15 @@ class Book extends Model
 
     protected $table = 'books';
 
-    public function newPositionQuery(): Builder
+    public function category(): BelongsTo
     {
-        return $this->newQuery()->where('category_id', $this->category_id);
+        return $this->belongsTo(Category::class);
+    }
+
+    public function groupPositionBy(): array
+    {
+        return [
+            'category_id',
+        ];
     }
 }

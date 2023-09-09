@@ -134,42 +134,20 @@ class CreateTest extends TestCase
      */
     public function it_can_create_model_at_pre_last_position(): void
     {
-        $category1 = CategoryFactory::new()
-            ->position(0)
-            ->create();
+        $categories = CategoryFactory::new()->createMany(3);
 
-        $category2 = CategoryFactory::new()
-            ->position(1)
-            ->create();
-
-        $category3 = CategoryFactory::new()
-            ->position(2)
-            ->create();
+        static::assertSame(0, $categories[0]->position);
+        static::assertSame(1, $categories[1]->position);
+        static::assertSame(2, $categories[2]->position);
 
         $category = CategoryFactory::new()
             ->position(-2)
             ->create();
 
-        static::assertSame(0, $category1->fresh()->position);
-        static::assertSame(1, $category2->fresh()->position);
-        static::assertSame(3, $category3->fresh()->position);
+        static::assertSame(0, $categories[0]->fresh()->position);
+        static::assertSame(1, $categories[1]->fresh()->position);
+        static::assertSame(3, $categories[2]->fresh()->position);
         static::assertSame(2, $category->fresh()->position);
-    }
-
-    /**
-     * @test
-     */
-    public function it_can_create_models_using_at_pre_last_position(): void
-    {
-        $categories = CategoryFactory::new()
-            ->using(PreLastStartCategory::class)
-            ->createMany(5);
-
-        static::assertSame(4, $categories[0]->fresh()->position);
-        static::assertSame(0, $categories[1]->fresh()->position);
-        static::assertSame(1, $categories[2]->fresh()->position);
-        static::assertSame(2, $categories[3]->fresh()->position);
-        static::assertSame(3, $categories[4]->fresh()->position);
     }
 
     /**
@@ -218,14 +196,6 @@ class CustomStartReserveCategory extends Category
     public function getNextPosition(): int
     {
         return $this->getStartPosition();
-    }
-}
-
-class PreLastStartCategory extends Category
-{
-    public function getNextPosition(): int
-    {
-        return -2;
     }
 }
 
