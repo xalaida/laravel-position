@@ -17,27 +17,28 @@ class PositionObserver
             $model->setPosition($this->getNextPosition($model));
         }
 
-        $position = $model->getPosition();
+        $this->markAsTerminal($model);
 
-        if ($position < $model->getStartPosition()) {
-            $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
+        // @todo normalize using mutator...
+        $this->normalizePosition($model);
+    }
 
-            $position += $count;
-
-            $groupAttributes = $model->groupPositionBy();
-
-            if (! $model->exists || ($groupAttributes && $model->isDirty($groupAttributes))) {
-                $position++;
-            }
-
-            if ($position === $count) {
-                $model->terminal = true;
-            }
-
-            $position = max($position, $model->getStartPosition());
-
-            $model->setPosition($position);
+    /**
+     * Determine whether the position should be set for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function shouldSetPosition(Model $model): bool
+    {
+        if ($model->isDirty($model->getPositionColumn())) {
+            return false;
         }
+
+        if ($model->getAttribute($model->getPositionColumn()) === null) {
+            return true;
+        }
+
+        return $this->isChangingPositionGroup($model);
     }
 
     /**
@@ -52,6 +53,26 @@ class PositionObserver
         }
 
         return $model->getNextPosition();
+    }
+
+    /**
+     * @param Model|HasPosition $model
+     */
+    protected function normalizePosition(Model $model): void
+    {
+        if ($model->getPosition() < $model->getStartPosition()) {
+            $position = $model->getPosition();
+
+            $position += $model->newPositionQuery()->count();
+
+            if (! $model->exists || $this->isChangingPositionGroup($model)) {
+                $position++;
+            }
+
+            $position = max($position, $model->getStartPosition());
+
+            $model->setPosition($position);
+        }
     }
 
     /**
@@ -83,9 +104,7 @@ class PositionObserver
             return;
         }
 
-        $groupAttributes = $model->groupPositionBy();
-
-        if ($groupAttributes && $model->wasChanged($groupAttributes)) {
+        if ($this->wasChangedPositionGroup($model)) {
             $model->newOriginalPositionQuery()
                 ->whereKeyNot($model->getKey())
                 ->shiftToStart($model->getOriginal($model->getPositionColumn()));
@@ -124,22 +143,28 @@ class PositionObserver
     }
 
     /**
-     * Determine whether the position should be set for the model.
-     *
      * @param Model|HasPosition $model
      */
-    protected function shouldSetPosition(Model $model): bool
+    protected function isChangingPositionGroup(Model $model): bool
     {
-        if ($model->getAttribute($model->getPositionColumn()) === null) {
-            return true;
+        return $model->groupPositionBy() && $model->isDirty($model->groupPositionBy());
+    }
+
+    /**
+     * @param Model|HasPosition $model
+     */
+    protected function wasChangedPositionGroup(Model $model): bool
+    {
+        return $model->groupPositionBy() && $model->wasChanged($model->groupPositionBy());
+    }
+
+    /**
+     * Mark the model as terminal if it will be positioned at the end of the sequence.
+     */
+    protected function markAsTerminal($model): void
+    {
+        if ($model->getPosition() === ($model->getStartPosition() - 1)) {
+            $model->terminal = true;
         }
-
-        if ($model->isDirty($model->getPositionColumn())) {
-            return false;
-        }
-
-        $groupAttributes = $model->groupPositionBy();
-
-        return $groupAttributes && $model->isDirty($groupAttributes);
     }
 }
