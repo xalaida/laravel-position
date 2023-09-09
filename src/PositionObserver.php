@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class PositionObserver
 {
     /**
-     * Handle the "creating" event for the model.
+     * Handle the "saving" event for the model.
      *
      * @param Model|HasPosition $model
      */
-    public function creating(Model $model): void
+    public function saving(Model $model): void
     {
-        if ($model->getAttribute($model->getPositionColumn()) === null) {
+        $groupAttributes = $model->groupPositionBy();
+
+        if (($groupAttributes && $model->isDirty($groupAttributes) && ! $model->isDirty($model->getPositionColumn())) || ($model->getAttribute($model->getPositionColumn()) === null)) {
             $model->setPosition($this->getNextPosition($model));
         }
 
@@ -25,38 +27,6 @@ class PositionObserver
             $position += $count;
 
             $groupAttributes = $model->groupPositionBy();
-
-            if (! $model->exists || ($groupAttributes && $model->isDirty($groupAttributes))) {
-                $position++;
-            }
-
-            $model->terminal = $position === $count;
-
-            $position = max($position, $model->getStartPosition());
-
-            $model->setPosition($position);
-        }
-    }
-
-    /**
-     * Handle the "updating" event for the model.
-     *
-     * @param Model|HasPosition $model
-     */
-    public function updating(Model $model): void
-    {
-        $groupAttributes = $model->groupPositionBy();
-
-        if ($groupAttributes && $model->isDirty($groupAttributes) && ! $model->isDirty($model->getPositionColumn())) {
-            $model->setPosition($this->getNextPosition($model));
-        }
-
-        $position = $model->getPosition();
-
-        if ($position < $model->getStartPosition()) {
-            $count = $model->newPositionQuery()->count(); // @todo probably use max() instead of count.
-
-            $position += $count;
 
             if (! $model->exists || ($groupAttributes && $model->isDirty($groupAttributes))) {
                 $position++;
