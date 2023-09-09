@@ -37,15 +37,17 @@ class PositionObserver
      */
     protected function shouldSetPosition(Model $model): bool
     {
-        if ($model->isDirty($model->getPositionColumn())) {
+        $positionColumn = $model->getPositionColumn();
+
+        if ($model->isDirty($positionColumn)) {
             return false;
         }
 
-        if ($model->getAttribute($model->getPositionColumn()) === null) {
+        if ($model->getAttribute($positionColumn) === null) {
             return true;
         }
 
-        return $this->isChangingPositionGroup($model);
+        return $this->isPositionGroupChanging($model);
     }
 
     /**
@@ -83,7 +85,7 @@ class PositionObserver
 
         $position = $model->getPosition() + $model->newPositionQuery()->count();
 
-        if (! $model->exists || $this->isChangingPositionGroup($model)) {
+        if (! $model->exists || $this->isPositionGroupChanging($model)) {
             $position++;
         }
 
@@ -119,31 +121,72 @@ class PositionObserver
             return;
         }
 
+        if ($this->wasPositionGroupChanged($model)) {
+            $this->handlePositionGroupChange($model);
+        } else if ($this->wasPositionChanged($model)) {
+            $this->handlePositionChange($model);
+        }
+    }
+
+    /**
+     * Determine if the position group was changed for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function wasPositionGroupChanged(Model $model): bool
+    {
+        return $model->groupPositionBy() && $model->wasChanged($model->groupPositionBy());
+    }
+
+    /**
+     * Determine if the position was changed for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function wasPositionChanged($model): bool
+    {
+        return $model->wasChanged($model->getPositionColumn());
+    }
+
+    /**
+     * Handle the position group change for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function handlePositionGroupChange(Model $model): void
+    {
         $positionColumn = $model->getPositionColumn();
 
-        if ($this->wasChangedPositionGroup($model)) {
-            $model->newOriginalPositionQuery()
+        $model->newOriginalPositionQuery()
+            ->whereKeyNot($model->getKey())
+            ->shiftToStart($model->getOriginal($positionColumn));
+
+        if (! $model->terminal) {
+            $model->newPositionQuery()
                 ->whereKeyNot($model->getKey())
-                ->shiftToStart($model->getOriginal($positionColumn));
+                ->shiftToEnd($model->getAttribute($positionColumn));
+        }
+    }
 
-            if (! $model->terminal) {
-                $model->newPositionQuery()
-                    ->whereKeyNot($model->getKey())
-                    ->shiftToEnd($model->getAttribute($positionColumn));
-            }
-        } else if ($model->wasChanged($positionColumn)) {
-            $currentPosition = $model->getAttribute($positionColumn);
-            $originalPosition = $model->getOriginal($positionColumn);
+    /**
+     * Handle the position change for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function handlePositionChange(Model $model): void
+    {
+        $positionColumn = $model->getPositionColumn();
+        $currentPosition = $model->getAttribute($positionColumn);
+        $originalPosition = $model->getOriginal($positionColumn);
 
-            if ($currentPosition < $originalPosition) {
-                $model->newPositionQuery()
-                    ->whereKeyNot($model->getKey())
-                    ->shiftToEnd($currentPosition, $originalPosition);
-            } else if ($currentPosition > $originalPosition) {
-                $model->newPositionQuery()
-                    ->whereKeyNot($model->getKey())
-                    ->shiftToStart($originalPosition, $currentPosition);
-            }
+        if ($currentPosition < $originalPosition) {
+            $model->newPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToEnd($currentPosition, $originalPosition);
+        } else if ($currentPosition > $originalPosition) {
+            $model->newPositionQuery()
+                ->whereKeyNot($model->getKey())
+                ->shiftToStart($originalPosition, $currentPosition);
         }
     }
 
@@ -162,18 +205,18 @@ class PositionObserver
     }
 
     /**
+     * Determine if the position group is changing for the model.
+     *
      * @param Model|HasPosition $model
      */
-    protected function isChangingPositionGroup(Model $model): bool
+    protected function isPositionGroupChanging(Model $model): bool
     {
-        return $model->groupPositionBy() && $model->isDirty($model->groupPositionBy());
-    }
+        $groupPositionColumns = $model->groupPositionBy();
 
-    /**
-     * @param Model|HasPosition $model
-     */
-    protected function wasChangedPositionGroup(Model $model): bool
-    {
-        return $model->groupPositionBy() && $model->wasChanged($model->groupPositionBy());
+        if (! $groupPositionColumns) {
+            return false;
+        }
+
+        return $model->isDirty($groupPositionColumns);
     }
 }
