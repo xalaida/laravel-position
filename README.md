@@ -204,8 +204,7 @@ public function groupPositionBy(): array
 
 ### Position lock
 
-By default, when the position or group of a model is changed, the `PositionObserver` syncs positions of other models in the sequence accordingly using extra database queries.
-If you want to disable this for some reason, you can disable the `PositionObserver` for a specific model like so:
+By default, when you change the position or group of a model, the `PositionObserver` automatically updates the positions of other models in the sequence by performing additional database queries. If you need to disable this behavior for any reason, you can do it like so:
 
 ```php
 use Nevadskiy\Position\PositionObserver;
