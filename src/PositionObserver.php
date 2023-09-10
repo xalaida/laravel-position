@@ -7,6 +7,83 @@ use Illuminate\Database\Eloquent\Model;
 class PositionObserver
 {
     /**
+     * The list of models classes that should lock position.
+     *
+     * @var array
+     */
+    protected static $lockFor = [];
+
+    /**
+     * The list of models classes that should force position.
+     *
+     * @var array
+     */
+    protected static $forceFor = [];
+
+    /**
+     * Enable the position lock for the given model.
+     */
+    public static function lockFor(string $model): void
+    {
+        static::$lockFor[$model] = true;
+    }
+
+    /**
+     * Disable the position lock for the given model.
+     */
+    public static function unlockFor(string $model): void
+    {
+        unset(static::$lockFor[$model]);
+    }
+
+    /**
+     * Determine whether the position is locked for the given model.
+     *
+     * @param Model|string $model
+     */
+    public static function isLockedFor($model): bool
+    {
+        $model = is_object($model) ? get_class($model) : $model;
+
+        return isset(static::$lockFor[$model]);
+    }
+
+    /**
+     * Force the position for the given model.
+     */
+    public static function forceFor(string $model, ?int $position): void
+    {
+        static::$forceFor[$model] = $position;
+    }
+
+    /**
+     * Execute the callback with the position lock.
+     *
+     * @template TValue
+     * @param Model|string $model
+     * @param callable(): TValue $callback
+     * @return TValue
+     */
+    public static function withLockFor($model, callable $callback)
+    {
+        $model = is_object($model) ? get_class($model) : $model;
+
+        $isLocked = static::isLockedFor($model);
+
+        if (! $isLocked) {
+            static::lockFor($model);
+        }
+
+        $result = $callback();
+
+        if (! $isLocked) {
+            static::unlockFor($model);
+        }
+
+        return $result;
+    }
+
+    /**
      * Handle the "saving" event for the model.
      *
      * @param Model|HasPosition $model
@@ -14,7 +91,9 @@ class PositionObserver
     public function saving(Model $model): void
     {
         $this->assignPosition($model);
+
         $this->markAsTerminalPosition($model);
+
         $this->normalizePosition($model);
     }
 
@@ -51,6 +130,16 @@ class PositionObserver
     }
 
     /**
+     * Get the next position for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function getNextPosition(Model $model): int
+    {
+        return static::$forceFor[get_class($model)] ?? $model->getNextPosition();
+    }
+
+    /**
      * Determine if the position group is changing for the model.
      *
      * @param Model|HasPosition $model
@@ -64,20 +153,6 @@ class PositionObserver
         }
 
         return $model->isDirty($groupPositionColumns);
-    }
-
-    /**
-     * Get the next position for the model.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function getNextPosition(Model $model): int
-    {
-        if ($model::positionLocker()) {
-            return $model::positionLocker()($model);
-        }
-
-        return $model->getNextPosition();
     }
 
     /**
@@ -117,7 +192,7 @@ class PositionObserver
      */
     public function created(Model $model): void
     {
-        if (! $model::shouldShiftPosition()) {
+        if (static::isLockedFor($model)) {
             return;
         }
 
@@ -145,7 +220,7 @@ class PositionObserver
      */
     public function updated(Model $model): void
     {
-        if (! $model::shouldShiftPosition()) {
+        if (static::isLockedFor($model)) {
             return;
         }
 
@@ -222,7 +297,7 @@ class PositionObserver
      */
     public function deleted(Model $model): void
     {
-        if (! $model::shouldShiftPosition()) {
+        if (static::isLockedFor($model)) {
             return;
         }
 

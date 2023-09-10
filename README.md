@@ -177,18 +177,6 @@ The `swap` method swaps the position of two models. For example:
 $category->swap($anotherCategory);
 ```
 
-#### Without shifting
-
-By default, the positions of other models are automatically shifted when the model position is updated.
-
-If you want to change the model position without shifting the position of other models, you can use the `withoutShiftingPosition` method. For example:
-
-```php
-Category::withoutShiftingPosition(function () {
-    $category->move(5);
-})
-```
-
 #### Arrange models
 
 It is also possible to arrange models by their IDs.
@@ -214,49 +202,19 @@ public function groupPositionBy(): array
 }
 ```
 
-### Locking positions
+### Position lock
 
-By default, when a model is created at the end of the sequence, an extra database query is executed to calculate the latest position in the sequence. 
-Similarly, when a model is created at the beginning or any other position but the latest, additional database queries are needed to shift the positions of other models accordingly. 
-In some cases, you may want to insert models without these additional queries associated with calculating and shifting positions.
-For such scenarios, you can use the `lockPositions` method, which disables all post-insert database queries and assigns positions to models using a specified locker. 
-This can be particularly useful to speed up your tests.
-
-By default, the positions are locked to the value returned by the `getStartPosition` method in your model:
+By default, when you change the position or group of a model, the `PositionObserver` automatically updates the positions of other models in the sequence by performing additional database queries. If you need to disable this behavior for any reason, you can do it like so:
 
 ```php
-Categogy::lockPositions();
+use Nevadskiy\Position\PositionObserver;
 
-$category = Category::create();
-echo $category->position; // 0
+PositionObserver::lockFor(Category::class);
 
-$category = Category::create();
-echo $category->position; // 0
+$category->update(['position' => 1]);
 
-$category = Category::create();
-echo $category->position; // 0
+PositionObserver::unlockFor(Category::class);
 ```
-
-Alternatively, you can provide a callback function as the locker. For example:
-
-```php
-Category::lockPositions(static function () {
-    static $count = 0;
-
-    return $count++;
-});
-
-$category = Category::create();
-echo $category->position; // 0
-
-$category = Category::create();
-echo $category->position; // 1
-
-$category = Category::create();
-echo $category->position; // 2
-```
-
-In this example, the callback function is used to increment the position for each new model created, starting from `0`.
 
 ## 📑 Changelog
 
@@ -273,3 +231,7 @@ If you discover any security related issues, please [e-mail me](mailto:nevadskiy
 ## 📜 License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE.md) for more information.
+
+## 🛠️ Todo List
+
+- [ ] support `swap` for models from different groups
