@@ -10,7 +10,7 @@ class ArrangeTest extends TestCase
     /**
      * @test
      */
-    public function it_can_arrange_models_by_keys(): void
+    public function it_arranges_models_by_keys(): void
     {
         $categories = CategoryFactory::new()->createMany(5);
 
@@ -32,7 +32,7 @@ class ArrangeTest extends TestCase
     /**
      * @test
      */
-    public function it_can_arrange_models_with_start_positions_by_keys(): void
+    public function it_arranges_models_with_start_positions_by_keys(): void
     {
         $startPosition = 5;
 

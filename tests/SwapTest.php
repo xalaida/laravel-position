@@ -37,7 +37,7 @@ class SwapTest extends TestCase
     /**
      * @test
      */
-    public function it_does_not_break_another_positions(): void
+    public function it_does_not_shifts_position_of_other_models(): void
     {
         $categories = CategoryFactory::new()->createMany(3);
 

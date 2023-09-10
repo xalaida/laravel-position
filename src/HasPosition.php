@@ -10,15 +10,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait HasPosition
 {
-    use PositionLocker;
-
-    /**
-     * Indicates if the model should shift position of other models in the sequence.
-     *
-     * @var bool
-     */
-    protected static $shiftPosition = true;
-
     /**
      * Indicates if the model was positioned at the end of the sequence during the current request lifecycle.
      *
@@ -113,15 +104,17 @@ trait HasPosition
     /**
      * Move the model to the new position.
      */
-    public function move(int $newPosition): bool
+    public function move(int $position): bool
     {
-        $oldPosition = $this->getPosition();
+        $originalPosition = $this->getPosition();
 
-        if ($oldPosition === $newPosition) {
+        if ($originalPosition === $position) {
             return false;
         }
 
-        return $this->setPosition($newPosition)->save();
+        $this->setPosition($position);
+
+        return $this->save();
     }
 
     /**
@@ -129,7 +122,7 @@ trait HasPosition
      */
     public function swap(self $that): void
     {
-        static::withoutShiftingPosition(function () use ($that) {
+        static::withPositionLock(function () use ($that) {
             $thisPosition = $this->getPosition();
             $thatPosition = $that->getPosition();
 
@@ -178,26 +171,22 @@ trait HasPosition
     }
 
     /**
-     * Execute a callback without shifting positions of models.
+     * Execute the callback with the position lock.
+     *
+     * @template TValue
+     * @param callable(): TValue $callback
+     * @return TValue
      */
-    public static function withoutShiftingPosition(callable $callback)
+    public static function withPositionLock(callable $callback)
     {
-        $shiftPosition = static::$shiftPosition;
-
-        static::$shiftPosition = false;
-
-        $result = $callback();
-
-        static::$shiftPosition = $shiftPosition;
-
-        return $result;
+        return PositionObserver::withLockFor(static::class, $callback);
     }
 
     /**
-     * Determine if the model should shift positions of other models in the sequence.
+     * Force the next position for the model.
      */
-    public static function shouldShiftPosition(): bool
+    public static function forcePosition(?int $position): void
     {
-        return static::$shiftPosition && is_null(static::$positionLocker);
+        PositionObserver::forceFor(static::class, $position);
     }
 }

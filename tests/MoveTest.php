@@ -55,22 +55,6 @@ class MoveTest extends TestCase
     /**
      * @test
      */
-    public function it_can_update_position_without_moving_others(): void
-    {
-        $categories = CategoryFactory::new()->createMany(3);
-
-        Category::withoutShiftingPosition(function () use ($categories) {
-            $categories[0]->move(2);
-        });
-
-        static::assertSame(2, $categories[0]->fresh()->getPosition());
-        static::assertSame(1, $categories[1]->fresh()->getPosition());
-        static::assertSame(2, $categories[2]->fresh()->getPosition());
-    }
-
-    /**
-     * @test
-     */
     public function it_can_move_to_end_using_negative_position(): void
     {
         $categories = CategoryFactory::new()->createMany(3);
