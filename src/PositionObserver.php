@@ -34,7 +34,7 @@ class PositionObserver
      *
      * @param Model|string $model
      */
-    protected function isLockedFor($model): bool
+    protected static function isLockedFor($model): bool
     {
         $model = is_object($model) ? get_class($model) : $model;
 
@@ -61,7 +61,7 @@ class PositionObserver
     protected function assignPosition(Model $model): void
     {
         if ($this->shouldSetPosition($model)) {
-            $model->setPosition($this->getNextPosition($model));
+            $model->setPosition($model->getNextPosition());
         }
     }
 
@@ -102,20 +102,6 @@ class PositionObserver
     }
 
     /**
-     * Get the next position for the model.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function getNextPosition(Model $model): int
-    {
-        if ($model::positionLocker()) {
-            return $model::positionLocker()($model);
-        }
-
-        return $model->getNextPosition();
-    }
-
-    /**
      * Mark the model as terminal if it is positioned at the end of the sequence.
      *
      * @param Model|HasPosition $model
@@ -152,7 +138,7 @@ class PositionObserver
      */
     public function created(Model $model): void
     {
-        if (! $model::shouldShiftPosition()) {
+        if (static::isLockedFor($model)) {
             return;
         }
 
@@ -180,7 +166,7 @@ class PositionObserver
      */
     public function updated(Model $model): void
     {
-        if (! $model::shouldShiftPosition()) {
+        if (static::isLockedFor($model)) {
             return;
         }
 
@@ -257,7 +243,7 @@ class PositionObserver
      */
     public function deleted(Model $model): void
     {
-        if (! $model::shouldShiftPosition()) {
+        if (static::isLockedFor($model)) {
             return;
         }
 

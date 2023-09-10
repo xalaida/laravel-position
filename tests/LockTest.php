@@ -13,15 +13,18 @@ class LockTest extends TestCase
      */
     public function it_can_lock_positions(): void
     {
-        $categories = CategoryFactory::new()->createMany(3);
+        PositionObserver::lockFor(Category::class);
 
-        PositionObserver::lockFor(function () use ($categories) {
-            $categories[0]->move(2);
-        });
+        Category::query()->getConnection()->enableQueryLog();
 
-        static::assertSame(2, $categories[0]->fresh()->getPosition());
-        static::assertSame(1, $categories[1]->fresh()->getPosition());
-        static::assertSame(2, $categories[2]->fresh()->getPosition());
+        $categories = CategoryFactory::new()
+            ->position(0)
+            ->createMany(3);
+
+        static::assertCount(3, Category::query()->getConnection()->getQueryLog());
+        static::assertSame(0, $categories[0]->fresh()->getPosition());
+        static::assertSame(0, $categories[1]->fresh()->getPosition());
+        static::assertSame(0, $categories[2]->fresh()->getPosition());
     }
 
     /**
