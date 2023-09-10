@@ -91,7 +91,9 @@ class PositionObserver
     public function saving(Model $model): void
     {
         $this->assignPosition($model);
+
         $this->markAsTerminalPosition($model);
+
         $this->normalizePosition($model);
     }
 
