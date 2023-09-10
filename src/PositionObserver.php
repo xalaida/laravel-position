@@ -42,6 +42,33 @@ class PositionObserver
     }
 
     /**
+     * Execute the callback with the position lock.
+     *
+     * @template TValue
+     * @param Model|string $model
+     * @param callable(): TValue $callback
+     * @return TValue
+     */
+    public static function withLockFor($model, callable $callback)
+    {
+        $model = is_object($model) ? get_class($model) : $model;
+
+        $isLocked = static::isLockedFor($model);
+
+        if (! $isLocked) {
+            static::lockFor($model);
+        }
+
+        $result = $callback();
+
+        if (! $isLocked) {
+            static::unlockFor($model);
+        }
+
+        return $result;
+    }
+
+    /**
      * Handle the "saving" event for the model.
      *
      * @param Model|HasPosition $model

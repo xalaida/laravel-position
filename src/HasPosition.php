@@ -179,18 +179,6 @@ trait HasPosition
      */
     public static function withPositionLock(callable $callback)
     {
-        $isLocked = PositionObserver::isLockedFor(static::class);
-
-        if (! $isLocked) {
-            PositionObserver::lockFor(static::class);
-        }
-
-        $result = $callback();
-
-        if (! $isLocked) {
-            PositionObserver::unlockFor(static::class);
-        }
-
-        return $result;
+        return PositionObserver::withLockFor(static::class, $callback);
     }
 }
