@@ -14,7 +14,7 @@ class PositionObserver
     protected static $lockedFor = [];
 
     /**
-     * Enable the position locker for the given model.
+     * Enable the position lock for the given model.
      */
     public static function lockFor(string $model): void
     {
@@ -22,7 +22,7 @@ class PositionObserver
     }
 
     /**
-     * Disable the position locker for the given model.
+     * Disable the position lock for the given model.
      */
     public static function unlockFor(string $model): void
     {
@@ -34,7 +34,7 @@ class PositionObserver
      *
      * @param Model|string $model
      */
-    protected static function isLockedFor($model): bool
+    public static function isLockedFor($model): bool
     {
         $model = is_object($model) ? get_class($model) : $model;
 
