@@ -185,7 +185,7 @@ trait HasPosition
     /**
      * Force the next position for the model.
      */
-    public static function forcePosition(int $position): void
+    public static function forcePosition(?int $position): void
     {
         PositionObserver::forceFor(static::class, $position);
     }

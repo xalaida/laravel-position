@@ -134,7 +134,7 @@ class PositionObserver
      */
     protected function getNextPosition(Model $model): int
     {
-        return static::$forceFor[get_class($model)] ?? $model->getPosition();
+        return static::$forceFor[get_class($model)] ?? $model->getNextPosition();
     }
 
     /**

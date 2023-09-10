@@ -19,5 +19,7 @@ class ForceTest extends TestCase
         static::assertSame(0, $categories[0]->getPosition());
         static::assertSame(0, $categories[1]->getPosition());
         static::assertSame(0, $categories[2]->getPosition());
+
+        Category::forcePosition(null);
     }
 }
