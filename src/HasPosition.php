@@ -181,4 +181,12 @@ trait HasPosition
     {
         return PositionObserver::withLockFor(static::class, $callback);
     }
+
+    /**
+     * Force the next position for the model.
+     */
+    public static function forcePosition(int $position): void
+    {
+        PositionObserver::forceFor(static::class, $position);
+    }
 }

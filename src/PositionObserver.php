@@ -7,18 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 class PositionObserver
 {
     /**
-     * The list of models classes that should lock positions.
+     * The list of models classes that should lock position.
      *
      * @var array
      */
-    protected static $lockedFor = [];
+    protected static $lockFor = [];
+
+    /**
+     * The list of models classes that should force position.
+     *
+     * @var array
+     */
+    protected static $forceFor = [];
 
     /**
      * Enable the position lock for the given model.
      */
     public static function lockFor(string $model): void
     {
-        static::$lockedFor[$model] = true;
+        static::$lockFor[$model] = true;
     }
 
     /**
@@ -26,7 +33,7 @@ class PositionObserver
      */
     public static function unlockFor(string $model): void
     {
-        unset(static::$lockedFor[$model]);
+        unset(static::$lockFor[$model]);
     }
 
     /**
@@ -38,7 +45,15 @@ class PositionObserver
     {
         $model = is_object($model) ? get_class($model) : $model;
 
-        return isset(static::$lockedFor[$model]);
+        return isset(static::$lockFor[$model]);
+    }
+
+    /**
+     * Force the position for the given model.
+     */
+    public static function forceFor(string $model, ?int $position): void
+    {
+        static::$forceFor[$model] = $position;
     }
 
     /**
@@ -88,7 +103,7 @@ class PositionObserver
     protected function assignPosition(Model $model): void
     {
         if ($this->shouldSetPosition($model)) {
-            $model->setPosition($model->getNextPosition());
+            $model->setPosition($this->getNextPosition($model));
         }
     }
 
@@ -110,6 +125,16 @@ class PositionObserver
         }
 
         return $this->isGroupChanging($model);
+    }
+
+    /**
+     * Get the next position for the model.
+     *
+     * @param Model|HasPosition $model
+     */
+    protected function getNextPosition(Model $model): int
+    {
+        return static::$forceFor[get_class($model)] ?? $model->getPosition();
     }
 
     /**
