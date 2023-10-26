@@ -2,6 +2,10 @@
 
 namespace Nevadskiy\Position\Tests;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Nevadskiy\Position\HasPosition;
 use Nevadskiy\Position\Tests\App\Factories\BookFactory;
 use Nevadskiy\Position\Tests\App\Factories\CategoryFactory;
 use Nevadskiy\Position\Tests\App\Models\Category;
@@ -195,5 +199,69 @@ class GroupTest extends TestCase
             ->save();
 
         self::assertCount(3, Category::query()->getConnection()->getQueryLog());
+    }
+
+    /**
+     * @test
+     */
+    public function it_moves_model_at_end_of_sequence_of_another_group(): void
+    {
+        Schema::create('applications', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id');
+            $table->string('status');
+            $table->integer('position')->unsigned();
+            $table->timestamps();
+        });
+
+        $cancelledApplication = Application::create([
+            'user_id' => 1,
+            'status' => 'cancelled',
+            'position' => 0,
+        ]);
+
+        $newApplications = [];
+
+        foreach (range(0, 3) as $position) {
+            $newApplications[] = Application::create([
+                'user_id' => 1,
+                'status' => 'new',
+                'position' => $position,
+            ]);
+        }
+
+        $cancelledApplication->update([
+            'status' => 'new',
+            'position' => 4,
+        ]);
+
+        static::assertSame(4, $cancelledApplication->fresh()->position);
+        static::assertSame('new', $cancelledApplication->fresh()->status);
+
+        static::assertSame(0, $newApplications[0]->fresh()->position);
+        static::assertSame(1, $newApplications[1]->fresh()->position);
+        static::assertSame(2, $newApplications[2]->fresh()->position);
+        static::assertSame(3, $newApplications[3]->fresh()->position);
+
+        Schema::drop('applications');
+    }
+}
+
+class Application extends Model
+{
+    use HasPosition;
+
+    protected $fillable = [
+        'user_id',
+        'status',
+        'position',
+    ];
+
+    public function groupPositionBy(): array
+    {
+        return [
+            'user_id',
+            'status',
+        ];
     }
 }
