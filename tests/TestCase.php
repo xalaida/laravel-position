@@ -2,6 +2,7 @@
 
 namespace Nevadskiy\Position\Tests;
 
+use Illuminate\Database\Eloquent\Model;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
@@ -16,6 +17,8 @@ class TestCase extends OrchestraTestCase
         $this->loadMigrationsFrom(__DIR__ . '/App/Migrations');
 
         $this->artisan('migrate', ['--database' => 'testbench'])->run();
+
+        Model::unguard();
     }
 
     /**

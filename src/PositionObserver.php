@@ -104,29 +104,9 @@ class PositionObserver
      */
     protected function assignPosition(Model $model): void
     {
-        if ($this->shouldSetPosition($model)) {
+        if ($model->getAttribute($model->getPositionColumn()) === null) {
             $model->setPosition($this->getNextPosition($model));
         }
-    }
-
-    /**
-     * Determine if a position should be set for the model.
-     *
-     * @param Model|HasPosition $model
-     */
-    protected function shouldSetPosition(Model $model): bool
-    {
-        $positionColumn = $model->getPositionColumn();
-
-        if ($model->isDirty($positionColumn)) {
-            return false;
-        }
-
-        if ($model->getAttribute($positionColumn) === null) {
-            return true;
-        }
-
-        return $this->isGroupChanging($model);
     }
 
     /**
