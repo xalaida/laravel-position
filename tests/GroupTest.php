@@ -101,35 +101,6 @@ class GroupTest extends TestCase
         $category = CategoryFactory::new()->create();
         $anotherCategory = CategoryFactory::new()->create();
 
-        $books = BookFactory::new()
-            ->forCategory($category)
-            ->createMany(3);
-
-        static::assertSame(0, $books[0]->getPosition());
-        static::assertSame(1, $books[1]->getPosition());
-        static::assertSame(2, $books[2]->getPosition());
-
-        BookFactory::new()
-            ->forCategory($anotherCategory)
-            ->create();
-
-        $books[1]->category()
-            ->associate($anotherCategory)
-            ->save();
-
-        static::assertSame(0, $books[0]->fresh()->getPosition());
-        static::assertSame(1, $books[1]->fresh()->getPosition());
-        static::assertSame(1, $books[2]->fresh()->getPosition());
-    }
-
-    /**
-     * @test
-     */
-    public function it_sets_next_position_correctly_when_group_is_changed(): void
-    {
-        $category = CategoryFactory::new()->create();
-        $anotherCategory = CategoryFactory::new()->create();
-
         $book = BookFactory::new()
             ->forCategory($category)
             ->create();
@@ -138,12 +109,12 @@ class GroupTest extends TestCase
             ->forCategory($anotherCategory)
             ->create();
 
-        $book->category()
-            ->associate($anotherCategory)
-            ->save();
+        $book->update([
+            'category_id' => $anotherCategory->id,
+        ]);
 
-        static::assertSame(0, $anotherBook->fresh()->getPosition());
-        static::assertSame(1, $book->fresh()->getPosition());
+        static::assertSame(0, $book->fresh()->getPosition());
+        static::assertSame(1, $anotherBook->fresh()->getPosition());
     }
 
     /**
@@ -162,10 +133,10 @@ class GroupTest extends TestCase
             ->forCategory($anotherCategory)
             ->createMany(3);
 
-        $books[0]->category()
-            ->associate($anotherCategory)
-            ->setPosition(1)
-            ->save();
+        $books[0]->update([
+            'category_id' => $anotherCategory->id,
+            'position' => 1,
+        ]);
 
         static::assertSame(0, $books[1]->fresh()->position);
         static::assertSame(1, $books[2]->fresh()->position);
@@ -174,6 +145,66 @@ class GroupTest extends TestCase
         static::assertSame(1, $books[0]->fresh()->position);
         static::assertSame(2, $anotherBooks[1]->fresh()->position);
         static::assertSame(3, $anotherBooks[2]->fresh()->position);
+    }
+
+    /**
+     * @test
+     */
+    public function it_moves_model_at_start_of_sequence_of_another_group(): void
+    {
+        $category = CategoryFactory::new()->create();
+        $anotherCategory = CategoryFactory::new()->create();
+
+        $books = BookFactory::new()
+            ->forCategory($category)
+            ->createMany(3);
+
+        $anotherBooks = BookFactory::new()
+            ->forCategory($anotherCategory)
+            ->createMany(3);
+
+        $books[0]->update([
+            'category_id' => $anotherCategory->id,
+            'position' => 0,
+        ]);
+
+        static::assertSame(0, $books[1]->fresh()->position);
+        static::assertSame(1, $books[2]->fresh()->position);
+
+        static::assertSame(0, $books[0]->fresh()->position);
+        static::assertSame(1, $anotherBooks[0]->fresh()->position);
+        static::assertSame(2, $anotherBooks[1]->fresh()->position);
+        static::assertSame(3, $anotherBooks[2]->fresh()->position);
+    }
+
+    /**
+     * @test
+     */
+    public function it_moves_model_at_end_of_sequence_of_another_group(): void
+    {
+        $category = CategoryFactory::new()->create();
+        $anotherCategory = CategoryFactory::new()->create();
+
+        $books = BookFactory::new()
+            ->forCategory($category)
+            ->createMany(3);
+
+        $anotherBooks = BookFactory::new()
+            ->forCategory($anotherCategory)
+            ->createMany(3);
+
+        $books[0]->update([
+            'category_id' => $anotherCategory->id,
+            'position' => -1,
+        ]);
+
+        static::assertSame(0, $books[1]->fresh()->position);
+        static::assertSame(1, $books[2]->fresh()->position);
+
+        static::assertSame(0, $anotherBooks[0]->fresh()->position);
+        static::assertSame(1, $anotherBooks[1]->fresh()->position);
+        static::assertSame(2, $anotherBooks[2]->fresh()->position);
+        static::assertSame(3, $books[0]->fresh()->position);
     }
 
     /**
@@ -190,9 +221,10 @@ class GroupTest extends TestCase
 
         Category::query()->getConnection()->enableQueryLog();
 
-        $book->category()
-            ->associate($anotherCategory)
-            ->save();
+        $book->update([
+            'category_id' => $anotherCategory->id,
+            'position' => -1,
+        ]);
 
         self::assertCount(3, Category::query()->getConnection()->getQueryLog());
     }
